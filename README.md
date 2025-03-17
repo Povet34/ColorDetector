@@ -1,2 +1,2 @@
-# ColorDector
-ColorDector
+# ColorDetector
+ColorDetector
