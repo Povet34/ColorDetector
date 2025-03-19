@@ -38,7 +38,18 @@ ColorDetector
 8.	6와 7항의 값을 바탕으로 Out_R, Out_G, Out_B값을 각각 저장할 수 있는 기능
 
 ---
-### Business logic / UseCase 
+## Business logic / UseCase 
 1. 재생된 동영상 특정 픽셀의 색상과 밝기를 추출
 2. 추출된 픽셀이 색상표의 어떤 색상과 근접한지 판단하기
    
+------
+## 명확히할 사항
+
+### Sequence Group
+1.  Sequence Group이란, 하나 이상의 Channel을 가지고, 특정 방향성으로 재정렬된 채널들의 그룹을 말함.
+2.  Channel은 하나의 Sequence Group에만 종속될 수 있음.
+     - Channel A가 group a에 종속이었다가, group b로 그룹을 묶으려고할 때는 어떻게 처리될 것인가?
+     - 그룹의 생성/삭제, 채널의 생성/삭제의 Input Event는 어떤것이 있을지. (마우스로, 아니면 하이어라키로.)
+     - 
+4.  Sequence Group의 이름을 지정할수 있음.(중요도 하)
+5.  
