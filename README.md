@@ -1,7 +1,7 @@
 # ColorDetector
 ColorDetector
 
-# 03.14 요구사항
+## 요구사항
 ### Data Extract	
 1.	원하는 동영상을 불러오는 기능
 2.	동영상 내 채널 추가 기능
@@ -52,4 +52,12 @@ ColorDetector
      - 그룹의 생성/삭제, 채널의 생성/삭제의 Input Event는 어떤것이 있을지. (마우스로, 아니면 하이어라키로.)
 3.  Sequence Group를 지정하게 되면, 어떤 방향으로 채널들을 정렬할 것인지를 판단해야한다.
 4.  Sequence Group의 이름을 지정할수 있음.(중요도 하)
-   
+
+
+
+-----
+
+### Channel/Group Data와 Hierarchy & VideoViewer UI들의 관계
+
+![SequenceViewSync](https://github.com/user-attachments/assets/0c2e683c-51be-47d6-b03f-619c56265786)
+
