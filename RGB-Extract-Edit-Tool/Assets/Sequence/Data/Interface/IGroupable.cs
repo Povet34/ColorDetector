@@ -32,6 +32,8 @@ public interface IGroupable
         }
     }
 
+
+    public IndividualInfo individualInfo { get; set; }
     /// <summary>
     /// 그룹에 추가해보기
     /// </summary>

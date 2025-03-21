@@ -1,29 +1,19 @@
 using System;
-using System.Numerics;
+using UnityEngine;
 using static IGroupable;
+using static IChannel;
 
-public class Channel : IGroupable
+public class Channel : IGroupable, IChannel
 {
-    int channelIndex;           // 생성과 삭제에만 관여되는 index
-    Vector2 position;
+    public int channelIndex { get; set; }           // 생성과 삭제에만 관여되는 index
+    public Vector2 position { get; set; }
+    public IndividualInfo individualInfo { get; set; }
 
-    IndividualInfo individualInfo;
-
-    public class InitInfo
+    public void Create(InitInfo info)
     {
-        public int channelIndex;
-        public Vector2 position;
+        channelIndex = info.channelIndex;
+        position = info.position;
     }
-
-    /// <summary>
-    /// 생성
-    /// </summary>
-    /// <param name="initInfo"></param>
-    public void Create(InitInfo initInfo)
-    {
-        channelIndex = initInfo.channelIndex;
-    }
-
 
     #region Group
 
