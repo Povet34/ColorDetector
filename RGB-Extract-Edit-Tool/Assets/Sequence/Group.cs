@@ -13,22 +13,39 @@ public class Group : MonoBehaviour
         Down
     }
 
+    string name;
+    List<IGroupable> hasGroupables;
+    SortDirection sortDirection;
+
     public class InitInfo
     {
         public int groupIndex;
-        public string name;
+        public string name = "NewGroup";
         public SortDirection dir;
         public List<IGroupable> groupables;
     }
 
-
     public void CreateGroup(InitInfo info)
     {
-
+        hasGroupables = info.groupables;
+        name = info.name;
+        sortDirection = info.dir;
     }
 
     public void Reanme(string newName)
     {
         name = newName;
     }
+
+    public int GetTotalGroupableCount()
+    {
+        return hasGroupables.Count;
+    }
+
+    public void SortGroupableOrder(SortDirection dir)
+    {
+
+    }
+
+    public void AddNew
 }

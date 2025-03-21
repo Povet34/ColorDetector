@@ -1,9 +1,12 @@
+using System;
 using System.Numerics;
 using static IGroupable;
 
 public class Channel : IGroupable
 {
     int channelIndex;           // 생성과 삭제에만 관여되는 index
+    Vector2 position;
+
     IndividualInfo individualInfo;
 
     public class InitInfo
@@ -47,6 +50,21 @@ public class Channel : IGroupable
     public void ExcludeGroup()
     {
         individualInfo = null;
+    }
+
+    public void Redefine(IndividualInfo info)
+    {
+        individualInfo = info;
+    }
+
+    public void Redefine(Group parentGroup, int inIndex)
+    {
+        individualInfo.Redefine(parentGroup, inIndex);
+    }
+
+    public void Redefine(int inIndex)
+    {
+        individualInfo.Redefine(inIndex);
     }
 
     #endregion
