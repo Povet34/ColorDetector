@@ -1,29 +1,22 @@
 using UnityEngine;
+using System;
+using System.Collections;
+using System.Collections.Generic;
 
 public class HierarchyPanel : MonoBehaviour, IPanelSync
 {
-    public void ChannelMove(IPanelSync.ChannelMoveParam param)
-    {
-        throw new System.NotImplementedException();
-    }
+    IChannelDataStore dataStore;
+    IChannelUpdater IChannelUpdater;
+    IChannelGetter IChannelGetter;
 
-    public void CreateChannel(IPanelSync.CreateChannelParam param)
-    {
-        throw new System.NotImplementedException();
-    }
+    List<IPanelChannel> channels;
 
-    public void DeleteChannel(IPanelSync.DeleteChannelParam param)
+    public void Init(IChannelDataStore channelDataStore, IChannelUpdater channelUpdater, IChannelGetter channelGetter)
     {
-        throw new System.NotImplementedException();
-    }
+        dataStore = channelDataStore;
+        IChannelUpdater = channelUpdater;
+        IChannelGetter = channelGetter;
 
-    public void RegistSyncEvent()
-    {
-        throw new System.NotImplementedException();
-    }
-
-    public void UnregistSyncEvent()
-    {
-        throw new System.NotImplementedException();
+        channels = new List<IPanelChannel>();
     }
 }

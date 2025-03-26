@@ -1,10 +1,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DataController
+public class ChannelDataStoreImp : IChannelDataStore
 {
-    List<IChannel> channels = new List<IChannel>();
-    List<IGroup> groups = new List<IGroup>();
+    List<IChannel> _channels = new List<IChannel>();
+    List<IGroup> _groups = new List<IGroup>();
+
+    public List<IChannel> channels { get => channels; set => channels = value; }
+    public List<IGroup> groups { get => _groups; set => _groups = value; }
 
     #region Channel
 
@@ -17,12 +20,12 @@ public class DataController
         IChannel channel = new Channel();
 
         channel.Create(initInfo);
-        channels.Add(channel);
+        _channels.Add(channel);
     }
 
     public void MoveChannel(int index, Vector2 position)
     {
-        IChannel channel = channels.Find(x => x.channelIndex == index);
+        IChannel channel = _channels.Find(x => x.channelIndex == index);
         channel.position = position;
     }
 
@@ -30,14 +33,14 @@ public class DataController
     {
         foreach (int index in indexes)
         {
-            IChannel channel = channels.Find(x => x.channelIndex == index);
+            IChannel channel = _channels.Find(x => x.channelIndex == index);
             _DeleteChannelBody(channel);
         }
     }
 
     void _DeleteChannelBody(IChannel channel)
     {
-        channels.Remove(channel);
+        _channels.Remove(channel);
     }
 
     #endregion
@@ -48,12 +51,12 @@ public class DataController
     {
         IGroup group = new Group();
         group.Create(info);
-        groups.Add(group);
+        _groups.Add(group);
     }
 
     public void DeleteGroup(IGroup group)
     {
-        groups.Remove(group);
+        _groups.Remove(group);
     }
 
     #endregion

@@ -1,38 +1,21 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class VideoViewPanel : MonoBehaviour, IPanelSync
 {
+    IChannelDataStore dataStore;
+    IChannelUpdater IChannelUpdater;
+    IChannelGetter IChannelGetter;
 
-    //여기에
-    //VideoViewChannel
-    //VideoViewSequenceGroup
-    //이런게 있다가 뭔가 조작이 되면 Apply한다.
+    List<IPanelChannel> channels;
 
-    RawImage videoView;
-
-    public void ChannelMove(IPanelSync.ChannelMoveParam param)
+    public void Init(IChannelDataStore channelDataStore, IChannelUpdater channelUpdater, IChannelGetter channelGetter)
     {
-        throw new System.NotImplementedException();
-    }
+        dataStore = channelDataStore;
+        IChannelUpdater = channelUpdater;
+        IChannelGetter = channelGetter;
 
-    public void CreateChannel(IPanelSync.CreateChannelParam param)
-    {
-        throw new System.NotImplementedException();
-    }
-
-    public void DeleteChannel(IPanelSync.DeleteChannelParam param)
-    {
-        throw new System.NotImplementedException();
-    }
-
-    public void RegistSyncEvent()
-    {
-        throw new System.NotImplementedException();
-    }
-
-    public void UnregistSyncEvent()
-    {
-        throw new System.NotImplementedException();
+        channels = new List<IPanelChannel>();
     }
 }
