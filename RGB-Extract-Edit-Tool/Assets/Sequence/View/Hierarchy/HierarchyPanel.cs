@@ -2,43 +2,28 @@ using UnityEngine;
 
 public class HierarchyPanel : MonoBehaviour, IPanelSync
 {
-    #region IPanelSync
-
-    public void Sync(IPanelSync owner)
+    public void ChannelMove(IPanelSync.ChannelMoveParam param)
     {
-        if (this.Equals(owner))
-            return;
-
         throw new System.NotImplementedException();
     }
 
-    void Start()
+    public void CreateChannel(IPanelSync.CreateChannelParam param)
     {
-        RegistSyncEvent();
+        throw new System.NotImplementedException();
     }
 
-    void OnDestroy()
+    public void DeleteChannel(IPanelSync.DeleteChannelParam param)
     {
-        UnregistSyncEvent();
+        throw new System.NotImplementedException();
     }
-
 
     public void RegistSyncEvent()
     {
-        DataExtractChannelSyncHelper.GetInstance().onSync += Sync;
+        throw new System.NotImplementedException();
     }
 
     public void UnregistSyncEvent()
     {
-        DataExtractChannelSyncHelper.GetInstance().onSync -= Sync;
+        throw new System.NotImplementedException();
     }
-
-    #endregion
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
 }

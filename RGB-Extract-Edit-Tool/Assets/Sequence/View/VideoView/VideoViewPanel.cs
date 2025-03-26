@@ -11,40 +11,28 @@ public class VideoViewPanel : MonoBehaviour, IPanelSync
 
     RawImage videoView;
 
-    #region IPanelSync
-
-    public void Sync(IPanelSync owner)
+    public void ChannelMove(IPanelSync.ChannelMoveParam param)
     {
-        if (this.Equals(owner))
-            return;
-
         throw new System.NotImplementedException();
     }
 
-    void Start()
+    public void CreateChannel(IPanelSync.CreateChannelParam param)
     {
-        RegistSyncEvent();
+        throw new System.NotImplementedException();
     }
 
-    void OnDestroy()
+    public void DeleteChannel(IPanelSync.DeleteChannelParam param)
     {
-        UnregistSyncEvent();
+        throw new System.NotImplementedException();
     }
 
     public void RegistSyncEvent()
     {
-        DataExtractChannelSyncHelper.GetInstance().onSync += Sync;
+        throw new System.NotImplementedException();
     }
 
     public void UnregistSyncEvent()
     {
-        DataExtractChannelSyncHelper.GetInstance().onSync -= Sync;
-    }
-
-    #endregion
-
-    void Update()
-    {
-        
+        throw new System.NotImplementedException();
     }
 }
