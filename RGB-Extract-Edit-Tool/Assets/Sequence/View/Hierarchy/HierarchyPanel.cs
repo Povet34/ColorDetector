@@ -33,10 +33,7 @@ namespace DataExtract
 
         public void OnPointerDown(PointerEventData eventData)
         {
-            foreach (var ch in channels)
-            {
-                ch.Deselect();
-            }
+            DeSelectChannel(false, new DeSelectChannelParam(this));
 
             if (eventData.button == PointerEventData.InputButton.Left)
             {
@@ -65,7 +62,8 @@ namespace DataExtract
             { eEditType.CreateChannel, param => CreateChannel(true, (CreateChannelParam)param) },
             { eEditType.MoveChannel, param => MoveChannel(true, (MoveChannelParam)param) },
             { eEditType.DeleteChannel, param => DelateChannel(true, (DeleteChannelParam)param) },
-            { eEditType.SelectChannel, param => SelectChannel(true, (SelectChannelParm)param) }
+            { eEditType.SelectChannel, param => SelectChannel(true, (SelectChannelParam)param) },
+            { eEditType.DeSelectChannel, param => DeSelectChannel(true, (DeSelectChannelParam)param) },
         };
 
         public void Apply(EditParam param)
@@ -78,27 +76,30 @@ namespace DataExtract
             syncParamMap[param.editType].Invoke(param);
         }
 
-        public void CreateChannel(bool isSync, CreateChannelParam param)
+        public void CreateChannel(bool isSynced, CreateChannelParam param)
         {
             var ch = Instantiate(hierarchyChannelPrefab, scrollViewContentRt);
             ch.Init(param);
             channels.Add(ch);
 
-            if (!isSync)
+            if (!isSynced)
+            {
                 channelUpdater.CreateChannel(param);
+                Apply(param);
+            }
         }
 
-        public void MoveChannel(bool isSync, MoveChannelParam param)
+        public void MoveChannel(bool isSynced, MoveChannelParam param)
         {
             throw new NotImplementedException();
         }
 
-        public void DelateChannel(bool isSync, DeleteChannelParam param)
+        public void DelateChannel(bool isSynced, DeleteChannelParam param)
         {
             throw new NotImplementedException();
         }
 
-        public void SelectChannel(bool isSync, SelectChannelParm param)
+        public void SelectChannel(bool isSynced, SelectChannelParam param)
         {
             List<int> indices = param.indices;
             for (int i = 0; i < indices.Count; i++)
@@ -106,8 +107,25 @@ namespace DataExtract
                 channels[indices[i]].Select();
             }
 
-            if (!isSync)
+            if (!isSynced)
+            {
                 channelUpdater.SelectChannel(param);
+                Apply(param);
+            }
+        }
+
+        public void DeSelectChannel(bool isSynced, DeSelectChannelParam param)
+        {
+            foreach (var ch in channels)
+            {
+                ch.Deselect();
+            }
+
+            if (!isSynced)
+            {
+                channelUpdater.DeSelectChannel(param);
+                Apply(param);
+            }
         }
 
         #endregion

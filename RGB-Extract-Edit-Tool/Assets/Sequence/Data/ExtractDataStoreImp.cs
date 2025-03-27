@@ -16,6 +16,39 @@ namespace DataExtract
 
         #region Channel
 
+
+
+        void _DeleteChannelBody(IChannel channel)
+        {
+            _channels.Remove(channel);
+        }
+
+
+        #endregion
+
+        #region Group
+
+        public void CreateGroup(IGroup.InitInfo info)
+        {
+            IGroup group = new Group();
+            group.Create(info);
+            _groups.Add(group);
+        }
+
+        public void DeleteGroup(IGroup group)
+        {
+            _groups.Remove(group);
+        }
+
+        #endregion
+
+        #region EditParam
+
+        public void SelectChannel(SelectChannelParam param)
+        {
+            StackEditParam(param);
+        }
+
         public void CreateChannel(CreateChannelParam param)
         {
             IChannel channel = new Channel();
@@ -45,42 +78,17 @@ namespace DataExtract
             StackEditParam(param);
         }
 
-        void _DeleteChannelBody(IChannel channel)
-        {
-            _channels.Remove(channel);
-        }
-
-        public void SelectChannel(SelectChannelParm param)
-        {
-            StackEditParam(param);
-        }
-
-        #endregion
-
-        #region Group
-
-        public void CreateGroup(IGroup.InitInfo info)
-        {
-            IGroup group = new Group();
-            group.Create(info);
-            _groups.Add(group);
-        }
-
-        public void DeleteGroup(IGroup group)
-        {
-            _groups.Remove(group);
-        }
-
-        #endregion
-
-        #region EditParam
-
         public EditParam GetLastestEditParam()
         {
             return editParamStack.Peek();
         }
 
         private void StackEditParam(EditParam param)
+        {
+            editParamStack.Push(param);
+        }
+
+        public void DeSelectChannel(DeSelectChannelParam param)
         {
             editParamStack.Push(param);
         }

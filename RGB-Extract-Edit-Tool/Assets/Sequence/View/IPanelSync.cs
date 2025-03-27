@@ -12,9 +12,10 @@ namespace DataExtract
         void Apply(EditParam param);
         void Sync(EditParam param);
 
-        void CreateChannel(bool isSync, CreateChannelParam param);
-        void MoveChannel(bool isSync, MoveChannelParam param);
-        void DelateChannel(bool isSync, DeleteChannelParam param);
-        void SelectChannel(bool isSync, SelectChannelParm param);
+        void CreateChannel(bool isSynced, CreateChannelParam param);
+        void MoveChannel(bool isSynced, MoveChannelParam param);
+        void DelateChannel(bool isSynced, DeleteChannelParam param);
+        void SelectChannel(bool isSynced, SelectChannelParam param);
+        void DeSelectChannel(bool isSynced, DeSelectChannelParam param);
     }
 }

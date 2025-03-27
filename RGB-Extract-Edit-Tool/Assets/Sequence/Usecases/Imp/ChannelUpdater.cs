@@ -25,9 +25,13 @@ namespace DataExtract
             _dataStore.MoveChannel(param);
         }
 
-        public void SelectChannel(SelectChannelParm param)
+        public void SelectChannel(SelectChannelParam param)
         {
             _dataStore.SelectChannel(param);
+        }
+        public void DeSelectChannel(DeSelectChannelParam param)
+        {
+            _dataStore.DeSelectChannel(param);
         }
     }
 }

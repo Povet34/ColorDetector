@@ -8,7 +8,8 @@ namespace DataExtract
         CreateChannel,
         MoveChannel,
         DeleteChannel,
-        SelectChannel
+        SelectChannel,
+        DeSelectChannel,
     }
 
     public class EditParam
@@ -32,8 +33,8 @@ namespace DataExtract
 
         public CreateChannelParam() { }
 
-        public CreateChannelParam(IPanelSync ownerPanel, eEditType editType, int chIndex, Vector2 createPos)
-            : base(ownerPanel, eEditType.SelectChannel)
+        public CreateChannelParam(IPanelSync ownerPanel, int chIndex, Vector2 createPos)
+            : base(ownerPanel, eEditType.CreateChannel)
         {
             this.chIndex = chIndex;
             this.createPos = createPos;
@@ -47,7 +48,7 @@ namespace DataExtract
 
         public MoveChannelParam() { }
 
-        public MoveChannelParam(IPanelSync ownerPanel, eEditType editType, int chIndex, Vector2 position)
+        public MoveChannelParam(IPanelSync ownerPanel, int chIndex, Vector2 position)
             : base(ownerPanel, eEditType.MoveChannel)
         {
             this.chIndex = chIndex;
@@ -61,24 +62,30 @@ namespace DataExtract
 
         public DeleteChannelParam() { }
 
-        public DeleteChannelParam(IPanelSync ownerPanel, eEditType editType, List<int> indices)
+        public DeleteChannelParam(IPanelSync ownerPanel, List<int> indices)
             : base(ownerPanel, eEditType.DeleteChannel)
         {
             this.indices = indices;
         }
     }
 
-    public class SelectChannelParm : EditParam
+    public class SelectChannelParam : EditParam
     {
         public List<int> indices;
 
-        public SelectChannelParm() { }
+        public SelectChannelParam() { }
 
-        public SelectChannelParm(IPanelSync ownerPanel, eEditType editType, List<int> indices)
+        public SelectChannelParam(IPanelSync ownerPanel, List<int> indices)
             : base(ownerPanel, eEditType.SelectChannel)
         {
             this.indices = indices;
         }
+    }
+
+    public class DeSelectChannelParam : EditParam
+    {
+        public DeSelectChannelParam(IPanelSync ownerPanel)
+            : base(ownerPanel, eEditType.DeSelectChannel) { }
     }
 }
 

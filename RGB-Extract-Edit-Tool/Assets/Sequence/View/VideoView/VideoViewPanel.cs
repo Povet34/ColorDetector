@@ -59,10 +59,7 @@ namespace DataExtract
 
         public void OnPointerDown(PointerEventData eventData)
         {
-            foreach (var ch in channels)
-            {
-                ch.Deselect();
-            }
+            DeSelectChannel(false, new DeSelectChannelParam(this));
 
             videoViewPanelMenuPopup.Show(false);
             Vector2 viewerPos = TransformEx.GetRelativeAnchorPosition_Screen(viewPanelRt, eventData.position);
@@ -91,12 +88,9 @@ namespace DataExtract
                     List<int> indices = new List<int>();
                     indices.Add(selectedChannel.channelIndex);
 
-                    SelectChannelParm param = new SelectChannelParm()
-                    {
-                        indices = indices
-                    };
+                    SelectChannelParam param = new SelectChannelParam(this, indices);
+                    SelectChannel(false, param);
 
-                    SelectChannel(true, param);
                     return;
                 }
             }
@@ -113,16 +107,8 @@ namespace DataExtract
 
         void _CreateChannel(Vector2 position)
         {
-            CreateChannelParam param = new CreateChannelParam
-            {
-                chIndex = channels.Count,
-                createPos = position,
-                ownerPanel = this,
-                editType = eEditType.CreateChannel
-            };
-
+            CreateChannelParam param = new CreateChannelParam(this, channels.Count, position);
             CreateChannel(false, param);
-            Apply(param);
         }
 
         #region IPanelSync
@@ -132,7 +118,8 @@ namespace DataExtract
             { eEditType.CreateChannel, param => CreateChannel(true, (CreateChannelParam)param) },
             { eEditType.MoveChannel, param => MoveChannel(true, (MoveChannelParam)param) },
             { eEditType.DeleteChannel, param => DelateChannel(true, (DeleteChannelParam)param) },
-            { eEditType.SelectChannel, param => SelectChannel(true, (SelectChannelParm)param) }
+            { eEditType.SelectChannel, param => SelectChannel(true, (SelectChannelParam)param) },
+            { eEditType.DeSelectChannel, param => DeSelectChannel(true, (DeSelectChannelParam)param) },
         };
 
         public void Apply(EditParam param)
@@ -145,25 +132,28 @@ namespace DataExtract
             syncParamMap[param.editType].Invoke(param);
         }
 
-        public void MoveChannel(bool isSync, MoveChannelParam param)
+        public void MoveChannel(bool isSynced, MoveChannelParam param)
         {
         }
 
-        public void DelateChannel(bool isSync, DeleteChannelParam param)
+        public void DelateChannel(bool isSynced, DeleteChannelParam param)
         {
         }
 
-        public void CreateChannel(bool isSync, CreateChannelParam param)
+        public void CreateChannel(bool isSynced, CreateChannelParam param)
         {
             var ch = Instantiate(videoViewChannelPrefab, transform);
             ch.Init(param);
             channels.Add(ch);
 
-            if (!isSync)
+            if (!isSynced)
+            {
                 channelUpdater.CreateChannel(param);
+                Apply(param);
+            }
         }
 
-        public void SelectChannel(bool isSync, SelectChannelParm param)
+        public void SelectChannel(bool isSynced, SelectChannelParam param)
         {
             List<int> indices = param.indices;
             for (int i = 0; i < indices.Count; i++)
@@ -171,8 +161,25 @@ namespace DataExtract
                 channels[indices[i]].Select();
             }
 
-            if (!isSync)
+            if (!isSynced)
+            {
                 channelUpdater.SelectChannel(param);
+                Apply(param);
+            }
+        }
+
+        public void DeSelectChannel(bool isSynced, DeSelectChannelParam param)
+        {
+            foreach (var ch in channels)
+            {
+                ch.Deselect();
+            }
+
+            if (!isSynced)
+            {
+                channelUpdater.DeSelectChannel(param);
+                Apply(param);
+            }
         }
 
         #endregion
