@@ -3,11 +3,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 namespace DataExtract
 {
 
-    public class HierarchyPanel : MonoBehaviour, IPanelSync
+    public class HierarchyPanel : MonoBehaviour, IPanelSync, IPointerDownHandler
     {
         #region Injection
 
@@ -19,6 +20,9 @@ namespace DataExtract
 
         [SerializeField] HierarchyChannel hierarchyChannelPrefab;
         [SerializeField] RectTransform scrollViewContentRt;
+
+        [SerializeField] GraphicRaycaster graphicRaycaster;
+        [SerializeField] EventSystem eventSystem;
 
         List<IPanelChannel> channels;
 
@@ -37,21 +41,28 @@ namespace DataExtract
 
             if (eventData.button == PointerEventData.InputButton.Left)
             {
-                CreateChannelParam param = new CreateChannelParam
-                {
-                    chIndex = channels.Count,
-                    createPos = Vector2.zero,
-                    ownerPanel = this,
-                    editType = eEditType.CreateChannel
-                };
-
-                CreateChannel(false, param);
-                Apply(param);
+                _SelectUIElement(eventData);
             }
-            else if (eventData.button == PointerEventData.InputButton.Right)
+        }
+
+        void _SelectUIElement(PointerEventData eventData)
+        {
+            List<RaycastResult> results = new List<RaycastResult>();
+            graphicRaycaster.Raycast(eventData, results);
+
+            foreach (RaycastResult result in results)
             {
-                // 오른쪽 버튼 클릭 시의 동작을 여기에 추가
-                DLogger.Log("Right mouse button clicked");
+                IPanelChannel selectedChannel = result.gameObject.GetComponent<IPanelChannel>();
+                if (selectedChannel != null)
+                {
+                    List<int> indices = new List<int>();
+                    indices.Add(selectedChannel.channelIndex);
+
+                    SelectChannelParam param = new SelectChannelParam(this, indices);
+                    SelectChannel(false, param);
+
+                    return;
+                }
             }
         }
 

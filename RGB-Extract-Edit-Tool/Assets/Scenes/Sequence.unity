@@ -210,6 +210,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hierarchyChannelPrefab: {fileID: 6982248316626281057, guid: bbebaf8ab84994d4e8e207ae23826d94, type: 3}
   scrollViewContentRt: {fileID: 1596305661}
+  graphicRaycaster: {fileID: 1162363321}
+  eventSystem: {fileID: 1200469619}
 --- !u!1 &330585543
 GameObject:
   m_ObjectHideFlags: 0
