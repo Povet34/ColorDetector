@@ -21,12 +21,16 @@ namespace DataExtract
 
         [SerializeField] VideoViewChannel videoViewChannelPrefab;
         [SerializeField] VideoViewPanelMenuPopup videoViewPanelMenuPopupPrefab;
+        [SerializeField] RectAreaChannelSelection rectAreaChannelSelectionPrefab;
 
         [SerializeField] GraphicRaycaster graphicRaycaster;
         [SerializeField] EventSystem eventSystem;
 
+
         List<IPanelChannel> channels;
         RectTransform viewPanelRt;
+
+        RectAreaChannelSelection rectAreaChannelSelection;
         VideoViewPanelMenuPopup videoViewPanelMenuPopup;
 
         void Awake()
@@ -45,7 +49,9 @@ namespace DataExtract
                     ));
             videoViewPanelMenuPopup.Show(false);
 
-            //UI Select
+            //UI Rect Select
+            //rectAreaChannelSelection = RectAreaChannelSelection.Create(transform, channels, addCurChannelList, clearCurChannelList);
+
         }
 
         public void Init(ChannelUpdater channelUpdater, ChannelReceiver channelReceiver, ChannelSyncer channelSyncer)
@@ -66,6 +72,7 @@ namespace DataExtract
 
             if (eventData.button == PointerEventData.InputButton.Left)
             {
+                
                 _SelectUIElement(eventData);
             }
             if (eventData.button == PointerEventData.InputButton.Right)
