@@ -22,9 +22,12 @@ namespace DataExtract
         [SerializeField] VideoViewChannel videoViewChannelPrefab;
         [SerializeField] VideoViewPanelMenuPopup videoViewPanelMenuPopupPrefab;
 
+        [SerializeField] GraphicRaycaster graphicRaycaster;
+        [SerializeField] EventSystem eventSystem;
+
+        List<IPanelChannel> channels;
         RectTransform viewPanelRt;
         VideoViewPanelMenuPopup videoViewPanelMenuPopup;
-        List<IPanelChannel> channels;
 
         void Awake()
         {
@@ -42,7 +45,7 @@ namespace DataExtract
                     ));
             videoViewPanelMenuPopup.Show(false);
 
-            //
+            //UI Select
         }
 
         public void Init(ChannelUpdater channelUpdater, ChannelReceiver channelReceiver, ChannelSyncer channelSyncer)
@@ -56,15 +59,55 @@ namespace DataExtract
 
         public void OnPointerDown(PointerEventData eventData)
         {
-            videoViewPanelMenuPopup.Show(false);
+            foreach (var ch in channels)
+            {
+                ch.Deselect();
+            }
 
+            videoViewPanelMenuPopup.Show(false);
+            Vector2 viewerPos = TransformEx.GetRelativeAnchorPosition_Screen(viewPanelRt, eventData.position);
+
+            if (eventData.button == PointerEventData.InputButton.Left)
+            {
+                _SelectUIElement(eventData);
+            }
             if (eventData.button == PointerEventData.InputButton.Right)
             {
-                if(videoViewPanelMenuPopup)
+                _ShowVideoViewPanelMenuPopup(viewerPos);
+            }
+        }
+
+
+        void _SelectUIElement(PointerEventData eventData)
+        {
+            List<RaycastResult> results = new List<RaycastResult>();
+            graphicRaycaster.Raycast(eventData, results);
+
+            foreach (RaycastResult result in results)
+            {
+                IPanelChannel selectedChannel = result.gameObject.GetComponent<IPanelChannel>();
+                if (selectedChannel != null)
                 {
-                    videoViewPanelMenuPopup.SetPosition(TransformEx.GetRelativeAnchorPosition_Screen(viewPanelRt, eventData.position));
-                    videoViewPanelMenuPopup.Show(true);
+                    List<int> indices = new List<int>();
+                    indices.Add(selectedChannel.channelIndex);
+
+                    SelectChannelParm param = new SelectChannelParm()
+                    {
+                        indices = indices
+                    };
+
+                    SelectChannel(true, param);
+                    return;
                 }
+            }
+        }
+
+        void _ShowVideoViewPanelMenuPopup(Vector2 pos)
+        {
+            if (videoViewPanelMenuPopup)
+            {
+                videoViewPanelMenuPopup.SetPosition(pos);
+                videoViewPanelMenuPopup.Show(true);
             }
         }
 
@@ -82,8 +125,15 @@ namespace DataExtract
             Apply(param);
         }
 
-
         #region IPanelSync
+
+        public Dictionary<eEditType, Action<EditParam>> syncParamMap => new Dictionary<eEditType, Action<EditParam>>()
+        {
+            { eEditType.CreateChannel, param => CreateChannel(true, (CreateChannelParam)param) },
+            { eEditType.MoveChannel, param => MoveChannel(true, (MoveChannelParam)param) },
+            { eEditType.DeleteChannel, param => DelateChannel(true, (DeleteChannelParam)param) },
+            { eEditType.SelectChannel, param => SelectChannel(true, (SelectChannelParm)param) }
+        };
 
         public void Apply(EditParam param)
         {
@@ -92,20 +142,8 @@ namespace DataExtract
 
         public void Sync(EditParam param)
         {
-            if (param is CreateChannelParam create)
-            {
-                CreateChannel(true, create);
-            }
-            if (param is MoveChannelParam move)
-            {
-                MoveChannel(true, move);
-            }
-            if (param is DeleteChannelParam delete)
-            {
-                DelateChannel(true, delete);
-            }
+            syncParamMap[param.editType].Invoke(param);
         }
-
 
         public void MoveChannel(bool isSync, MoveChannelParam param)
         {
@@ -123,6 +161,18 @@ namespace DataExtract
 
             if (!isSync)
                 channelUpdater.CreateChannel(param);
+        }
+
+        public void SelectChannel(bool isSync, SelectChannelParm param)
+        {
+            List<int> indices = param.indices;
+            for (int i = 0; i < indices.Count; i++)
+            {
+                channels[indices[i]].Select();
+            }
+
+            if (!isSync)
+                channelUpdater.SelectChannel(param);
         }
 
         #endregion

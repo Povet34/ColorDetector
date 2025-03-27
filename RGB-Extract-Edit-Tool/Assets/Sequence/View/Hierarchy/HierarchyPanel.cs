@@ -31,29 +31,13 @@ namespace DataExtract
             channels = new List<IPanelChannel>();
         }
 
-        public void Apply(EditParam param)
-        {
-            channelSyncer.SyncAllPanel(this, param);
-        }
-
-        public void Sync(EditParam param)
-        {
-            if (param is CreateChannelParam create)
-            {
-                CreateChannel(true, create);
-            }
-            if (param is MoveChannelParam move)
-            {
-                MoveChannel(true, move);
-            }
-            if (param is DeleteChannelParam delete)
-            {
-                DelateChannel(true, delete);
-            }
-        }
-
         public void OnPointerDown(PointerEventData eventData)
         {
+            foreach (var ch in channels)
+            {
+                ch.Deselect();
+            }
+
             if (eventData.button == PointerEventData.InputButton.Left)
             {
                 CreateChannelParam param = new CreateChannelParam
@@ -72,6 +56,26 @@ namespace DataExtract
                 // 오른쪽 버튼 클릭 시의 동작을 여기에 추가
                 DLogger.Log("Right mouse button clicked");
             }
+        }
+
+        #region IPanelSync
+
+        public Dictionary<eEditType, Action<EditParam>> syncParamMap => new Dictionary<eEditType, Action<EditParam>>()
+        {
+            { eEditType.CreateChannel, param => CreateChannel(true, (CreateChannelParam)param) },
+            { eEditType.MoveChannel, param => MoveChannel(true, (MoveChannelParam)param) },
+            { eEditType.DeleteChannel, param => DelateChannel(true, (DeleteChannelParam)param) },
+            { eEditType.SelectChannel, param => SelectChannel(true, (SelectChannelParm)param) }
+        };
+
+        public void Apply(EditParam param)
+        {
+            channelSyncer.SyncAllPanel(this, param);
+        }
+
+        public void Sync(EditParam param)
+        {
+            syncParamMap[param.editType].Invoke(param);
         }
 
         public void CreateChannel(bool isSync, CreateChannelParam param)
@@ -93,5 +97,19 @@ namespace DataExtract
         {
             throw new NotImplementedException();
         }
+
+        public void SelectChannel(bool isSync, SelectChannelParm param)
+        {
+            List<int> indices = param.indices;
+            for (int i = 0; i < indices.Count; i++)
+            {
+                channels[indices[i]].Select();
+            }
+
+            if (!isSync)
+                channelUpdater.SelectChannel(param);
+        }
+
+        #endregion
     }
 }

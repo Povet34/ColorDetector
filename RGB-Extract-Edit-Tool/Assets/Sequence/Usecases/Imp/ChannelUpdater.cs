@@ -24,5 +24,10 @@ namespace DataExtract
         {
             _dataStore.MoveChannel(param);
         }
+
+        public void SelectChannel(SelectChannelParm param)
+        {
+            _dataStore.SelectChannel(param);
+        }
     }
 }

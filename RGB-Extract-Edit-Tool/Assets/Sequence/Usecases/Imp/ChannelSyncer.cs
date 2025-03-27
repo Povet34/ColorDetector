@@ -2,7 +2,7 @@ using DataExtract;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ChannelSyncer : IChannelSyncer
+public class ChannelSyncer
 {
     List<IPanelSync> _panels;
     public List<IPanelSync> panels { get => _panels; set => _panels = value; }

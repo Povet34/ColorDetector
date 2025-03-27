@@ -7,7 +7,8 @@ namespace DataExtract
     {
         CreateChannel,
         MoveChannel,
-        DeleteChannel
+        DeleteChannel,
+        SelectChannel
     }
 
     public class EditParam
@@ -32,7 +33,7 @@ namespace DataExtract
         public CreateChannelParam() { }
 
         public CreateChannelParam(IPanelSync ownerPanel, eEditType editType, int chIndex, Vector2 createPos)
-            : base(ownerPanel, editType)
+            : base(ownerPanel, eEditType.SelectChannel)
         {
             this.chIndex = chIndex;
             this.createPos = createPos;
@@ -47,7 +48,7 @@ namespace DataExtract
         public MoveChannelParam() { }
 
         public MoveChannelParam(IPanelSync ownerPanel, eEditType editType, int chIndex, Vector2 position)
-            : base(ownerPanel, editType)
+            : base(ownerPanel, eEditType.MoveChannel)
         {
             this.chIndex = chIndex;
             this.position = position;
@@ -61,7 +62,20 @@ namespace DataExtract
         public DeleteChannelParam() { }
 
         public DeleteChannelParam(IPanelSync ownerPanel, eEditType editType, List<int> indices)
-            : base(ownerPanel, editType)
+            : base(ownerPanel, eEditType.DeleteChannel)
+        {
+            this.indices = indices;
+        }
+    }
+
+    public class SelectChannelParm : EditParam
+    {
+        public List<int> indices;
+
+        public SelectChannelParm() { }
+
+        public SelectChannelParm(IPanelSync ownerPanel, eEditType editType, List<int> indices)
+            : base(ownerPanel, eEditType.SelectChannel)
         {
             this.indices = indices;
         }

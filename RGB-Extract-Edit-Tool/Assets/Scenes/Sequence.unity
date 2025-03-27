@@ -604,6 +604,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   videoViewChannelPrefab: {fileID: 5451962477116104531, guid: efad4bee9fcba4f4dbdc6506c7324090, type: 3}
   videoViewPanelMenuPopupPrefab: {fileID: 4944192739542802873, guid: 10f35c22ef367a34388d80c02c067112, type: 3}
+  graphicRaycaster: {fileID: 1162363321}
+  eventSystem: {fileID: 1200469619}
 --- !u!1 &1162363320
 GameObject:
   m_ObjectHideFlags: 0
@@ -944,7 +946,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 990}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 990}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1596305662

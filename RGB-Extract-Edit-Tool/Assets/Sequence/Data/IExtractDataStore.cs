@@ -14,6 +14,7 @@ namespace DataExtract
         public void CreateChannel(CreateChannelParam param);
         public void MoveChannel(MoveChannelParam param);
         public void DeleteChannel(DeleteChannelParam param);
+        public void SelectChannel(SelectChannelParm param);
         public EditParam GetLastestEditParam();
 
         #endregion

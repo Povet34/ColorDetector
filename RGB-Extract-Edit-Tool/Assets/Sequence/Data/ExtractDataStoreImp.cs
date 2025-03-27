@@ -50,6 +50,11 @@ namespace DataExtract
             _channels.Remove(channel);
         }
 
+        public void SelectChannel(SelectChannelParm param)
+        {
+            StackEditParam(param);
+        }
+
         #endregion
 
         #region Group

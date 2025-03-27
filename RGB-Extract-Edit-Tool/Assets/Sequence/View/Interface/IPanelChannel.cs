@@ -10,5 +10,7 @@ namespace DataExtract
         void Init(CreateChannelParam param);
         void Move(MoveChannelParam param);
         void Destroy(DeleteChannelParam param);
+        void Select();
+        void Deselect();
     }
 }
