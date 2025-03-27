@@ -1,20 +1,18 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public interface IChannel
+
+namespace DataExtract
 {
-    public class InitInfo
+    public interface IChannel
     {
-        public int channelIndex;
-        public Vector2 position;
+        public int channelIndex { get; set; }
+        public Vector2 position { get; set; }
+
+        /// <summary>
+        /// 持失
+        /// </summary>
+        /// <param name="info"></param>
+        void Create(CreateChannelParam praram);
     }
-
-    public int channelIndex { get; set; }
-    public Vector2 position { get; set; }
-
-    /// <summary>
-    /// 持失
-    /// </summary>
-    /// <param name="info"></param>
-    void Create(InitInfo info);
 }

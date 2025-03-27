@@ -1,23 +1,32 @@
 using UnityEngine;
+using System.Collections.Generic;
+using System;
 
-public class DataExtractMain : MonoBehaviour
+
+namespace DataExtract
 {
-    [SerializeField] VideoViewPanel videoViewPanel;
-    [SerializeField] HierarchyPanel hierarchyPanel;
-
-    IChannelDataStore channelDataStore;
-
-    private void Start()
+    public class DataExtractMain : MonoBehaviour
     {
-        channelDataStore = new ChannelDataStoreImp();
+        [SerializeField] HierarchyPanel hierarchyPanel;
+        [SerializeField] VideoViewPanel videoViewPanel;
 
-        IChannelGetter channelGetter = new ChannelGetterImp();
-        channelGetter.Init(channelDataStore);
+        IExtractDataStore extractDataStore;
 
-        IChannelUpdater channelUpdater = new ChannelUpdaterImp();
-        channelUpdater.Init(channelDataStore);
+        private void Start()
+        {
+            extractDataStore = new ExtractDataStoreImp();
 
-        videoViewPanel.Init(channelDataStore, channelUpdater, channelGetter);
-        hierarchyPanel.Init(channelDataStore, channelUpdater, channelGetter);
+            ChannelReceiver channelReceiver = new ChannelReceiver();
+            channelReceiver.Init(extractDataStore);
+
+            ChannelUpdater channelUpdater = new ChannelUpdater();
+            channelUpdater.Init(extractDataStore);
+
+            ChannelSyncer channelSyncer = new ChannelSyncer();
+            channelSyncer.Init(new List<IPanelSync>() { videoViewPanel, hierarchyPanel });
+
+            videoViewPanel.Init(channelUpdater, channelReceiver, channelSyncer);
+            hierarchyPanel.Init(channelUpdater, channelReceiver, channelSyncer);
+        }
     }
 }
