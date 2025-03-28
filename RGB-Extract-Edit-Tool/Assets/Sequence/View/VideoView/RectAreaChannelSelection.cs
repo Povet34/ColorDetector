@@ -10,8 +10,11 @@ public class RectAreaChannelSelection : MonoBehaviour
     private Vector2 startPos;
     private bool isSelecting;
     private List<IPanelChannel> panelChannels;
-    private Action<IPanelChannel> addCurChannelList;
-    private Action clearCurChannelList;
+
+    private IPanelSync panelSync;
+    private RectTransform panelRt;
+    Action<bool, SelectChannelParam> selectCallback;
+    Action<bool, DeSelectChannelParam> clearSelectCallback;
 
     private void Update()
     {
@@ -21,12 +24,14 @@ public class RectAreaChannelSelection : MonoBehaviour
 
     public void Select()
     {
-        Vector2 currentMousePos = Input.mousePosition;
+        Vector2 currentMousePos = TransformEx.GetRelativeAnchorPosition_Screen(panelRt, Input.mousePosition);
         Vector2 size = currentMousePos - startPos;
         selectionBox.sizeDelta = new Vector2(Mathf.Abs(size.x), Mathf.Abs(size.y));
         selectionBox.anchoredPosition = startPos + size / 2f;
 
-        clearCurChannelList?.Invoke();
+        clearSelectCallback?.Invoke(false, new DeSelectChannelParam(panelSync));
+
+        var list = new List<int>();
 
         foreach (var channel in panelChannels)
         {
@@ -34,8 +39,10 @@ public class RectAreaChannelSelection : MonoBehaviour
                 continue;
 
             if (IsWithinSelection(channel.position))
-                addCurChannelList?.Invoke(channel);
+                list.Add(channel.channelIndex);
         }
+
+        selectCallback.Invoke(false, new SelectChannelParam(panelSync, list));
     }
 
     public void PointerDown()
@@ -54,15 +61,24 @@ public class RectAreaChannelSelection : MonoBehaviour
     bool IsWithinSelection(Vector2 position)
     {
         Bounds bounds = new Bounds(selectionBox.position, selectionBox.sizeDelta);
+
+        DLogger.Log_Green($"bounds : {bounds.min} {bounds.max}  | {position}");
+
         return bounds.Contains(position);
     }
 
 
-    public static RectAreaChannelSelection Create(Transform parent, List<IPanelChannel> channels, Action<IPanelChannel> addCurChannelList, Action clearCurChannelList)
+    public static RectAreaChannelSelection Create(
+        RectTransform parentRt,
+        IPanelSync panelSync,
+        List<IPanelChannel> channels, 
+        Action<bool, SelectChannelParam> addCurChannelList,
+        Action<bool, DeSelectChannelParam> clearSelectCallback
+        )
     {
         var go = new GameObject("AreaSelection");
         var selection = go.AddComponent<RectAreaChannelSelection>();
-        selection.transform.SetParent(parent);
+        selection.transform.SetParent(parentRt);
 
         var imgGo = new GameObject("selectAreaBox");
         imgGo.transform.SetParent(selection.transform);
@@ -73,10 +89,12 @@ public class RectAreaChannelSelection : MonoBehaviour
         selection.selectionBox = imgGo.GetComponent<RectTransform>();
         selection.selectionBox.gameObject.SetActive(false);
 
+        selection.panelRt = parentRt;
         selection.panelChannels = channels;
 
-        selection.addCurChannelList = addCurChannelList;
-        selection.clearCurChannelList = clearCurChannelList;
+        selection.selectCallback = addCurChannelList;
+        selection.clearSelectCallback = clearSelectCallback;
+        selection.panelSync = panelSync;
 
         return selection;
     }

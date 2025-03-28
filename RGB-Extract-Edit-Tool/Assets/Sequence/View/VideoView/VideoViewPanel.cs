@@ -9,7 +9,7 @@ using UnityEngine.EventSystems;
 namespace DataExtract
 {
 
-    public class VideoViewPanel : MonoBehaviour, IPanelSync, IPointerDownHandler
+    public class VideoViewPanel : MonoBehaviour, IPanelSync, IPointerDownHandler, IPointerUpHandler
     {
         #region Injection
 
@@ -28,14 +28,18 @@ namespace DataExtract
 
 
         List<IPanelChannel> channels;
-        RectTransform viewPanelRt;
+        RectTransform panelRt;
 
         RectAreaChannelSelection rectAreaChannelSelection;
         VideoViewPanelMenuPopup videoViewPanelMenuPopup;
 
         void Awake()
         {
-            viewPanelRt = GetComponent<RectTransform>();
+            //Channel Init
+            channels = new List<IPanelChannel>();
+            
+            //GetComp
+            panelRt = GetComponent<RectTransform>();
 
             //MeunPopup
             videoViewPanelMenuPopup = Instantiate(videoViewPanelMenuPopupPrefab, transform);
@@ -50,8 +54,13 @@ namespace DataExtract
             videoViewPanelMenuPopup.Show(false);
 
             //UI Rect Select
-            //rectAreaChannelSelection = RectAreaChannelSelection.Create(transform, channels, addCurChannelList, clearCurChannelList);
-
+            rectAreaChannelSelection = RectAreaChannelSelection.Create(
+                panelRt,
+                this,
+                channels, 
+                SelectChannel, 
+                DeSelectChannel
+                );
         }
 
         public void Init(ChannelUpdater channelUpdater, ChannelReceiver channelReceiver, ChannelSyncer channelSyncer)
@@ -60,7 +69,6 @@ namespace DataExtract
             this.channelReceiver = channelReceiver;
             this.channelSyncer = channelSyncer;
 
-            channels = new List<IPanelChannel>();
         }
 
         public void OnPointerDown(PointerEventData eventData)
@@ -68,17 +76,23 @@ namespace DataExtract
             DeSelectChannel(false, new DeSelectChannelParam(this));
 
             videoViewPanelMenuPopup.Show(false);
-            Vector2 viewerPos = TransformEx.GetRelativeAnchorPosition_Screen(viewPanelRt, eventData.position);
+            Vector2 viewerPos = TransformEx.GetRelativeAnchorPosition_Screen(panelRt, eventData.position);
 
             if (eventData.button == PointerEventData.InputButton.Left)
             {
-                
-                _SelectUIElement(eventData);
+                rectAreaChannelSelection.PointerDown();
+                //_SelectUIElement(eventData);
             }
             if (eventData.button == PointerEventData.InputButton.Right)
             {
                 _ShowVideoViewPanelMenuPopup(viewerPos);
             }
+        }
+
+
+        public void OnPointerUp(PointerEventData eventData)
+        {
+            rectAreaChannelSelection.Cancel();
         }
 
 
