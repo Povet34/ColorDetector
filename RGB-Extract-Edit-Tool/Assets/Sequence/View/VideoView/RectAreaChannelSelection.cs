@@ -24,7 +24,8 @@ public class RectAreaChannelSelection : MonoBehaviour
 
     public void Select()
     {
-        Vector2 currentMousePos = TransformEx.GetRelativeAnchorPosition_Screen(panelRt, Input.mousePosition);
+        //Vector2 currentMousePos = TransformEx.GetRelativeAnchorPosition_Screen(panelRt, Input.mousePosition);
+        Vector2 currentMousePos = Input.mousePosition;
         Vector2 size = currentMousePos - startPos;
         selectionBox.sizeDelta = new Vector2(Mathf.Abs(size.x), Mathf.Abs(size.y));
         selectionBox.anchoredPosition = startPos + size / 2f;
@@ -47,7 +48,7 @@ public class RectAreaChannelSelection : MonoBehaviour
 
     public void PointerDown()
     {
-        startPos = TransformEx.GetRelativeAnchorPosition_Screen(panelRt, Input.mousePosition);
+        startPos = Input.mousePosition;
         selectionBox.gameObject.SetActive(true);
         isSelecting = true;
     }
@@ -60,7 +61,7 @@ public class RectAreaChannelSelection : MonoBehaviour
 
     bool IsWithinSelection(Vector2 position)
     {
-        Bounds bounds = new Bounds(selectionBox.position, selectionBox.sizeDelta);
+        Bounds bounds = new Bounds(TransformEx.GetRelativeAnchorPosition_Screen(panelRt, selectionBox.anchoredPosition), selectionBox.sizeDelta);
         return bounds.Contains(position);
     }
 
@@ -76,7 +77,6 @@ public class RectAreaChannelSelection : MonoBehaviour
         var go = new GameObject("AreaSelection");
         var selection = go.AddComponent<RectAreaChannelSelection>();
         selection.transform.SetParent(parentRt);
-        selection.transform.position = Vector3.zero;
 
         var imgGo = new GameObject("selectAreaBox");
         imgGo.transform.SetParent(selection.transform);
