@@ -47,7 +47,7 @@ public class RectAreaChannelSelection : MonoBehaviour
 
     public void PointerDown()
     {
-        startPos = Input.mousePosition;
+        startPos = TransformEx.GetRelativeAnchorPosition_Screen(panelRt, Input.mousePosition);
         selectionBox.gameObject.SetActive(true);
         isSelecting = true;
     }
@@ -61,9 +61,6 @@ public class RectAreaChannelSelection : MonoBehaviour
     bool IsWithinSelection(Vector2 position)
     {
         Bounds bounds = new Bounds(selectionBox.position, selectionBox.sizeDelta);
-
-        DLogger.Log_Green($"bounds : {bounds.min} {bounds.max}  | {position}");
-
         return bounds.Contains(position);
     }
 
@@ -79,6 +76,7 @@ public class RectAreaChannelSelection : MonoBehaviour
         var go = new GameObject("AreaSelection");
         var selection = go.AddComponent<RectAreaChannelSelection>();
         selection.transform.SetParent(parentRt);
+        selection.transform.position = Vector3.zero;
 
         var imgGo = new GameObject("selectAreaBox");
         imgGo.transform.SetParent(selection.transform);
