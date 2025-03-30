@@ -1,4 +1,5 @@
 using DataExtract;
+using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -24,14 +25,23 @@ public class RectAreaChannelSelection : MonoBehaviour
 
     public void Select()
     {
-        //Vector2 currentMousePos = TransformEx.GetRelativeAnchorPosition_Screen(panelRt, Input.mousePosition);
         Vector2 currentMousePos = Input.mousePosition;
         Vector2 size = currentMousePos - startPos;
         selectionBox.sizeDelta = new Vector2(Mathf.Abs(size.x), Mathf.Abs(size.y));
         selectionBox.anchoredPosition = startPos + size / 2f;
+    }
 
+    public void PointerDown()
+    {
         clearSelectCallback?.Invoke(false, new DeSelectChannelParam(panelSync));
 
+        startPos = Input.mousePosition;
+        selectionBox.gameObject.SetActive(true);
+        isSelecting = true;
+    }
+
+    public void PointerUp()
+    {
         var list = new List<int>();
 
         foreach (var channel in panelChannels)
@@ -42,21 +52,12 @@ public class RectAreaChannelSelection : MonoBehaviour
             if (IsWithinSelection(channel.position))
                 list.Add(channel.channelIndex);
         }
-
         selectCallback.Invoke(false, new SelectChannelParam(panelSync, list));
-    }
 
-    public void PointerDown()
-    {
-        startPos = Input.mousePosition;
-        selectionBox.gameObject.SetActive(true);
-        isSelecting = true;
-    }
-
-    public void Cancel()
-    {
         selectionBox.gameObject.SetActive(false);
         isSelecting = false;
+
+        selectionBox.sizeDelta = Vector2.zero;
     }
 
     bool IsWithinSelection(Vector2 position)

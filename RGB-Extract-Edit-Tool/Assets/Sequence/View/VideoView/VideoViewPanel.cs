@@ -80,8 +80,8 @@ namespace DataExtract
 
             if (eventData.button == PointerEventData.InputButton.Left)
             {
-                rectAreaChannelSelection.PointerDown();
-                //_SelectUIElement(eventData);
+                if (!_SelectOnlyOneChannel(eventData))
+                    rectAreaChannelSelection.PointerDown();
             }
             if (eventData.button == PointerEventData.InputButton.Right)
             {
@@ -92,11 +92,11 @@ namespace DataExtract
 
         public void OnPointerUp(PointerEventData eventData)
         {
-            rectAreaChannelSelection.Cancel();
+            rectAreaChannelSelection.PointerUp();
         }
 
 
-        void _SelectUIElement(PointerEventData eventData)
+        bool _SelectOnlyOneChannel(PointerEventData eventData)
         {
             List<RaycastResult> results = new List<RaycastResult>();
             graphicRaycaster.Raycast(eventData, results);
@@ -112,9 +112,11 @@ namespace DataExtract
                     SelectChannelParam param = new SelectChannelParam(this, indices);
                     SelectChannel(false, param);
 
-                    return;
+                    return true;
                 }
             }
+
+            return false;
         }
 
         void _ShowVideoViewPanelMenuPopup(Vector2 pos)
