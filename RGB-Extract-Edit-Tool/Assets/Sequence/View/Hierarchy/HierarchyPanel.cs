@@ -25,25 +25,42 @@ namespace DataExtract
         [SerializeField] EventSystem eventSystem;
 
         List<IPanelChannel> channels;
+        List<IPanelChannel> selectChannels;
+
+        void Awake()
+        {
+            channels = new List<IPanelChannel>();
+            selectChannels = new List<IPanelChannel>();
+        }
 
         public void Init(ChannelUpdater channelUpdater, ChannelReceiver channelReceiver, ChannelSyncer channelSyncer)
         {
             this.channelUpdater = channelUpdater;
             this.channelReceiver = channelReceiver;
             this.channelSyncer = channelSyncer;
-
-            channels = new List<IPanelChannel>();
         }
 
         public void OnPointerDown(PointerEventData eventData)
         {
-            DeSelectChannel(false, new DeSelectChannelParam(this));
+            DeselectChannel(new DeSelectChannelParam(this));
 
             if (eventData.button == PointerEventData.InputButton.Left)
             {
                 _SelectUIElement(eventData);
             }
         }
+
+        void DestroyAll()
+        {
+            foreach (var ch in channels)
+            {
+                Destroy(ch.GetObject());
+            }
+
+            channels.Clear();
+            selectChannels.Clear();
+        }
+
 
         void _SelectUIElement(PointerEventData eventData)
         {
@@ -59,7 +76,7 @@ namespace DataExtract
                     indices.Add(selectedChannel.channelIndex);
 
                     SelectChannelParam param = new SelectChannelParam(this, indices);
-                    SelectChannel(false, param);
+                    SelectChannel(param);
 
                     return;
                 }
@@ -70,12 +87,14 @@ namespace DataExtract
 
         public Dictionary<eEditType, Action<EditParam>> syncParamMap => new Dictionary<eEditType, Action<EditParam>>()
         {
-            { eEditType.CreateChannel, param => CreateChannel(true, (CreateChannelParam)param) },
-            { eEditType.MoveChannel, param => MoveChannel(true, (MoveChannelParam)param) },
-            { eEditType.DeleteChannel, param => DelateChannel(true, (DeleteChannelParam)param) },
-            { eEditType.SelectChannel, param => SelectChannel(true, (SelectChannelParam)param) },
-            { eEditType.DeSelectChannel, param => DeSelectChannel(true, (DeSelectChannelParam)param) },
+            { eEditType.CreateChannel, param => CreateChannel((CreateChannelParam)param) },
+            { eEditType.DeleteChannel, param => DeleteChannel((DeleteChannelParam)param) },
+            { eEditType.SelectChannel, param => SelectChannel((SelectChannelParam)param) },
+            { eEditType.DeSelectChannel, param => DeselectChannel((DeSelectChannelParam)param) },
+            { eEditType.MoveDeltaChannel, param => MoveDeltaChannel((MoveDeltaChannelParam)param) },
+            { eEditType.Undo, param => Undo((UndoParam)param) },
         };
+
 
         public void Apply(EditParam param)
         {
@@ -87,30 +106,35 @@ namespace DataExtract
             syncParamMap[param.editType].Invoke(param);
         }
 
-        public void CreateChannel(bool isSynced, CreateChannelParam param)
+        public void CreateChannel(CreateChannelParam param)
         {
             var ch = Instantiate(hierarchyChannelPrefab, scrollViewContentRt);
             ch.Init(param);
             channels.Add(ch);
 
-            if (!isSynced)
+            if (param.ownerPanel.Equals(this))
             {
                 channelUpdater.CreateChannel(param);
                 Apply(param);
             }
         }
 
-        public void MoveChannel(bool isSynced, MoveChannelParam param)
+
+        public void DeleteChannel(DeleteChannelParam param)
         {
-            throw new NotImplementedException();
+            foreach (var delete in param.indices)
+            {
+                channels[delete].DestroyChannel();
+            }
+
+            if (param.ownerPanel.Equals(this))
+            {
+                channelUpdater.DeleteChannel(param);
+                Apply(param);
+            }
         }
 
-        public void DelateChannel(bool isSynced, DeleteChannelParam param)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void SelectChannel(bool isSynced, SelectChannelParam param)
+        public void SelectChannel(SelectChannelParam param)
         {
             List<int> indices = param.indices;
             for (int i = 0; i < indices.Count; i++)
@@ -118,23 +142,60 @@ namespace DataExtract
                 channels[indices[i]].Select();
             }
 
-            if (!isSynced)
+            if (param.ownerPanel.Equals(this))
             {
-                channelUpdater.SelectChannel(param);
                 Apply(param);
             }
         }
 
-        public void DeSelectChannel(bool isSynced, DeSelectChannelParam param)
+        public void DeselectChannel(DeSelectChannelParam param)
         {
             foreach (var ch in channels)
             {
                 ch.Deselect();
             }
 
-            if (!isSynced)
+            if (param.ownerPanel.Equals(this))
             {
-                channelUpdater.DeSelectChannel(param);
+                Apply(param);
+            }
+        }
+
+        public void MoveDeltaChannel(MoveDeltaChannelParam param)
+        {
+            foreach (int index in param.indices)
+            {
+                IPanelChannel channel = channels.Find(x => x.channelIndex == index);
+                channel.MoveDelta(param.movePos);
+            }
+
+            if (param.ownerPanel.Equals(this))
+            {
+                channelUpdater.MoveDeltaChannel(param);
+                Apply(param);
+            }
+        }
+
+        public void Undo(UndoParam param)
+        {
+            if (null != param.state)
+            {
+                //다 없애고
+                DestroyAll();
+
+                //새로 재배치
+
+                foreach (var newCh in param.state.channels)
+                {
+                    var ch = Instantiate(hierarchyChannelPrefab, scrollViewContentRt);
+                    ch.Init(new CreateChannelParam(this, newCh.channelIndex, newCh.position));
+                    channels.Add(ch);
+                }
+            }
+
+            if (param.ownerPanel.Equals(this))
+            {
+                //channelUpdater.Undo(param);
                 Apply(param);
             }
         }

@@ -1,14 +1,13 @@
 using System;
 using UnityEngine;
-using static IGroupable;
 
 namespace DataExtract
 {
-    public class Channel : IGroupable, IChannel
+    public class Channel : IChannel
     {
         public int channelIndex { get; set; }           // 생성과 삭제에만 관여되는 index
         public Vector2 position { get; set; }
-        public IndividualInfo individualInfo { get; set; }
+        public IChannel.IndividualInfo individualInfo { get; set; }
 
         public void Create(CreateChannelParam param)
         {
@@ -16,9 +15,19 @@ namespace DataExtract
             position = param.createPos;
         }
 
+        public IChannel Clone()
+        {
+            return new Channel
+            {
+                channelIndex = this.channelIndex,
+                position = this.position,
+                individualInfo = this.individualInfo != null ? new IChannel.IndividualInfo(this.individualInfo.parentGroup, this.individualInfo.inIndex) : null
+            };
+        }
+
         #region Group
 
-        public bool TryIncludeNewGroup(IndividualInfo info)
+        public bool TryIncludeNewGroup(IChannel.IndividualInfo info)
         {
             if (IsIncludedGroup())
                 return false;
@@ -28,7 +37,7 @@ namespace DataExtract
             return true;
         }
 
-        public void IncludeGroup(IndividualInfo info)
+        public void IncludeGroup(IChannel.IndividualInfo info)
         {
             individualInfo = info;
         }
@@ -43,7 +52,7 @@ namespace DataExtract
             individualInfo = null;
         }
 
-        public void Redefine(IndividualInfo info)
+        public void Redefine(IChannel.IndividualInfo info)
         {
             individualInfo = info;
         }
@@ -57,10 +66,6 @@ namespace DataExtract
         {
             individualInfo.Redefine(inIndex);
         }
-
-        #endregion
-
-        #region Channel 
 
         #endregion
     }

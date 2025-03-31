@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 
 namespace DataExtract
@@ -12,10 +11,11 @@ namespace DataExtract
         void Apply(EditParam param);
         void Sync(EditParam param);
 
-        void CreateChannel(bool isSynced, CreateChannelParam param);
-        void MoveChannel(bool isSynced, MoveChannelParam param);
-        void DelateChannel(bool isSynced, DeleteChannelParam param);
-        void SelectChannel(bool isSynced, SelectChannelParam param);
-        void DeSelectChannel(bool isSynced, DeSelectChannelParam param);
+        void CreateChannel(CreateChannelParam param);
+        void MoveDeltaChannel(MoveDeltaChannelParam param);
+        void DeleteChannel(DeleteChannelParam param);
+        void SelectChannel(SelectChannelParam param);
+        void DeselectChannel(DeSelectChannelParam param);
+        void Undo(UndoParam param);
     }
 }

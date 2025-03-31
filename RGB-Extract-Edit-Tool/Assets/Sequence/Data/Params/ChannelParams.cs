@@ -7,9 +7,11 @@ namespace DataExtract
     {
         CreateChannel,
         MoveChannel,
+        MoveDeltaChannel,
         DeleteChannel,
         SelectChannel,
         DeSelectChannel,
+        Undo,
     }
 
     public class EditParam
@@ -43,16 +45,31 @@ namespace DataExtract
 
     public class MoveChannelParam : EditParam
     {
-        public int chIndex;
+        public List<int> indices;
         public Vector2 position;
 
         public MoveChannelParam() { }
 
-        public MoveChannelParam(IPanelSync ownerPanel, int chIndex, Vector2 position)
+        public MoveChannelParam(IPanelSync ownerPanel, List<int> indices, Vector2 position)
             : base(ownerPanel, eEditType.MoveChannel)
         {
-            this.chIndex = chIndex;
+            this.indices = indices;
             this.position = position;
+        }
+    }
+
+    public class MoveDeltaChannelParam : EditParam
+    {
+        public List<int> indices;
+        public Vector2 movePos;
+
+        public MoveDeltaChannelParam() { }
+
+        public MoveDeltaChannelParam(IPanelSync ownerPanel, List<int> indices, Vector2 movePos)
+            : base(ownerPanel, eEditType.MoveDeltaChannel)
+        {
+            this.indices = indices;
+            this.movePos = movePos;
         }
     }
 
@@ -86,6 +103,18 @@ namespace DataExtract
     {
         public DeSelectChannelParam(IPanelSync ownerPanel)
             : base(ownerPanel, eEditType.DeSelectChannel) { }
+    }    
+    
+    
+    public class UndoParam : EditParam
+    {
+        public IExtractDataStore.DatatStoreState state;
+
+        public UndoParam(IPanelSync ownerPanel, IExtractDataStore.DatatStoreState state)
+            : base(ownerPanel, eEditType.Undo) 
+        {
+            this.state = state;
+        }
     }
 }
 

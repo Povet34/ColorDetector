@@ -10,11 +10,9 @@ namespace DataExtract
         [SerializeField] HierarchyPanel hierarchyPanel;
         [SerializeField] VideoViewPanel videoViewPanel;
 
-        IExtractDataStore extractDataStore;
-
         private void Start()
         {
-            extractDataStore = new ExtractDataStoreImp();
+            IExtractDataStore extractDataStore = new ExtractDataStoreImp();
 
             ChannelReceiver channelReceiver = new ChannelReceiver();
             channelReceiver.Init(extractDataStore);

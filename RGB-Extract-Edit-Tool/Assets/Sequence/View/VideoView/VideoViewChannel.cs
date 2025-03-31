@@ -7,9 +7,12 @@ namespace DataExtract
     {
         public int channelIndex { get; set; }
         public Vector2 position { get; set; }
+        public GameObject GetObject() => gameObject;
 
         RectTransform rt;
         Image handleImage;
+        bool isSelect;
+
 
         void Awake()
         {
@@ -17,9 +20,14 @@ namespace DataExtract
             handleImage = GetComponent<Image>();
         }
 
-        public void Destroy(DeleteChannelParam param)
+        public void DestroyChannel()
         {
-            throw new System.NotImplementedException();
+            Destroy(gameObject);    
+        }
+
+        void OnDestroy()
+        {
+            DLogger.Log_Blue(gameObject.name);
         }
 
         public void Init(CreateChannelParam param)
@@ -32,19 +40,27 @@ namespace DataExtract
             Deselect();
         }
 
-        public void Move(MoveChannelParam param)
-        {
-            throw new System.NotImplementedException();
-        }
-
         public void Select()
         {
             handleImage.color = new Color32(200, 50, 50, 255);
+            isSelect = true;
         }
 
         public void Deselect()
         {
             handleImage.color = new Color32(255, 255, 255, 255);
+            isSelect = false;
+        }
+
+        public bool IsSelect()
+        {
+            return isSelect;
+        }
+
+        public void MoveDelta(Vector2 deltaPos)
+        {
+            position += deltaPos;
+            rt.anchoredPosition = position;
         }
     }
 }

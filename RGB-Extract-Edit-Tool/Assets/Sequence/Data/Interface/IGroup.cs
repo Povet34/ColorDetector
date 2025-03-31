@@ -16,11 +16,11 @@ public interface IGroup
         public int groupIndex;
         public string name = "NewGroup";
         public SortDirection dir;
-        public List<IGroupable> groupables;
+        public List<IChannel> groupables;
     }
 
     public string name { get; set; }
-    public List<IGroupable> hasGroupables { get; set; }
+    public List<IChannel> hasChannels { get; set; }
     public SortDirection sortDirection { get; set; }
 
     /// <summary>
@@ -28,4 +28,5 @@ public interface IGroup
     /// </summary>
     /// <param name="info"></param>
     void Create(InitInfo info);
+    IGroup Clone();
 }

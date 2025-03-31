@@ -24,14 +24,14 @@ namespace DataExtract
         {
             _dataStore.MoveChannel(param);
         }
-
-        public void SelectChannel(SelectChannelParam param)
+        public void MoveDeltaChannel(MoveDeltaChannelParam param)
         {
-            _dataStore.SelectChannel(param);
+            _dataStore.MoveDeltaChannel(param);
         }
-        public void DeSelectChannel(DeSelectChannelParam param)
+
+        public IExtractDataStore.DatatStoreState Undo()
         {
-            _dataStore.DeSelectChannel(param);
+            return _dataStore.Undo();
         }
     }
 }

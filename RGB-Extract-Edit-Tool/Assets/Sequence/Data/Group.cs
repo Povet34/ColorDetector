@@ -6,14 +6,31 @@ using static IGroup;
 public class Group : IGroup
 {
     public string name { get; set; }
-    public List<IGroupable> hasGroupables { get; set; }
+    public List<IChannel> hasChannels { get; set; }
     public SortDirection sortDirection { get; set; }
 
     public void Create(InitInfo info)
     {
-        hasGroupables = info.groupables;
+        hasChannels = info.groupables;
         name = info.name;
         sortDirection = info.dir;
+    }
+
+    public IGroup Clone()
+    {
+        var clonedGroup = new Group
+        {
+            name = this.name,
+            sortDirection = this.sortDirection,
+            hasChannels = new List<IChannel>()
+        };
+
+        foreach (var ch in this.hasChannels)
+        {
+            clonedGroup.hasChannels.Add(ch.Clone());
+        }
+
+        return clonedGroup;
     }
 
     public void Reanme(string newName)
@@ -23,21 +40,20 @@ public class Group : IGroup
 
     public int GetTotalGroupableCount()
     {
-        return hasGroupables.Count;
+        return hasChannels.Count;
     }
 
     public void SortGroupableOrder(SortDirection dir)
     {
     }
 
-    public void AddNewGroupable(IGroupable newTarget)
+    public void AddNewGroupable(IChannel newTarget)
     {
-        hasGroupables.Add(newTarget);
+        hasChannels.Add(newTarget);
     }
 
-    public void RemoveGroupable(IGroupable removeTarget)
+    public void RemoveGroupable(IChannel removeTarget)
     {
-        hasGroupables.Remove(removeTarget);
+        hasChannels.Remove(removeTarget);
     }
-
 }

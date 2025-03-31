@@ -14,6 +14,8 @@ public class ChannelSyncer
 
     public void SyncAllPanel(IPanelSync ownPanel, EditParam param)
     {
+        DLogger.Log_Yellow($"{ownPanel.GetType()} : {param.editType}");
+
         foreach (var panel in panels)
         {
             if (panel != ownPanel)
