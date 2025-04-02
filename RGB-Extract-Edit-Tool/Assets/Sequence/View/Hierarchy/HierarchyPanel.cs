@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using UnityEditor;
 
 namespace DataExtract
 {
@@ -82,6 +83,17 @@ namespace DataExtract
             }
         }
 
+        void _CreateChannel()
+        {
+
+        }
+
+        void _MoveChannel(int index, Vector2 movePos)
+        {
+            MoveChannelParam param = new MoveChannelParam(this, new List<int>() { index }, movePos);
+            MoveChannel(param);
+        }
+
         #region IPanelSync
 
         public Dictionary<eEditType, Action<EditParam>> syncParamMap => new Dictionary<eEditType, Action<EditParam>>()
@@ -93,6 +105,7 @@ namespace DataExtract
             { eEditType.MoveDeltaChannel, param => MoveDeltaChannel((MoveDeltaChannelParam)param) },
             { eEditType.Undo, param => Undo((UndoParam)param) },
             { eEditType.MakeGroup, param => MakeGroup((MakeGroupParam)param) },
+            { eEditType.MoveChannel, param => MoveChannel((MoveChannelParam)param) },
         };
 
 
@@ -108,8 +121,14 @@ namespace DataExtract
 
         public void CreateChannel(CreateChannelParam param)
         {
-            var ch = Instantiate(hierarchyChannelPrefab, scrollViewContentRt);
-            ch.Init(param);
+            HierarchyChannel ch = Instantiate(hierarchyChannelPrefab, scrollViewContentRt);
+
+            HierarchyChannel.CreateParam createParam = new HierarchyChannel.CreateParam();
+            createParam.createPos = param.createPos;
+            createParam.chIndex = param.chIndex;
+            createParam.onMoveCallback = _MoveChannel;
+
+            ch.Init(createParam);
             channels.Add(ch);
 
             if (param.ownerPanel.Equals(this))
@@ -187,8 +206,12 @@ namespace DataExtract
 
                 foreach (var newCh in param.state.channels)
                 {
-                    var ch = Instantiate(hierarchyChannelPrefab, scrollViewContentRt);
-                    ch.Init(new CreateChannelParam(this, newCh.channelIndex, newCh.position));
+                    var createParam = new HierarchyChannel.CreateParam();
+                    createParam.chIndex = newCh.channelIndex;
+                    createParam.createPos = newCh.position;
+
+                    HierarchyChannel ch = Instantiate(hierarchyChannelPrefab, scrollViewContentRt);
+                    ch.Init(createParam);
                     channels.Add(ch);
                 }
             }
@@ -208,6 +231,20 @@ namespace DataExtract
             if (param.ownerPanel.Equals(this))
             {
                 channelUpdater.MakeGroup(param);
+                Apply(param);
+            }
+        }
+
+        public void MoveChannel(MoveChannelParam param)
+        {
+            foreach(var index in param.indices)
+            {
+                channels[index].position = param.position;
+            }
+
+            if (param.ownerPanel.Equals(this))
+            {
+                channelUpdater.MoveChannel(param);
                 Apply(param);
             }
         }

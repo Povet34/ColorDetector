@@ -62,5 +62,11 @@ namespace DataExtract
             position += deltaPos;
             rt.anchoredPosition = position;
         }
+
+        public void Move(Vector2 pos)
+        {
+            position = pos;
+            rt.anchoredPosition = position;
+        }
     }
 }

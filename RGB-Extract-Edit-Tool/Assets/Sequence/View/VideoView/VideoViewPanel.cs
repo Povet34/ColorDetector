@@ -11,8 +11,8 @@ using System.Xml.Linq;
 namespace DataExtract
 {
 
-    public class VideoViewPanel : MonoBehaviour, 
-        IPanelSync, 
+    public class VideoViewPanel : MonoBehaviour,
+        IPanelSync,
         IPointerDownHandler, 
         IPointerUpHandler
     {
@@ -301,6 +301,7 @@ namespace DataExtract
             { eEditType.MoveDeltaChannel, param => MoveDeltaChannel((MoveDeltaChannelParam)param) },
             { eEditType.Undo, param => Undo((UndoParam)param) },
             { eEditType.MakeGroup, param => MakeGroup((MakeGroupParam)param) },
+            { eEditType.MoveChannel, param => MoveChannel((MoveChannelParam)param) },
         };
 
         public void Apply(EditParam param)
@@ -419,6 +420,20 @@ namespace DataExtract
             if (param.ownerPanel.Equals(this))
             {
                 channelUpdater.MakeGroup(param);
+                Apply(param);
+            }
+        }
+
+        public void MoveChannel(MoveChannelParam param)
+        {
+            foreach (var index in param.indices)
+            {
+                channels[index].Move(param.position);
+            }
+
+            if (param.ownerPanel.Equals(this))
+            {
+                channelUpdater.MoveChannel(param);
                 Apply(param);
             }
         }

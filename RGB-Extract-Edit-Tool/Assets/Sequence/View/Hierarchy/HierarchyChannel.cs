@@ -1,13 +1,25 @@
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Windows;
 
 namespace DataExtract
 {
     public class HierarchyChannel : MonoBehaviour, IPanelChannel
     {
+        public class CreateParam
+        {
+            public int chIndex;
+            public Vector2 createPos;
+
+            public Action<int, Vector2> onMoveCallback;
+        }
+
         public int channelIndex { get; set; }
         public Vector2 position { get; set; }
+
+        Action<int, Vector2> onMoveCallback;
 
         public GameObject GetObject() => gameObject;
 
@@ -21,12 +33,30 @@ namespace DataExtract
         void Awake()
         {
             bgImage = GetComponent<Image>();
+            inputX.onEndEdit.AddListener(
+                (text)=> 
+                {
+                    int x = int.Parse(inputX.text);
+                    int y = int.Parse(inputY.text);
+
+                    onMoveCallback?.Invoke(channelIndex, new Vector2(x, y));
+                });
+
+            inputY.onEndEdit.AddListener(
+                (text) =>
+                {
+                    int x = int.Parse(inputX.text);
+                    int y = int.Parse(inputY.text);
+
+                    onMoveCallback?.Invoke(channelIndex, new Vector2(x, y));
+                });
         }
 
-        public void Init(CreateChannelParam param)
+        public void Init(CreateParam param)
         {
             channelIndex = param.chIndex;
             position = param.createPos;
+            onMoveCallback = param.onMoveCallback;
 
             channelText.text = $"CH {channelIndex}";
 

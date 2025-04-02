@@ -12,6 +12,7 @@ namespace DataExtract
         void Sync(EditParam param);
 
         void CreateChannel(CreateChannelParam param);
+        void MoveChannel(MoveChannelParam param);
         void MoveDeltaChannel(MoveDeltaChannelParam param);
         void DeleteChannel(DeleteChannelParam param);
         void SelectChannel(SelectChannelParam param);
