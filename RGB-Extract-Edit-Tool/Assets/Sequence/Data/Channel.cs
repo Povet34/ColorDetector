@@ -57,7 +57,7 @@ namespace DataExtract
             individualInfo = info;
         }
 
-        public void Redefine(Group parentGroup, int inIndex)
+        public void Redefine(IGroup parentGroup, int inIndex)
         {
             individualInfo.Redefine(parentGroup, inIndex);
         }

@@ -13,10 +13,10 @@ public interface IChannel
     /// </summary>
     public class IndividualInfo
     {
-        public Group parentGroup;
+        public IGroup parentGroup;
         public int inIndex; // 그룹 내에서의 index
 
-        public IndividualInfo(Group parentGroup, int inIndex)
+        public IndividualInfo(IGroup parentGroup, int inIndex)
         {
             this.parentGroup = parentGroup;
             this.inIndex = inIndex;
@@ -33,7 +33,7 @@ public interface IChannel
             this.inIndex = inIndex;
         }
 
-        public void Redefine(Group parentGroup, int inIndex)
+        public void Redefine(IGroup parentGroup, int inIndex)
         {
             this.parentGroup = parentGroup;
             this.inIndex = inIndex;
@@ -68,7 +68,7 @@ public interface IChannel
     /// 그룹원의 정보를 재정의하기
     /// </summary>
     void Redefine(IndividualInfo info);
-    void Redefine(Group parentGroup, int inIndex);
+    void Redefine(IGroup parentGroup, int inIndex);
     void Redefine(int inIndex);
 
     IChannel Clone();

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace DataExtract
 {
@@ -12,6 +13,7 @@ namespace DataExtract
         SelectChannel,
         DeSelectChannel,
         Undo,
+        MakeGroup,
     }
 
     public class EditParam
@@ -114,6 +116,23 @@ namespace DataExtract
             : base(ownerPanel, eEditType.Undo) 
         {
             this.state = state;
+        }
+    }
+
+    public class MakeGroupParam : EditParam
+    {
+        public int groupIndex;
+        public List<int> channelIndices;
+        public IGroup.SortDirection sortDirection;
+        public string name;
+
+        public MakeGroupParam(IPanelSync ownerPanel, int groupIndex, List<int> channels, IGroup.SortDirection sortDirection, string name = "NewGroup")
+            : base(ownerPanel, eEditType.MakeGroup)
+        {
+            this.groupIndex = groupIndex;
+            this.channelIndices = channels;
+            this.sortDirection = sortDirection;
+            this.name = name;
         }
     }
 }

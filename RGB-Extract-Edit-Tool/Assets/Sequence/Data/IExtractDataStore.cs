@@ -53,7 +53,7 @@ namespace DataExtract
 
         #region Group
 
-        public void CreateGroup(IGroup.InitInfo info);
+        public void MakeGroup(MakeGroupParam param);
         public void DeleteGroup(IGroup group);
 
         #endregion

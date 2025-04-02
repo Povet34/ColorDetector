@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using static DataExtract.IExtractDataStore;
+using static IChannel;
 
 
 namespace DataExtract
@@ -16,12 +17,6 @@ namespace DataExtract
         public List<IChannel> channels { get => _channels; set => _channels = value; }
         public List<IGroup> groups { get => _groups; set => _groups = value; }
 
-        public ExtractDataStoreImp()
-        {
-            //초기 아무것도 없는 상태를 Push
-            stateStack.Push(new DatatStoreState());
-        }
-
         #region Channel
 
 
@@ -36,10 +31,22 @@ namespace DataExtract
 
         #region Group
 
-        public void CreateGroup(IGroup.InitInfo info)
+        public void MakeGroup(MakeGroupParam param)
         {
             IGroup group = new Group();
-            group.Create(info);
+            group.Create(param);
+
+            int inIndex = 0;
+            foreach(var index in param.channelIndices)
+            {
+                var info = new IndividualInfo();
+                info.parentGroup = group;
+                info.inIndex = inIndex++;
+
+                if (!channels[index].TryIncludeNewGroup(info))
+                    continue;
+            }
+
             _groups.Add(group);
         }
 
@@ -54,34 +61,31 @@ namespace DataExtract
 
         public void CreateChannel(CreateChannelParam param)
         {
+            StackEditParam(param);
             IChannel channel = new Channel();
 
             channel.Create(param);
             _channels.Add(channel);
-
-            StackEditParam(param);
         }
 
         public void MoveChannel(MoveChannelParam param)
         {
+            StackEditParam(param);
             foreach (int index in param.indices)
             {
                 IChannel channel = _channels.Find(x => x.channelIndex == index);
                 channel.position = param.position;
             }
-
-            StackEditParam(param);
         }
 
         public void DeleteChannel(DeleteChannelParam param)
         {
+            StackEditParam(param);
             foreach (int index in param.indices)
             {
                 IChannel channel = _channels.Find(x => x.channelIndex == index);
                 _DeleteChannelBody(channel);
             }
-
-            StackEditParam(param);
         }
 
         public EditParam GetLastestEditParam()
@@ -97,13 +101,12 @@ namespace DataExtract
 
         public void MoveDeltaChannel(MoveDeltaChannelParam param)
         {
+            StackEditParam(param);
             foreach (int index in param.indices)
             {
                 IChannel channel = _channels.Find(x => x.channelIndex == index);
                 channel.position += param.movePos;
             }
-
-            StackEditParam(param);
         }
 
         public DatatStoreState GetLastestStoreState()

@@ -33,5 +33,10 @@ namespace DataExtract
         {
             return _dataStore.Undo();
         }
+
+        public void MakeGroup(MakeGroupParam param)
+        {
+            _dataStore.MakeGroup(param);
+        }
     }
 }

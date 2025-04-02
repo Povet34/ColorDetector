@@ -57,7 +57,7 @@ namespace DataExtract
                         onCreateChannel:    _CreateChannel,
                         onCreateSegment:    null,
                         onDeleteChannel:    null,
-                        onMakeGroup:        null,
+                        onMakeGroup:        _MakeGroup,
                         onReleaseGroup:     null
                     ));
             videoViewPanelMenuPopup.Show(false);
@@ -216,6 +216,21 @@ namespace DataExtract
         }
 
         /// <summary>
+        /// 선택된 채널들을 그룹화
+        /// </summary>
+        void _MakeGroup()
+        {
+            List<int> indices = new List<int>();
+
+            foreach(var ch in selectChannels)
+            {
+                indices.Add(ch.channelIndex);
+            }
+
+            MakeGroupParam param = new MakeGroupParam(this, 0, indices, IGroup.SortDirection.Left);
+        }
+
+        /// <summary>
         /// 채널 삭제
         /// </summary>
         void _DeleteChannel()
@@ -285,6 +300,7 @@ namespace DataExtract
             { eEditType.DeSelectChannel, param => DeselectChannel((DeSelectChannelParam)param) },
             { eEditType.MoveDeltaChannel, param => MoveDeltaChannel((MoveDeltaChannelParam)param) },
             { eEditType.Undo, param => Undo((UndoParam)param) },
+            { eEditType.MakeGroup, param => MakeGroup((MakeGroupParam)param) },
         };
 
         public void Apply(EditParam param)
@@ -378,7 +394,7 @@ namespace DataExtract
                 DestroyAll();
 
                 //새로 재배치
-
+                //채널
                 foreach(var newCh in param.state.channels)
                 {
                     var ch = Instantiate(videoViewChannelPrefab, transform);
@@ -389,10 +405,24 @@ namespace DataExtract
 
             if (param.ownerPanel.Equals(this))
             {
-                //channelUpdater.Undo(param);
                 Apply(param);
             }
         }
+
+
+        public void MakeGroup(MakeGroupParam param)
+        {
+            //그룹을 생성하고
+            //Rect를 만들어줘야하나?
+
+
+            if (param.ownerPanel.Equals(this))
+            {
+                channelUpdater.MakeGroup(param);
+                Apply(param);
+            }
+        }
+
         #endregion
     }
 }

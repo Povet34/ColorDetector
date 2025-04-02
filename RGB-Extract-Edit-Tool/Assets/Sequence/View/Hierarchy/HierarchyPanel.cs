@@ -7,7 +7,6 @@ using UnityEngine.UI;
 
 namespace DataExtract
 {
-
     public class HierarchyPanel : MonoBehaviour, IPanelSync, IPointerDownHandler
     {
         #region Injection
@@ -93,6 +92,7 @@ namespace DataExtract
             { eEditType.DeSelectChannel, param => DeselectChannel((DeSelectChannelParam)param) },
             { eEditType.MoveDeltaChannel, param => MoveDeltaChannel((MoveDeltaChannelParam)param) },
             { eEditType.Undo, param => Undo((UndoParam)param) },
+            { eEditType.MakeGroup, param => MakeGroup((MakeGroupParam)param) },
         };
 
 
@@ -195,7 +195,19 @@ namespace DataExtract
 
             if (param.ownerPanel.Equals(this))
             {
-                //channelUpdater.Undo(param);
+                Apply(param);
+            }
+        }
+
+        public void MakeGroup(MakeGroupParam param)
+        {
+            //그룹을 생성하고
+
+
+
+            if (param.ownerPanel.Equals(this))
+            {
+                channelUpdater.MakeGroup(param);
                 Apply(param);
             }
         }

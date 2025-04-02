@@ -2,18 +2,19 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using static IGroup;
+using DataExtract;
 
 public class Group : IGroup
 {
     public string name { get; set; }
-    public List<IChannel> hasChannels { get; set; }
+    public List<int> hasChannels { get; set; }
     public SortDirection sortDirection { get; set; }
 
-    public void Create(InitInfo info)
+    public void Create(MakeGroupParam param)
     {
-        hasChannels = info.groupables;
-        name = info.name;
-        sortDirection = info.dir;
+        hasChannels = param.channelIndices;
+        name = param.name;
+        sortDirection = param.sortDirection;
     }
 
     public IGroup Clone()
@@ -22,12 +23,12 @@ public class Group : IGroup
         {
             name = this.name,
             sortDirection = this.sortDirection,
-            hasChannels = new List<IChannel>()
+            hasChannels = new List<int>()
         };
 
-        foreach (var ch in this.hasChannels)
+        foreach (int index in hasChannels)
         {
-            clonedGroup.hasChannels.Add(ch.Clone());
+            clonedGroup.hasChannels.Add(index);
         }
 
         return clonedGroup;
@@ -47,12 +48,12 @@ public class Group : IGroup
     {
     }
 
-    public void AddNewGroupable(IChannel newTarget)
+    public void AddNewGroupable(int newTarget)
     {
         hasChannels.Add(newTarget);
     }
 
-    public void RemoveGroupable(IChannel removeTarget)
+    public void RemoveGroupable(int removeTarget)
     {
         hasChannels.Remove(removeTarget);
     }
