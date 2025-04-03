@@ -16,5 +16,10 @@ namespace DataExtract
         {
             return _dataStore.GetGroupCount();
         }
+
+        public bool CanGroup(List<int> indices)
+        {
+            return _dataStore.CanGroup(indices);
+        }
     }
 }

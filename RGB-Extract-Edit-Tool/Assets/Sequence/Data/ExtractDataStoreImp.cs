@@ -139,6 +139,26 @@ namespace DataExtract
             return groups.Count;
         }
 
+        public bool CanGroup(List<int> indices)
+        {
+            bool isCan = true;
+            string log = "";
+
+            foreach(var index in indices)
+            {
+                if (channels[index].IsIncludedGroup())
+                {
+                    isCan = false;
+                    log += $"Origin : {channels[index].channelIndex} - GroupName : {channels[index].individualInfo.parentGroup.name} : InIndex : {channels[index].individualInfo.inIndex} \n";
+                }
+            }
+
+            if (!isCan)
+                DLogger.Log_Red(log);
+
+            return isCan;
+        }
+
         #endregion
     }
 }

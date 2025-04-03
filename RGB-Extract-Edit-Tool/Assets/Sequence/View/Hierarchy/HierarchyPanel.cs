@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityEditor;
+using System.Linq;
 
 namespace DataExtract
 {
@@ -28,11 +29,13 @@ namespace DataExtract
 
         List<IPanelChannel> channels;
         List<IPanelChannel> selectChannels;
+        List<IPanelGroup> groups;
 
         void Awake()
         {
             channels = new List<IPanelChannel>();
             selectChannels = new List<IPanelChannel>();
+            groups = new List<IPanelGroup>();
         }
 
         public void Init(ChannelUpdater channelUpdater, ChannelReceiver channelReceiver, ChannelSyncer channelSyncer)
@@ -174,6 +177,8 @@ namespace DataExtract
                 ch.Deselect();
             }
 
+            selectChannels.Clear();
+
             if (param.ownerPanel.Equals(this))
             {
                 Apply(param);
@@ -229,9 +234,30 @@ namespace DataExtract
             HierarchyGroup gr = Instantiate(hierarchyGroupPrefab, scrollViewContentRt);
             gr.Init(param);
 
+            //채널들도 생성하고
             for (int i = 0; i < selectChannels.Count; i++)
             {
                 selectChannels[i].SetGroup(gr, i);
+            }
+
+            groups.Add(gr);
+
+
+            // 그룹을 재정렬
+            // 그룹의 가장 작은 것을 불러와서, group을 먼저 배치, 그리고 아래 자식들을 배치
+            int siblingIndex = 0;
+            foreach (var group in groups.OrderBy(g => g.GetObject().transform.GetSiblingIndex()))
+            {
+                group.GetObject().transform.SetSiblingIndex(siblingIndex++);
+
+                foreach (var channelIndex in group.channelIndices)
+                {
+                    var channel = channels.FirstOrDefault(ch => ch.channelIndex == channelIndex);
+                    if (channel != null)
+                    {
+                        channel.GetObject().transform.SetSiblingIndex(siblingIndex++);
+                    }
+                }
             }
 
 

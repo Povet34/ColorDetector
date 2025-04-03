@@ -19,6 +19,11 @@ namespace DataExtract
             throw new System.NotImplementedException();
         }
 
+        public GameObject GetObject()
+        {
+            return gameObject;
+        }
+
         public void Init(MakeGroupParam param)
         {
             groupName = param.name;

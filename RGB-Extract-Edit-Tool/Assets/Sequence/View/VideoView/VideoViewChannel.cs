@@ -7,7 +7,6 @@ namespace DataExtract
     {
         public int channelIndex { get; set; }
         public Vector2 position { get; set; }
-        public bool hasGroup { get; set; }
         public int parentGroupIndex { get; set; }
         public int groupInIndex { get; set; }
         public IPanelGroup parentGroup { get; set; }
@@ -77,6 +76,11 @@ namespace DataExtract
         public void SetGroup(IPanelGroup parentGroup, int groupInIndex)
         {
             throw new System.NotImplementedException();
+        }
+
+        public bool HasGroup()
+        {
+            return null != parentGroup;
         }
     }
 }

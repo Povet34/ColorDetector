@@ -263,9 +263,12 @@ namespace DataExtract
                 indices.Add(ch.channelIndex);
             }
 
-            MakeGroupParam param = new MakeGroupParam(this, groupIndex, indices, IGroup.SortDirection.Left, $"{groupIndex} NewGroup");
+            if(channelReceiver.CanGroup(indices))
+            {
+                MakeGroupParam param = new MakeGroupParam(this, groupIndex, indices, IGroup.SortDirection.Left, $"{groupIndex} NewGroup");
 
-            MakeGroup(param);
+                MakeGroup(param);
+            }
         }
 
         #region State 

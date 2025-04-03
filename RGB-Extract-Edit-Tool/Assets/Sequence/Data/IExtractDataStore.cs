@@ -55,6 +55,7 @@ namespace DataExtract
         void MakeGroup(MakeGroupParam param);
         void DeleteGroup(IGroup group);
         int GetGroupCount();
+        bool CanGroup(List<int> indices);
 
         #endregion
     }

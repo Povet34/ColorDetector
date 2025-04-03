@@ -18,7 +18,6 @@ namespace DataExtract
 
         public int channelIndex { get; set; }
         public Vector2 position { get; set; }
-        public bool hasGroup { get; set; }
         public int parentGroupIndex { get; set; }
         public int groupInIndex { get; set; }
         public IPanelGroup parentGroup { get; set; }
@@ -118,6 +117,11 @@ namespace DataExtract
             bgImage.rectTransform.sizeDelta = hasGroup ? new Vector2(300, 50) : new Vector2(350, 50);
 
             channelText.text = (hasGroup ? groupInIndex : channelIndex).ToString();
+        }
+
+        public bool HasGroup()
+        {
+            return null != parentGroup;
         }
     }
 }

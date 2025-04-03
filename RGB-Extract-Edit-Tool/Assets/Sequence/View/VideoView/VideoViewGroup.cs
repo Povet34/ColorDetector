@@ -6,7 +6,13 @@ public class VideoViewGroup : MonoBehaviour, IPanelGroup
 {
     public List<int> channelIndices { get; set; }
 
+
     public void Deselect()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public GameObject GetObject()
     {
         throw new System.NotImplementedException();
     }
