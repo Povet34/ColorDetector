@@ -14,6 +14,8 @@ namespace DataExtract
         DeSelectChannel,
         Undo,
         MakeGroup,
+        SelectGroup,
+        DeselectGroup,
     }
 
     public class EditParam
@@ -133,6 +135,16 @@ namespace DataExtract
             this.channelIndices = channelIndices;
             this.sortDirection = sortDirection;
             this.name = name;
+        }
+    }
+
+    public class SelectGroupParam : EditParam
+    {
+        public int groupIndex;
+        public SelectGroupParam(IPanelSync ownerPanel, int groupIndex)
+            : base(ownerPanel, eEditType.SelectGroup)
+        {
+            this.groupIndex = groupIndex;
         }
     }
 }

@@ -17,7 +17,12 @@ namespace DataExtract
         void DeleteChannel(DeleteChannelParam param);
         void SelectChannel(SelectChannelParam param);
         void DeselectChannel(DeSelectChannelParam param);
-        void Undo(UndoParam param);
+        
+        
         void MakeGroup(MakeGroupParam param);
+        void SelectGroup(SelectGroupParam param);
+
+
+        void Undo(UndoParam param);
     }
 }

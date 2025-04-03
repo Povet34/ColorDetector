@@ -25,6 +25,7 @@ namespace DataExtract
         #endregion
 
         [SerializeField] VideoViewChannel videoViewChannelPrefab;
+        [SerializeField] VideoViewGroup videoViewGroupPrefab;
         [SerializeField] VideoViewPanelMenuPopup videoViewPanelMenuPopupPrefab;
         [SerializeField] RectAreaChannelSelection rectAreaChannelSelectionPrefab;
 
@@ -183,15 +184,23 @@ namespace DataExtract
                         startPos = TransformEx.GetRelativeAnchorPosition_Screen(panelRt, eventData.position);
                         _moveState.MoveStart(startPos);
                     }
-                    else //완전히 새거였으면
+                    else //선택했던 채널이 아닐 때
                     {
                         DeselectChannel(new DeSelectChannelParam(this));
 
-                        List<int> indices = new List<int>();
-                        indices.Add(selectedChannel.channelIndex);
+                        if (selectedChannel.HasGroup()) //선택된게 그룹이면 그룹선택으로
+                        {
+                            SelectGroupParam param = new SelectGroupParam(this, selectedChannel.parentGroup.groupIndex);
+                            SelectGroup(param);
+                        }
+                        else //선택된게 그룹이 아니었으면 그냥 단일 선택
+                        {
+                            List<int> indices = new List<int>();
+                            indices.Add(selectedChannel.channelIndex);
+                            SelectChannelParam param = new SelectChannelParam(this, indices);
+                            SelectChannel(param);
+                        }
 
-                        SelectChannelParam param = new SelectChannelParam(this, indices);
-                        SelectChannel(param);
                     }
 
                     return true;
@@ -317,6 +326,7 @@ namespace DataExtract
             { eEditType.Undo, param => Undo((UndoParam)param) },
             { eEditType.MakeGroup, param => MakeGroup((MakeGroupParam)param) },
             { eEditType.MoveChannel, param => MoveChannel((MoveChannelParam)param) },
+            { eEditType.SelectGroup, param => SelectGroup((SelectGroupParam)param) },
         };
 
         public void Apply(EditParam param)
@@ -430,6 +440,7 @@ namespace DataExtract
         {
             //그룹을 생성하고
             //Rect를 만들어줘야하나?
+            VideoViewGroup gr = Instantiate(videoViewGroupPrefab, transform);
 
 
             if (param.ownerPanel.Equals(this))
@@ -449,6 +460,20 @@ namespace DataExtract
             if (param.ownerPanel.Equals(this))
             {
                 channelUpdater.MoveChannel(param);
+                Apply(param);
+            }
+        }
+
+        public void SelectGroup(SelectGroupParam param)
+        {
+            foreach(var index in groups[param.groupIndex].channelIndices)
+            {
+                channels[index].Select();
+                selectChannels.Add(channels[index]);
+            }
+
+            if (param.ownerPanel.Equals(this))
+            {
                 Apply(param);
             }
         }

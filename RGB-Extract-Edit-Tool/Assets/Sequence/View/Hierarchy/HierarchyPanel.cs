@@ -130,6 +130,7 @@ namespace DataExtract
             { eEditType.Undo, param => Undo((UndoParam)param) },
             { eEditType.MakeGroup, param => MakeGroup((MakeGroupParam)param) },
             { eEditType.MoveChannel, param => MoveChannel((MoveChannelParam)param) },
+            { eEditType.SelectGroup, param => SelectGroup((SelectGroupParam)param) },
         };
 
 
@@ -302,6 +303,20 @@ namespace DataExtract
             if (param.ownerPanel.Equals(this))
             {
                 channelUpdater.MoveChannel(param);
+                Apply(param);
+            }
+        }
+
+        public void SelectGroup(SelectGroupParam param)
+        {
+            foreach (var index in groups[param.groupIndex].channelIndices)
+            {
+                channels[index].Select();
+                selectChannels.Add(channels[index]);
+            }
+
+            if (param.ownerPanel.Equals(this))
+            {
                 Apply(param);
             }
         }

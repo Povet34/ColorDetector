@@ -13,6 +13,7 @@ namespace DataExtract
 
         string groupName;
         public List<int> channelIndices { get; set; }
+        public int groupIndex { get; set; }
 
         public void Deselect()
         {

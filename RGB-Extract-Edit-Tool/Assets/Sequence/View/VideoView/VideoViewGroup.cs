@@ -1,11 +1,15 @@
 using DataExtract;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class VideoViewGroup : MonoBehaviour, IPanelGroup
 {
-    public List<int> channelIndices { get; set; }
+    [SerializeField] Image bgImage;
 
+    string groupName;
+    public List<int> channelIndices { get; set; }
+    public int groupIndex { get; set; }
 
     public void Deselect()
     {
@@ -14,11 +18,12 @@ public class VideoViewGroup : MonoBehaviour, IPanelGroup
 
     public GameObject GetObject()
     {
-        throw new System.NotImplementedException();
+        return gameObject;
     }
 
     public void Init(MakeGroupParam param)
     {
+        groupName = param.name;
         channelIndices = param.channelIndices;
     }
 

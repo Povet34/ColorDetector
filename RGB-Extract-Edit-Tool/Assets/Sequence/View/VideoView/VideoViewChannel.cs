@@ -75,7 +75,8 @@ namespace DataExtract
 
         public void SetGroup(IPanelGroup parentGroup, int groupInIndex)
         {
-            throw new System.NotImplementedException();
+            this.parentGroup = parentGroup;
+            this.groupInIndex = groupInIndex;
         }
 
         public bool HasGroup()
