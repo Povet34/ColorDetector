@@ -59,5 +59,10 @@ ColorDetector
 
 ### Channel/Group Data와 Hierarchy & VideoViewer UI들의 관계
 
+1차 구조
 ![SequenceViewSync](https://github.com/user-attachments/assets/0c2e683c-51be-47d6-b03f-619c56265786)
+
+2차 구조 (25.04.03 변경)
+
+![SequenceViewSync drawio](https://github.com/user-attachments/assets/22a1f66e-684e-42dc-bb3c-84567a05910c)
 
