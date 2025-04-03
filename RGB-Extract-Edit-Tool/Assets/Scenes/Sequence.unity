@@ -94,7 +94,7 @@ LightmapSettings:
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
   m_LightingDataAsset: {fileID: 20201, guid: 0000000000000000f000000000000000, type: 0}
-  m_LightingSettings: {fileID: 0}
+  m_LightingSettings: {fileID: 4890085278179872738, guid: 6b7b53a05df6737459151bdcac563599, type: 2}
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
@@ -209,6 +209,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hierarchyChannelPrefab: {fileID: 2575049122829711139, guid: bbebaf8ab84994d4e8e207ae23826d94, type: 3}
+  hierarchyGroupPrefab: {fileID: 3976620690337738053, guid: 1772a2de90438f74baa0bffc0b17e64a, type: 3}
   scrollViewContentRt: {fileID: 1596305661}
   graphicRaycaster: {fileID: 1162363321}
   eventSystem: {fileID: 1200469619}
@@ -1034,6 +1035,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1596305661}
   - component: {fileID: 1596305662}
+  - component: {fileID: 1596305663}
   m_Layer: 5
   m_Name: Content
   m_TagString: Untagged
@@ -1057,8 +1059,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 990}
+  m_AnchoredPosition: {x: 0, y: 990}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1596305662
 MonoBehaviour:
@@ -1078,7 +1080,7 @@ MonoBehaviour:
     m_Top: 10
     m_Bottom: 0
   m_ChildAlignment: 0
-  m_Spacing: 0
+  m_Spacing: 10
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 0
@@ -1086,6 +1088,20 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!114 &1596305663
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1596305660}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_HorizontalFit: 0
+  m_VerticalFit: 1
 --- !u!1 &1630019640
 GameObject:
   m_ObjectHideFlags: 0

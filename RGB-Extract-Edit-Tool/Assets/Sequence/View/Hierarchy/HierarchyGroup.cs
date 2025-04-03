@@ -1,16 +1,23 @@
 using TMPro;
 using UnityEngine;
 using System.Collections.Generic;
-using System.Xml.Linq;
+using UnityEngine.UI;
 
 namespace DataExtract
 {
 
-    public class HierarchyGroup : MonoBehaviour
+    public class HierarchyGroup : MonoBehaviour, IPanelGroup
     {
         [SerializeField] TMP_Text groupNameText;
+        [SerializeField] Image bgImage;
+
         string groupName;
-        List<int> channelIndices;
+        public List<int> channelIndices { get; set; }
+
+        public void Deselect()
+        {
+            throw new System.NotImplementedException();
+        }
 
         public void Init(MakeGroupParam param)
         {
@@ -18,6 +25,11 @@ namespace DataExtract
             channelIndices = param.channelIndices;
 
             groupNameText.text = groupName;
+        }
+
+        public void Select()
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

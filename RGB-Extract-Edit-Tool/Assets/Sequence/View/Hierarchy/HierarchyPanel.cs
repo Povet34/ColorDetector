@@ -19,6 +19,8 @@ namespace DataExtract
         #endregion
 
         [SerializeField] HierarchyChannel hierarchyChannelPrefab;
+        [SerializeField] HierarchyGroup hierarchyGroupPrefab;
+
         [SerializeField] RectTransform scrollViewContentRt;
 
         [SerializeField] GraphicRaycaster graphicRaycaster;
@@ -81,11 +83,6 @@ namespace DataExtract
                     return;
                 }
             }
-        }
-
-        void _CreateChannel()
-        {
-
         }
 
         void _MoveChannel(int index, Vector2 movePos)
@@ -158,7 +155,10 @@ namespace DataExtract
             List<int> indices = param.indices;
             for (int i = 0; i < indices.Count; i++)
             {
-                channels[indices[i]].Select();
+                var selected = channels[indices[i]];
+
+                selected.Select();
+                selectChannels.Add(selected);
             }
 
             if (param.ownerPanel.Equals(this))
@@ -226,6 +226,13 @@ namespace DataExtract
         {
             //그룹을 생성하고
 
+            HierarchyGroup gr = Instantiate(hierarchyGroupPrefab, scrollViewContentRt);
+            gr.Init(param);
+
+            for (int i = 0; i < selectChannels.Count; i++)
+            {
+                selectChannels[i].SetGroup(gr, i);
+            }
 
 
             if (param.ownerPanel.Equals(this))

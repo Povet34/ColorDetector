@@ -7,6 +7,11 @@ namespace DataExtract
     {
         public int channelIndex { get; set; }
         public Vector2 position { get; set; }
+        public bool hasGroup { get; set; }
+        public int parentGroupIndex { get; set; }
+        public int groupInIndex { get; set; }
+        public IPanelGroup parentGroup { get; set; }
+
         public GameObject GetObject() => gameObject;
 
         RectTransform rt;
@@ -67,6 +72,11 @@ namespace DataExtract
         {
             position = pos;
             rt.anchoredPosition = position;
+        }
+
+        public void SetGroup(IPanelGroup parentGroup, int groupInIndex)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

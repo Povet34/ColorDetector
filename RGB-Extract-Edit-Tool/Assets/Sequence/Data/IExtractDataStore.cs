@@ -36,25 +36,25 @@ namespace DataExtract
         List<IChannel> channels { get; set; }
         List<IGroup> groups { get; set; }
 
-        public EditParam GetLastestEditParam();
-        public DatatStoreState GetLastestStoreState();
-        public DatatStoreState PopLastestStoreState();
-        public DatatStoreState Undo();
-
+        EditParam GetLastestEditParam();
+        DatatStoreState GetLastestStoreState();
+        DatatStoreState PopLastestStoreState();
+        DatatStoreState Undo();
 
         #region Channel
 
-        public void CreateChannel(CreateChannelParam param);
-        public void MoveChannel(MoveChannelParam param);
-        public void MoveDeltaChannel(MoveDeltaChannelParam param);
-        public void DeleteChannel(DeleteChannelParam param);
+        void CreateChannel(CreateChannelParam param);
+        void MoveChannel(MoveChannelParam param);
+        void MoveDeltaChannel(MoveDeltaChannelParam param);
+        void DeleteChannel(DeleteChannelParam param);
 
         #endregion
 
         #region Group
 
-        public void MakeGroup(MakeGroupParam param);
-        public void DeleteGroup(IGroup group);
+        void MakeGroup(MakeGroupParam param);
+        void DeleteGroup(IGroup group);
+        int GetGroupCount();
 
         #endregion
     }

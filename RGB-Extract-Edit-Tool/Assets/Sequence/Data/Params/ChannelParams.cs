@@ -126,11 +126,11 @@ namespace DataExtract
         public IGroup.SortDirection sortDirection;
         public string name;
 
-        public MakeGroupParam(IPanelSync ownerPanel, int groupIndex, List<int> channels, IGroup.SortDirection sortDirection, string name = "NewGroup")
+        public MakeGroupParam(IPanelSync ownerPanel, int groupIndex, List<int> channelIndices, IGroup.SortDirection sortDirection, string name = "NewGroup")
             : base(ownerPanel, eEditType.MakeGroup)
         {
             this.groupIndex = groupIndex;
-            this.channelIndices = channels;
+            this.channelIndices = channelIndices;
             this.sortDirection = sortDirection;
             this.name = name;
         }

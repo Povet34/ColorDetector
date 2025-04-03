@@ -18,6 +18,10 @@ namespace DataExtract
 
         public int channelIndex { get; set; }
         public Vector2 position { get; set; }
+        public bool hasGroup { get; set; }
+        public int parentGroupIndex { get; set; }
+        public int groupInIndex { get; set; }
+        public IPanelGroup parentGroup { get; set; }
 
         Action<int, Vector2> onMoveCallback;
 
@@ -26,13 +30,13 @@ namespace DataExtract
         [SerializeField] TMP_Text channelText;
         [SerializeField] TMP_InputField inputX;
         [SerializeField] TMP_InputField inputY;
-        Image bgImage;
+        [SerializeField] Image bgImage;
+        [SerializeField] GameObject groupNavigation;
 
         bool isSelect;
 
         void Awake()
         {
-            bgImage = GetComponent<Image>();
             inputX.onEndEdit.AddListener(
                 (text)=> 
                 {
@@ -101,6 +105,19 @@ namespace DataExtract
         {
             position += deltaPos;
             UpdatePos();
+        }
+
+        public void SetGroup(IPanelGroup parentGroup, int groupInIndex)
+        {
+            this.parentGroup = parentGroup;
+            this.groupInIndex = groupInIndex;
+
+            bool hasGroup = null != parentGroup;
+
+            groupNavigation.SetActive(hasGroup);
+            bgImage.rectTransform.sizeDelta = hasGroup ? new Vector2(300, 50) : new Vector2(350, 50);
+
+            channelText.text = (hasGroup ? groupInIndex : channelIndex).ToString();
         }
     }
 }

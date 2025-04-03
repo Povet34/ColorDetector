@@ -6,6 +6,12 @@ namespace DataExtract
     {
         int channelIndex { get; set; }
         Vector2 position { get; set; }
+        IPanelGroup parentGroup { get; set; }
+        bool hasGroup { get; set; }
+        int parentGroupIndex { get; set; }
+        int groupInIndex { get; set; }
+
+        //------
 
         GameObject GetObject();
         void MoveDelta(Vector2 deltaPos);
@@ -14,5 +20,9 @@ namespace DataExtract
         void Select();
         void Deselect();
         bool IsSelect();
+
+        //------
+
+        void SetGroup(IPanelGroup parentGroup, int groupInIndex);
     }
 }

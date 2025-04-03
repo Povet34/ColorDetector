@@ -216,21 +216,6 @@ namespace DataExtract
         }
 
         /// <summary>
-        /// 선택된 채널들을 그룹화
-        /// </summary>
-        void _MakeGroup()
-        {
-            List<int> indices = new List<int>();
-
-            foreach(var ch in selectChannels)
-            {
-                indices.Add(ch.channelIndex);
-            }
-
-            MakeGroupParam param = new MakeGroupParam(this, 0, indices, IGroup.SortDirection.Left);
-        }
-
-        /// <summary>
         /// 채널 삭제
         /// </summary>
         void _DeleteChannel()
@@ -263,6 +248,24 @@ namespace DataExtract
 
             MoveDeltaChannelParam param = new MoveDeltaChannelParam(this, indices, offset);
             MoveDeltaChannel(param);
+        }
+
+        /// <summary>
+        /// 선택된 채널들을 그룹화
+        /// </summary>
+        void _MakeGroup()
+        {
+            int groupIndex = channelReceiver.GetGroupCount();
+
+            List<int> indices = new List<int>();
+            foreach(var ch in selectChannels)
+            {
+                indices.Add(ch.channelIndex);
+            }
+
+            MakeGroupParam param = new MakeGroupParam(this, groupIndex, indices, IGroup.SortDirection.Left, $"{groupIndex} NewGroup");
+
+            MakeGroup(param);
         }
 
         #region State 

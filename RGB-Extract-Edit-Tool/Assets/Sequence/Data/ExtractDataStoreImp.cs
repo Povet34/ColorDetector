@@ -134,6 +134,11 @@ namespace DataExtract
             return state;
         }
 
+        public int GetGroupCount()
+        {
+            return groups.Count;
+        }
+
         #endregion
     }
 }
