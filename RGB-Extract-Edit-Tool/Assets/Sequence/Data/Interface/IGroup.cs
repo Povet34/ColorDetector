@@ -12,6 +12,7 @@ public interface IGroup
         Down
     }
 
+    public int groupIndex { get; set; }
     public string name { get; set; }
     public List<int> hasChannels { get; set; }
     public SortDirection sortDirection { get; set; }

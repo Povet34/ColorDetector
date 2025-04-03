@@ -33,6 +33,7 @@ namespace DataExtract
 
         List<IPanelChannel> channels;
         List<IPanelChannel> selectChannels;
+        List<IPanelGroup> groups;
 
         RectTransform panelRt;
 
@@ -46,6 +47,7 @@ namespace DataExtract
             //Channel Init
             channels = new List<IPanelChannel>();
             selectChannels = new List<IPanelChannel>();
+            groups = new List<IPanelGroup>();
 
             //GetComp
             panelRt = GetComponent<RectTransform>();
@@ -99,15 +101,22 @@ namespace DataExtract
             }
         }
 
+
         void DestroyAll()
         {
-            foreach(var ch in channels)
+            foreach (var ch in channels)
             {
-                ch.DestroyChannel();
+                Destroy(ch.GetObject());
+            }
+
+            foreach (var gr in groups)
+            {
+                Destroy(gr.GetObject());
             }
 
             channels.Clear();
             selectChannels.Clear();
+            groups.Clear();
         }
 
 

@@ -62,8 +62,14 @@ namespace DataExtract
                 Destroy(ch.GetObject());
             }
 
+            foreach(var gr in groups)
+            {
+                Destroy(gr.GetObject());
+            }
+
             channels.Clear();
             selectChannels.Clear();
+            groups.Clear();
         }
 
 
@@ -92,6 +98,24 @@ namespace DataExtract
         {
             MoveChannelParam param = new MoveChannelParam(this, new List<int>() { index }, movePos);
             MoveChannel(param);
+        }
+
+        void _SortPanel()
+        {
+            int siblingIndex = 0;
+            foreach (var group in groups.OrderBy(g => g.GetObject().transform.GetSiblingIndex()))
+            {
+                group.GetObject().transform.SetSiblingIndex(siblingIndex++);
+
+                foreach (var channelIndex in group.channelIndices)
+                {
+                    var channel = channels.FirstOrDefault(ch => ch.channelIndex == channelIndex);
+                    if (channel != null)
+                    {
+                        channel.GetObject().transform.SetSiblingIndex(siblingIndex++);
+                    }
+                }
+            }
         }
 
         #region IPanelSync
@@ -219,6 +243,23 @@ namespace DataExtract
                     ch.Init(createParam);
                     channels.Add(ch);
                 }
+
+                foreach(var newGr in param.state.groups)
+                {
+                    var createParam = new MakeGroupParam(this, newGr.groupIndex, newGr.hasChannels, IGroup.SortDirection.Left, newGr.name);
+
+                    var gr = Instantiate(hierarchyGroupPrefab, scrollViewContentRt);
+                    gr.Init(createParam);
+
+                    for (int i = 0; i < newGr.hasChannels.Count; i++)
+                    {
+                        channels[newGr.hasChannels[i]].SetGroup(gr, i);
+                    }
+
+                    groups.Add(gr);
+                }
+
+                _SortPanel();
             }
 
             if (param.ownerPanel.Equals(this))
@@ -242,24 +283,7 @@ namespace DataExtract
 
             groups.Add(gr);
 
-
-            // 그룹을 재정렬
-            // 그룹의 가장 작은 것을 불러와서, group을 먼저 배치, 그리고 아래 자식들을 배치
-            int siblingIndex = 0;
-            foreach (var group in groups.OrderBy(g => g.GetObject().transform.GetSiblingIndex()))
-            {
-                group.GetObject().transform.SetSiblingIndex(siblingIndex++);
-
-                foreach (var channelIndex in group.channelIndices)
-                {
-                    var channel = channels.FirstOrDefault(ch => ch.channelIndex == channelIndex);
-                    if (channel != null)
-                    {
-                        channel.GetObject().transform.SetSiblingIndex(siblingIndex++);
-                    }
-                }
-            }
-
+            _SortPanel();
 
             if (param.ownerPanel.Equals(this))
             {

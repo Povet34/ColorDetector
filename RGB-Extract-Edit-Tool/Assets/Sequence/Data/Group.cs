@@ -9,9 +9,11 @@ public class Group : IGroup
     public string name { get; set; }
     public List<int> hasChannels { get; set; }
     public SortDirection sortDirection { get; set; }
+    public int groupIndex { get; set; }
 
     public void Create(MakeGroupParam param)
     {
+        groupIndex = param.groupIndex;
         hasChannels = param.channelIndices;
         name = param.name;
         sortDirection = param.sortDirection;

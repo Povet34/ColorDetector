@@ -33,6 +33,8 @@ namespace DataExtract
 
         public void MakeGroup(MakeGroupParam param)
         {
+            StackEditParam(param);
+
             IGroup group = new Group();
             group.Create(param);
 
