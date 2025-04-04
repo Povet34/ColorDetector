@@ -55,6 +55,10 @@ ColorDetector
 
 
 
+https://github.com/user-attachments/assets/6bb339ea-fd04-4dff-a8e3-8a2e6ee7b3b9
+
+
+
 -----
 
 ### Channel/Group Data와 Hierarchy & VideoViewer UI들의 관계
