@@ -27,7 +27,6 @@ namespace DataExtract
         [SerializeField] VideoViewChannel videoViewChannelPrefab;
         [SerializeField] VideoViewGroup videoViewGroupPrefab;
         [SerializeField] VideoViewPanelMenuPopup videoViewPanelMenuPopupPrefab;
-        [SerializeField] RectAreaChannelSelection rectAreaChannelSelectionPrefab;
 
         [SerializeField] GraphicRaycaster graphicRaycaster;
         [SerializeField] EventSystem eventSystem;
@@ -59,7 +58,7 @@ namespace DataExtract
                 new VideoViewPanelMenuPopup.MenuActions(
                         onCreateChannel:    _CreateChannel,
                         onCreateSegment:    null,
-                        onDeleteChannel:    null,
+                        onDeleteChannel:    _DeleteChannel,
                         onMakeGroup:        _MakeGroup,
                         onReleaseGroup:     null
                     ));

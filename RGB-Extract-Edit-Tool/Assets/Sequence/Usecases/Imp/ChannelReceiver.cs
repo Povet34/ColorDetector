@@ -21,5 +21,15 @@ namespace DataExtract
         {
             return _dataStore.CanGroup(indices);
         }
+
+        public List<IChannel> GetChannels()
+        {
+            return _dataStore.channels;
+        }
+
+        public List<IGroup> GetGroups()
+        {
+            return _dataStore.groups;
+        }
     }
 }

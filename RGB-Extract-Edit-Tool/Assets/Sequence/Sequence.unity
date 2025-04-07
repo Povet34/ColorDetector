@@ -606,9 +606,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   videoViewChannelPrefab: {fileID: 5451962477116104531, guid: efad4bee9fcba4f4dbdc6506c7324090, type: 3}
-  videoViewGroupPrefab: {fileID: 0}
+  videoViewGroupPrefab: {fileID: 505277088937437021, guid: 2fded1666341d23439fcdf5cd0f0216c, type: 3}
   videoViewPanelMenuPopupPrefab: {fileID: 4944192739542802873, guid: 10f35c22ef367a34388d80c02c067112, type: 3}
-  rectAreaChannelSelectionPrefab: {fileID: 0}
   graphicRaycaster: {fileID: 1162363321}
   eventSystem: {fileID: 1200469619}
 --- !u!1 &1162363320
