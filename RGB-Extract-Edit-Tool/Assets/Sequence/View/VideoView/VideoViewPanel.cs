@@ -288,6 +288,41 @@ namespace DataExtract
             }
         }
 
+        void _RefreshPanel()
+        {
+            // 기존의 채널과 그룹을 파괴
+            DestroyAll();
+
+            // 채널리시버에서 최신 채널 정보를 가져와서 업데이트
+            var updatedChannels = channelReceiver.GetChannels();
+            foreach (var updatedChannel in updatedChannels)
+            {
+                var createParam = new CreateChannelParam(this, updatedChannel.channelIndex, updatedChannel.position);
+                var ch = Instantiate(videoViewChannelPrefab, transform);
+                ch.Init(createParam);
+                channels.Add(ch);
+            }
+
+            // 그룹도 업데이트
+            var updatedGroups = channelReceiver.GetGroups();
+            foreach (var updatedGroup in updatedGroups)
+            {
+                List<int> chIndices = updatedGroup.hasChannels.Select(ch => ch.channelIndex).ToList();
+
+                var createParam = new MakeGroupParam(this, updatedGroup.groupIndex, chIndices, IGroup.SortDirection.Left, updatedGroup.name);
+
+                var gr = Instantiate(videoViewGroupPrefab, transform);
+                gr.Init(createParam);
+
+                for (int i = 0; i < updatedGroup.hasChannels.Count; i++)
+                {
+                    channels[updatedGroup.hasChannels[i].channelIndex].SetGroup(gr, i);
+                }
+
+                groups.Add(gr);
+            }
+        }
+
         #region State 
 
         MoveState _moveState = new MoveState();
@@ -350,6 +385,8 @@ namespace DataExtract
                 channelUpdater.DeleteChannel(param);
                 Apply(param);
             }
+
+            _RefreshPanel();
         }
 
         public void CreateChannel(CreateChannelParam param)
@@ -394,6 +431,7 @@ namespace DataExtract
             {
                 Apply(param);
             }
+
         }
 
         public void MoveDeltaChannel(MoveDeltaChannelParam param)
@@ -413,18 +451,37 @@ namespace DataExtract
 
         public void Undo(UndoParam param)
         {
-            if(null != param.state)
+            if (null != param.state)
             {
-                //다 없애고
+                // 다 없애고
                 DestroyAll();
 
-                //새로 재배치
-                //채널
-                foreach(var newCh in param.state.channels)
+                // 새로 재배치
+                // 채널
+                foreach (var newCh in param.state.channels)
                 {
+                    var createParam = new CreateChannelParam(this, newCh.channelIndex, newCh.position);
                     var ch = Instantiate(videoViewChannelPrefab, transform);
-                    ch.Init(new CreateChannelParam(this, newCh.channelIndex, newCh.position));
+                    ch.Init(createParam);
                     channels.Add(ch);
+                }
+
+                // 그룹
+                foreach (var newGr in param.state.groups)
+                {
+                    List<int> chIndices = newGr.hasChannels.Select(ch => ch.channelIndex).ToList();
+
+                    var createParam = new MakeGroupParam(this, newGr.groupIndex, chIndices, IGroup.SortDirection.Left, newGr.name);
+
+                    var gr = Instantiate(videoViewGroupPrefab, transform);
+                    gr.Init(createParam);
+
+                    for (int i = 0; i < newGr.hasChannels.Count; i++)
+                    {
+                        channels[newGr.hasChannels[i].channelIndex].SetGroup(gr, i);
+                    }
+
+                    groups.Add(gr);
                 }
             }
 
@@ -433,6 +490,7 @@ namespace DataExtract
                 Apply(param);
             }
         }
+
 
 
         public void MakeGroup(MakeGroupParam param)

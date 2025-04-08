@@ -7,14 +7,14 @@ using DataExtract;
 public class Group : IGroup
 {
     public string name { get; set; }
-    public List<int> hasChannels { get; set; }
+    public List<IChannel> hasChannels { get; set; }
     public SortDirection sortDirection { get; set; }
     public int groupIndex { get; set; }
 
-    public void Create(MakeGroupParam param)
+    public void Create(MakeGroupParam param, List<IChannel> channels)
     {
         groupIndex = param.groupIndex;
-        hasChannels = param.channelIndices;
+        hasChannels = channels;
         name = param.name;
         sortDirection = param.sortDirection;
     }
@@ -25,12 +25,12 @@ public class Group : IGroup
         {
             name = this.name,
             sortDirection = this.sortDirection,
-            hasChannels = new List<int>()
+            hasChannels = new List<IChannel>()
         };
 
-        foreach (int index in hasChannels)
+        foreach (var ch in hasChannels)
         {
-            clonedGroup.hasChannels.Add(index);
+            clonedGroup.hasChannels.Add(ch.Clone());
         }
 
         return clonedGroup;
@@ -50,12 +50,12 @@ public class Group : IGroup
     {
     }
 
-    public void AddNewGroupable(int newTarget)
+    public void AddNewGroupable(IChannel newTarget)
     {
         hasChannels.Add(newTarget);
     }
 
-    public void RemoveGroupable(int removeTarget)
+    public void RemoveGroupable(IChannel removeTarget)
     {
         hasChannels.Remove(removeTarget);
     }

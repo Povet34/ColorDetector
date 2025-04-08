@@ -14,16 +14,16 @@ public interface IGroup
 
     public int groupIndex { get; set; }
     public string name { get; set; }
-    public List<int> hasChannels { get; set; }
+    public List<IChannel> hasChannels { get; set; }
     public SortDirection sortDirection { get; set; }
 
     /// <summary>
     /// »ý¼º
     /// </summary>
     /// <param name="info"></param>
-    void Create(MakeGroupParam param);
-    void AddNewGroupable(int newTarget);
-    void RemoveGroupable(int removeTarget);
+    void Create(MakeGroupParam param, List<IChannel> channels);
+    void AddNewGroupable(IChannel newTarget);
+    void RemoveGroupable(IChannel removeTarget);
 
     IGroup Clone();
 }

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using static DataExtract.IExtractDataStore;
 using static IChannel;
@@ -21,7 +22,13 @@ namespace DataExtract
 
         void _SortChannels()
         {
+            _channels = _channels.OrderBy(ch => ch.channelIndex).ToList();
 
+            // channelIndex를 0부터 순차적으로 재설정
+            for (int i = 0; i < _channels.Count; i++)
+            {
+                _channels[i].channelIndex = i;
+            }
         }
 
         void _DeleteChannelBody(IChannel channel)
@@ -36,27 +43,76 @@ namespace DataExtract
 
         void _SortGroups()
         {
-            // TODO : Sort Group
+            // 삭제할 그룹을 저장할 리스트
+            List<IGroup> groupsToRemove = new List<IGroup>();
+
+            foreach (var gr in groups)
+            {
+                // 그룹의 채널이 channels에 존재하는지 확인하고, 존재하지 않는 채널을 제거
+                gr.hasChannels = gr.hasChannels.Where(ch => _channels.Contains(ch)).ToList();
+
+                // inIndex 순으로 정렬
+                gr.hasChannels = gr.hasChannels.OrderBy(ch => ch.individualInfo.inIndex).ToList();
+
+                // 빈 곳을 매꾸기 위해 inIndex를 재설정
+                for (int i = 0; i < gr.hasChannels.Count; i++)
+                {
+                    gr.hasChannels[i].individualInfo.inIndex = i;
+                }
+
+                // 그룹 안에 채널이 하나도 없는 경우 그룹을 삭제할 리스트에 추가
+                if (gr.hasChannels.Count == 0)
+                {
+                    groupsToRemove.Add(gr);
+                }
+                else
+                {
+                    // 로그 출력
+                    string log = $"{gr.name}";
+                    foreach (var ch in gr.hasChannels)
+                    {
+                        log += $"({ch.channelIndex} | {ch.individualInfo.inIndex})";
+                    }
+                    log += "\n";
+                    DLogger.Log_Green(log);
+                }
+            }
+
+            // 삭제할 그룹을 실제로 삭제
+            foreach (var group in groupsToRemove)
+            {
+                groups.Remove(group);
+            }
         }
 
         public void MakeGroup(MakeGroupParam param)
         {
             _StackEditParam(param);
-
             IGroup group = new Group();
-            group.Create(param);
 
             int inIndex = 0;
-            foreach(var index in param.channelIndices)
+            List<IChannel> hasChannels = new List<IChannel>();
+
+            foreach (var index in param.channelIndices)
             {
+                IChannel channel = _channels.Find(ch => ch.channelIndex == index);
+                if (channel == null)
+                {
+                    Debug.LogError($"Channel with index {index} not found.");
+                    continue;
+                }
+
                 var info = new IndividualInfo();
                 info.parentGroup = group;
                 info.inIndex = inIndex++;
 
-                if (!channels[index].TryIncludeNewGroup(info))
+                hasChannels.Add(channel);
+
+                if (!channel.TryIncludeNewGroup(info))
                     continue;
             }
 
+            group.Create(param, hasChannels);
             _groups.Add(group);
         }
 
