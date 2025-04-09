@@ -72,7 +72,6 @@ namespace DataExtract
             groups.Clear();
         }
 
-
         void _SelectUIElement(PointerEventData eventData)
         {
             List<RaycastResult> results = new List<RaycastResult>();
@@ -118,48 +117,6 @@ namespace DataExtract
             }
         }
 
-        void _RefreshPanel()
-        {
-            // 기존의 채널과 그룹을 파괴
-            DestroyAll();
-
-            // 채널리시버에서 최신 채널 정보를 가져와서 업데이트
-            var updatedChannels = channelReceiver.GetChannels();
-            foreach (var updatedChannel in updatedChannels)
-            {
-                var createParam = new HierarchyChannel.CreateParam
-                {
-                    chIndex = updatedChannel.channelIndex,
-                    createPos = updatedChannel.position,
-                    onMoveCallback = _MoveChannel
-                };
-
-                HierarchyChannel ch = Instantiate(hierarchyChannelPrefab, scrollViewContentRt);
-                ch.Init(createParam);
-                channels.Add(ch);
-            }
-
-            // 그룹도 업데이트
-            var updatedGroups = channelReceiver.GetGroups();
-            foreach (var updatedGroup in updatedGroups)
-            {
-                List<int> chIndices = updatedGroup.hasChannels.Select(ch => ch.channelIndex).ToList();
-
-                var createParam = new MakeGroupParam(this, updatedGroup.groupIndex, chIndices, IGroup.SortDirection.Left, updatedGroup.name);
-
-                var gr = Instantiate(hierarchyGroupPrefab, scrollViewContentRt);
-                gr.Init(createParam);
-
-                for (int i = 0; i < updatedGroup.hasChannels.Count; i++)
-                {
-                    channels[updatedGroup.hasChannels[i].channelIndex].SetGroup(gr, i);
-                }
-
-                groups.Add(gr);
-            }
-
-            _SortPanel();
-        }
 
         #region IPanelSync
 
@@ -220,7 +177,7 @@ namespace DataExtract
                 Apply(param);
             }
 
-            _RefreshPanel();
+            RefreshPanel();
         }
 
         public void SelectChannel(SelectChannelParam param)
@@ -366,6 +323,49 @@ namespace DataExtract
             {
                 Apply(param);
             }
+        }
+
+        public void RefreshPanel()
+        {
+            // 기존의 채널과 그룹을 파괴
+            DestroyAll();
+
+            // 채널리시버에서 최신 채널 정보를 가져와서 업데이트
+            var updatedChannels = channelReceiver.GetChannels();
+            foreach (var updatedChannel in updatedChannels)
+            {
+                var createParam = new HierarchyChannel.CreateParam
+                {
+                    chIndex = updatedChannel.channelIndex,
+                    createPos = updatedChannel.position,
+                    onMoveCallback = _MoveChannel
+                };
+
+                HierarchyChannel ch = Instantiate(hierarchyChannelPrefab, scrollViewContentRt);
+                ch.Init(createParam);
+                channels.Add(ch);
+            }
+
+            // 그룹도 업데이트
+            var updatedGroups = channelReceiver.GetGroups();
+            foreach (var updatedGroup in updatedGroups)
+            {
+                List<int> chIndices = updatedGroup.hasChannels.Select(ch => ch.channelIndex).ToList();
+
+                var createParam = new MakeGroupParam(this, updatedGroup.groupIndex, chIndices, IGroup.SortDirection.Left, updatedGroup.name);
+
+                var gr = Instantiate(hierarchyGroupPrefab, scrollViewContentRt);
+                gr.Init(createParam);
+
+                for (int i = 0; i < updatedGroup.hasChannels.Count; i++)
+                {
+                    channels[updatedGroup.hasChannels[i].channelIndex].SetGroup(gr, i);
+                }
+
+                groups.Add(gr);
+            }
+
+            _SortPanel();
         }
 
         #endregion

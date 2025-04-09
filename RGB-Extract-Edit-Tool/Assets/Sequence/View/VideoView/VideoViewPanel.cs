@@ -1,11 +1,9 @@
 using System.Collections.Generic;
-using System.Collections;
 using UnityEngine;
 using System;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System.Linq;
-using System.Xml.Linq;
 
 
 namespace DataExtract
@@ -288,41 +286,6 @@ namespace DataExtract
             }
         }
 
-        void _RefreshPanel()
-        {
-            // 기존의 채널과 그룹을 파괴
-            DestroyAll();
-
-            // 채널리시버에서 최신 채널 정보를 가져와서 업데이트
-            var updatedChannels = channelReceiver.GetChannels();
-            foreach (var updatedChannel in updatedChannels)
-            {
-                var createParam = new CreateChannelParam(this, updatedChannel.channelIndex, updatedChannel.position);
-                var ch = Instantiate(videoViewChannelPrefab, transform);
-                ch.Init(createParam);
-                channels.Add(ch);
-            }
-
-            // 그룹도 업데이트
-            var updatedGroups = channelReceiver.GetGroups();
-            foreach (var updatedGroup in updatedGroups)
-            {
-                List<int> chIndices = updatedGroup.hasChannels.Select(ch => ch.channelIndex).ToList();
-
-                var createParam = new MakeGroupParam(this, updatedGroup.groupIndex, chIndices, IGroup.SortDirection.Left, updatedGroup.name);
-
-                var gr = Instantiate(videoViewGroupPrefab, transform);
-                gr.Init(createParam);
-
-                for (int i = 0; i < updatedGroup.hasChannels.Count; i++)
-                {
-                    channels[updatedGroup.hasChannels[i].channelIndex].SetGroup(gr, i);
-                }
-
-                groups.Add(gr);
-            }
-        }
-
         #region State 
 
         MoveState _moveState = new MoveState();
@@ -386,7 +349,7 @@ namespace DataExtract
                 Apply(param);
             }
 
-            _RefreshPanel();
+            RefreshPanel();
         }
 
         public void CreateChannel(CreateChannelParam param)
@@ -534,6 +497,42 @@ namespace DataExtract
                 Apply(param);
             }
         }
+
+        public void RefreshPanel()
+        {
+            // 기존의 채널과 그룹을 파괴
+            DestroyAll();
+
+            // 채널리시버에서 최신 채널 정보를 가져와서 업데이트
+            var updatedChannels = channelReceiver.GetChannels();
+            foreach (var updatedChannel in updatedChannels)
+            {
+                var createParam = new CreateChannelParam(this, updatedChannel.channelIndex, updatedChannel.position);
+                var ch = Instantiate(videoViewChannelPrefab, transform);
+                ch.Init(createParam);
+                channels.Add(ch);
+            }
+
+            // 그룹도 업데이트
+            var updatedGroups = channelReceiver.GetGroups();
+            foreach (var updatedGroup in updatedGroups)
+            {
+                List<int> chIndices = updatedGroup.hasChannels.Select(ch => ch.channelIndex).ToList();
+
+                var createParam = new MakeGroupParam(this, updatedGroup.groupIndex, chIndices, IGroup.SortDirection.Left, updatedGroup.name);
+
+                var gr = Instantiate(videoViewGroupPrefab, transform);
+                gr.Init(createParam);
+
+                for (int i = 0; i < updatedGroup.hasChannels.Count; i++)
+                {
+                    channels[updatedGroup.hasChannels[i].channelIndex].SetGroup(gr, i);
+                }
+
+                groups.Add(gr);
+            }
+        }
+
 
         #endregion
     }
