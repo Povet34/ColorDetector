@@ -177,7 +177,7 @@ namespace DataExtract
                 Apply(param);
             }
 
-            RefreshPanel();
+            RefreshPanel(channelReceiver.GetChannels(), channelReceiver.GetGroups());
         }
 
         public void SelectChannel(SelectChannelParam param)
@@ -231,40 +231,7 @@ namespace DataExtract
         {
             if (null != param.state)
             {
-                //다 없애고
-                DestroyAll();
-
-                //새로 재배치
-
-                foreach (var newCh in param.state.channels)
-                {
-                    var createParam = new HierarchyChannel.CreateParam();
-                    createParam.chIndex = newCh.channelIndex;
-                    createParam.createPos = newCh.position;
-
-                    HierarchyChannel ch = Instantiate(hierarchyChannelPrefab, scrollViewContentRt);
-                    ch.Init(createParam);
-                    channels.Add(ch);
-                }
-
-                foreach(var newGr in param.state.groups)
-                {
-                    List<int> chIndices = newGr.hasChannels.Select(ch => ch.channelIndex).ToList();
-
-                    var createParam = new MakeGroupParam(this, newGr.groupIndex, chIndices, IGroup.SortDirection.Left, newGr.name);
-
-                    var gr = Instantiate(hierarchyGroupPrefab, scrollViewContentRt);
-                    gr.Init(createParam);
-
-                    for (int i = 0; i < newGr.hasChannels.Count; i++)
-                    {
-                        channels[newGr.hasChannels[i].channelIndex].SetGroup(gr, i);
-                    }
-
-                    groups.Add(gr);
-                }
-
-                _SortPanel();
+                RefreshPanel(param.state.channels, param.state.groups);
             }
 
             if (param.ownerPanel.Equals(this))
@@ -325,13 +292,13 @@ namespace DataExtract
             }
         }
 
-        public void RefreshPanel()
+        public void RefreshPanel(List<IChannel> dataChannels, List<IGroup> dataGroups)
         {
             // 기존의 채널과 그룹을 파괴
             DestroyAll();
 
             // 채널리시버에서 최신 채널 정보를 가져와서 업데이트
-            var updatedChannels = channelReceiver.GetChannels();
+            var updatedChannels = dataChannels;
             foreach (var updatedChannel in updatedChannels)
             {
                 var createParam = new HierarchyChannel.CreateParam
@@ -347,12 +314,11 @@ namespace DataExtract
             }
 
             // 그룹도 업데이트
-            var updatedGroups = channelReceiver.GetGroups();
-            foreach (var updatedGroup in updatedGroups)
+            foreach (var updatedGroup in dataGroups)
             {
                 List<int> chIndices = updatedGroup.hasChannels.Select(ch => ch.channelIndex).ToList();
 
-                var createParam = new MakeGroupParam(this, updatedGroup.groupIndex, chIndices, IGroup.SortDirection.Left, updatedGroup.name);
+                var createParam = new MakeGroupParam(this, updatedGroup.groupIndex, chIndices, updatedGroup.sortDirection, updatedGroup.name);
 
                 var gr = Instantiate(hierarchyGroupPrefab, scrollViewContentRt);
                 gr.Init(createParam);

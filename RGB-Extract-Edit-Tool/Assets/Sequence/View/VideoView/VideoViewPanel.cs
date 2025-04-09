@@ -349,7 +349,7 @@ namespace DataExtract
                 Apply(param);
             }
 
-            RefreshPanel();
+            RefreshPanel(channelReceiver.GetChannels(), channelReceiver.GetGroups());
         }
 
         public void CreateChannel(CreateChannelParam param)
@@ -416,45 +416,14 @@ namespace DataExtract
         {
             if (null != param.state)
             {
-                // 다 없애고
-                DestroyAll();
+                RefreshPanel(param.state.channels, param.state.groups);
 
-                // 새로 재배치
-                // 채널
-                foreach (var newCh in param.state.channels)
+                if (param.ownerPanel.Equals(this))
                 {
-                    var createParam = new CreateChannelParam(this, newCh.channelIndex, newCh.position);
-                    var ch = Instantiate(videoViewChannelPrefab, transform);
-                    ch.Init(createParam);
-                    channels.Add(ch);
+                    Apply(param);
                 }
-
-                // 그룹
-                foreach (var newGr in param.state.groups)
-                {
-                    List<int> chIndices = newGr.hasChannels.Select(ch => ch.channelIndex).ToList();
-
-                    var createParam = new MakeGroupParam(this, newGr.groupIndex, chIndices, IGroup.SortDirection.Left, newGr.name);
-
-                    var gr = Instantiate(videoViewGroupPrefab, transform);
-                    gr.Init(createParam);
-
-                    for (int i = 0; i < newGr.hasChannels.Count; i++)
-                    {
-                        channels[newGr.hasChannels[i].channelIndex].SetGroup(gr, i);
-                    }
-
-                    groups.Add(gr);
-                }
-            }
-
-            if (param.ownerPanel.Equals(this))
-            {
-                Apply(param);
             }
         }
-
-
 
         public void MakeGroup(MakeGroupParam param)
         {
@@ -498,14 +467,13 @@ namespace DataExtract
             }
         }
 
-        public void RefreshPanel()
+        public void RefreshPanel(List<IChannel> dataChannels, List<IGroup> dataGroups)
         {
             // 기존의 채널과 그룹을 파괴
             DestroyAll();
 
             // 채널리시버에서 최신 채널 정보를 가져와서 업데이트
-            var updatedChannels = channelReceiver.GetChannels();
-            foreach (var updatedChannel in updatedChannels)
+            foreach (var updatedChannel in dataChannels)
             {
                 var createParam = new CreateChannelParam(this, updatedChannel.channelIndex, updatedChannel.position);
                 var ch = Instantiate(videoViewChannelPrefab, transform);
@@ -514,8 +482,7 @@ namespace DataExtract
             }
 
             // 그룹도 업데이트
-            var updatedGroups = channelReceiver.GetGroups();
-            foreach (var updatedGroup in updatedGroups)
+            foreach (var updatedGroup in dataGroups)
             {
                 List<int> chIndices = updatedGroup.hasChannels.Select(ch => ch.channelIndex).ToList();
 

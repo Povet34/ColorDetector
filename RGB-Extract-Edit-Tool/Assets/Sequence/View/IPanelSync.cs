@@ -10,7 +10,7 @@ namespace DataExtract
         void Init(ChannelUpdater channelUpdater, ChannelReceiver channelGetter, ChannelSyncer channelSyncer);
         void Apply(EditParam param);
         void Sync(EditParam param);
-        void RefreshPanel();
+        void RefreshPanel(List<IChannel> dataChannels, List<IGroup> dataGroups);
 
 
         void CreateChannel(CreateChannelParam param);
