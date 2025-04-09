@@ -23,9 +23,9 @@ namespace DataExtract
         
         void MakeGroup(MakeGroupParam param);
         void SelectGroup(SelectGroupParam param);
+        void DeselectGroup(DeselectGroupParam param);
 
 
         void Undo(UndoParam param);
-
     }
 }

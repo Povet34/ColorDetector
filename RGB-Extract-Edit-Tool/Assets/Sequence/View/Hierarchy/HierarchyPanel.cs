@@ -106,9 +106,8 @@ namespace DataExtract
             {
                 group.GetObject().transform.SetSiblingIndex(siblingIndex++);
 
-                foreach (var channelIndex in group.channelIndices)
+                foreach (var channel in group.hasChannels)
                 {
-                    var channel = channels.FirstOrDefault(ch => ch.channelIndex == channelIndex);
                     if (channel != null)
                     {
                         channel.GetObject().transform.SetSiblingIndex(siblingIndex++);
@@ -131,6 +130,7 @@ namespace DataExtract
             { eEditType.MakeGroup, param => MakeGroup((MakeGroupParam)param) },
             { eEditType.MoveChannel, param => MoveChannel((MoveChannelParam)param) },
             { eEditType.SelectGroup, param => SelectGroup((SelectGroupParam)param) },
+            { eEditType.DeselectGroup, param => DeselectGroup((DeselectGroupParam)param) },
         };
 
 
@@ -243,9 +243,15 @@ namespace DataExtract
         public void MakeGroup(MakeGroupParam param)
         {
             //그룹을 생성하고
-
             HierarchyGroup gr = Instantiate(hierarchyGroupPrefab, scrollViewContentRt);
-            gr.Init(param);
+
+            IPanelGroup.Param createParam = new IPanelGroup.Param();
+            createParam.groupIndex = param.groupIndex;
+            createParam.name = param.name;
+            createParam.hasChannels = selectChannels;
+            createParam.sortDirection = IGroup.SortDirection.Left;
+
+            gr.Init(createParam);
 
             //채널들도 생성하고
             for (int i = 0; i < selectChannels.Count; i++)
@@ -280,10 +286,11 @@ namespace DataExtract
 
         public void SelectGroup(SelectGroupParam param)
         {
-            foreach (var index in groups[param.groupIndex].channelIndices)
+            var group = groups[param.groupIndex];
+            foreach (var channel in group.hasChannels)
             {
-                channels[index].Select();
-                selectChannels.Add(channels[index]);
+                channel.Select();
+                selectChannels.Add(channel);
             }
 
             if (param.ownerPanel.Equals(this))
@@ -316,11 +323,14 @@ namespace DataExtract
             // 그룹도 업데이트
             foreach (var updatedGroup in dataGroups)
             {
-                List<int> chIndices = updatedGroup.hasChannels.Select(ch => ch.channelIndex).ToList();
+                IPanelGroup.Param createParam = new IPanelGroup.Param();
+                createParam.groupIndex = updatedGroup.groupIndex;
+                createParam.name = updatedGroup.name;
+                createParam.hasChannels = updatedGroup.hasChannels.Select(ch => channels.FirstOrDefault(c => c.channelIndex == ch.channelIndex)).ToList();
 
-                var createParam = new MakeGroupParam(this, updatedGroup.groupIndex, chIndices, updatedGroup.sortDirection, updatedGroup.name);
+                createParam.sortDirection = updatedGroup.sortDirection;
 
-                var gr = Instantiate(hierarchyGroupPrefab, scrollViewContentRt);
+                HierarchyGroup gr = Instantiate(hierarchyGroupPrefab, scrollViewContentRt);
                 gr.Init(createParam);
 
                 for (int i = 0; i < updatedGroup.hasChannels.Count; i++)
@@ -332,6 +342,25 @@ namespace DataExtract
             }
 
             _SortPanel();
+        }
+
+        public void DeselectGroup(DeselectGroupParam param)
+        {
+            foreach (var gr in groups)
+            {
+                gr.Deselect();
+            }
+
+            foreach (var ch in channels)
+            {
+                ch.Deselect();
+            }
+
+
+            if (param.ownerPanel.Equals(this))
+            {
+                Apply(param);
+            }
         }
 
         #endregion

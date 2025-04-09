@@ -185,6 +185,7 @@ namespace DataExtract
                     {
                         DeselectChannel(new DeSelectChannelParam(this));
 
+
                         if (selectedChannel.HasGroup()) //선택된게 그룹이면 그룹선택으로
                         {
                             SelectGroupParam param = new SelectGroupParam(this, selectedChannel.parentGroup.groupIndex);
@@ -324,6 +325,7 @@ namespace DataExtract
             { eEditType.MakeGroup, param => MakeGroup((MakeGroupParam)param) },
             { eEditType.MoveChannel, param => MoveChannel((MoveChannelParam)param) },
             { eEditType.SelectGroup, param => SelectGroup((SelectGroupParam)param) },
+            { eEditType.DeselectGroup, param => DeselectGroup((DeselectGroupParam)param) },
         };
 
         public void Apply(EditParam param)
@@ -431,6 +433,12 @@ namespace DataExtract
             //Rect를 만들어줘야하나?
             VideoViewGroup gr = Instantiate(videoViewGroupPrefab, transform);
 
+            IPanelGroup.Param createParam = new IPanelGroup.Param();
+            createParam.name = param.name;
+            createParam.hasChannels = selectChannels;
+
+            gr.Init(createParam);
+            gr.Select();
 
             if (param.ownerPanel.Equals(this))
             {
@@ -455,10 +463,10 @@ namespace DataExtract
 
         public void SelectGroup(SelectGroupParam param)
         {
-            foreach(var index in groups[param.groupIndex].channelIndices)
+            foreach(var ch in groups[param.groupIndex].hasChannels)
             {
-                channels[index].Select();
-                selectChannels.Add(channels[index]);
+                ch.Select();
+                selectChannels.Add(ch);
             }
 
             if (param.ownerPanel.Equals(this))
@@ -486,7 +494,11 @@ namespace DataExtract
             {
                 List<int> chIndices = updatedGroup.hasChannels.Select(ch => ch.channelIndex).ToList();
 
-                var createParam = new MakeGroupParam(this, updatedGroup.groupIndex, chIndices, IGroup.SortDirection.Left, updatedGroup.name);
+                IPanelGroup.Param createParam = new IPanelGroup.Param();
+                createParam.groupIndex = updatedGroup.groupIndex;
+                createParam.name = updatedGroup.name;
+                createParam.hasChannels = selectChannels;
+                createParam.sortDirection = IGroup.SortDirection.Left;
 
                 var gr = Instantiate(videoViewGroupPrefab, transform);
                 gr.Init(createParam);
@@ -497,6 +509,25 @@ namespace DataExtract
                 }
 
                 groups.Add(gr);
+            }
+        }
+
+        public void DeselectGroup(DeselectGroupParam param)
+        {
+            foreach (var gr in groups)
+            {
+                gr.Deselect();
+            }
+
+            foreach(var ch in channels)
+            {
+                ch.Deselect();
+            }
+
+
+            if (param.ownerPanel.Equals(this))
+            {
+                Apply(param);
             }
         }
 

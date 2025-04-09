@@ -147,5 +147,13 @@ namespace DataExtract
             this.groupIndex = groupIndex;
         }
     }
+
+    public class DeselectGroupParam : EditParam
+    {
+        public DeselectGroupParam(IPanelSync ownerPanel)
+            : base(ownerPanel, eEditType.DeselectGroup)
+        {
+        }
+    }
 }
 

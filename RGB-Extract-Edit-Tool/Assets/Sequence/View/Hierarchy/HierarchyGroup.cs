@@ -11,9 +11,9 @@ namespace DataExtract
         [SerializeField] TMP_Text groupNameText;
         [SerializeField] Image bgImage;
 
-        string groupName;
-        public List<int> channelIndices { get; set; }
+        public List<IPanelChannel> hasChannels { get; set; }
         public int groupIndex { get; set; }
+        public string groupName { get; set; }
 
         public void Deselect()
         {
@@ -25,10 +25,10 @@ namespace DataExtract
             return gameObject;
         }
 
-        public void Init(MakeGroupParam param)
+        public void Init(IPanelGroup.Param param)
         {
             groupName = param.name;
-            channelIndices = param.channelIndices;
+            hasChannels = param.hasChannels;
 
             groupNameText.text = groupName;
         }
