@@ -29,11 +29,6 @@ namespace DataExtract
             Destroy(gameObject);    
         }
 
-        void OnDestroy()
-        {
-            DLogger.Log_Blue(gameObject.name);
-        }
-
         public void Init(CreateChannelParam param)
         {
             channelIndex = param.chIndex;

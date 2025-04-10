@@ -41,7 +41,12 @@ namespace DataExtract
             isSelecting = true;
         }
 
-        public void EndFindSelect()
+        public bool IsRectActive()
+        {
+            return selectionBox.gameObject.activeSelf;
+        }
+
+        public List<int> EndFindSelect()
         {
             var list = new List<int>();
 
@@ -59,6 +64,8 @@ namespace DataExtract
             isSelecting = false;
 
             selectionBox.sizeDelta = Vector2.zero;
+
+            return list;
         }
 
 

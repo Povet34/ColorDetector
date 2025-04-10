@@ -11,13 +11,13 @@ namespace DataExtract
         [SerializeField] TMP_Text groupNameText;
         [SerializeField] Image bgImage;
 
-        string groupName;
-        public List<int> channelIndices { get; set; }
+        public List<IPanelChannel> hasChannels { get; set; }
         public int groupIndex { get; set; }
+        public string groupName { get; set; }
 
         public void Deselect()
         {
-            throw new System.NotImplementedException();
+            bgImage.color = new Color32(100, 100, 100, 255);
         }
 
         public GameObject GetObject()
@@ -25,17 +25,18 @@ namespace DataExtract
             return gameObject;
         }
 
-        public void Init(MakeGroupParam param)
+        public void Init(IPanelGroup.Param param)
         {
             groupName = param.name;
-            channelIndices = param.channelIndices;
+            hasChannels = param.hasChannels;
+            groupIndex = param.groupIndex;
 
             groupNameText.text = groupName;
         }
 
         public void Select()
         {
-            throw new System.NotImplementedException();
+            bgImage.color = new Color32(200, 50, 50, 255);
         }
     }
 }

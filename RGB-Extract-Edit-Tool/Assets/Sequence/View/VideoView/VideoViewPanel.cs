@@ -4,6 +4,7 @@ using System;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System.Linq;
+using UnityEditor.Experimental.GraphView;
 
 
 namespace DataExtract
@@ -38,7 +39,6 @@ namespace DataExtract
         RectAreaChannelSelection rectAreaChannelSelection;
         VideoViewPanelMenuPopup videoViewPanelMenuPopup;
 
-        Vector2 startPos;
 
         void Awake()
         {
@@ -117,95 +117,216 @@ namespace DataExtract
             groups.Clear();
         }
 
+        #region UI Select
 
         public void OnPointerDown(PointerEventData eventData)
         {
-            videoViewPanelMenuPopup.Show(false);
-            startPos = TransformEx.GetRelativeAnchorPosition_Screen(panelRt, eventData.position);
+            videoViewPanelMenuPopup.gameObject.SetActive(false);
 
-            //선택
             if (eventData.button == PointerEventData.InputButton.Left)
             {
-                _SelectOnlyOneChannel(eventData);
-                if(!_moveState.IsMoving())
+                Vector2 localMousePosition = panelRt.InverseTransformPoint(eventData.position);
+
+                IPanelChannel clickedChannel = GetChannelAtPosition(eventData);
+                if (clickedChannel != null)
+                {
+                    if (_moveState.IsSameChannels(clickedChannel) || _moveState.IsSameGroup(clickedChannel.parentGroup))
+                    {
+                        _moveState.StartMove(localMousePosition);
+                    }
+                    else
+                    {
+                        DeselectChannel(new DeSelectChannelParam(this));
+                        DeselectGroup(new DeselectGroupParam(this));
+                        _moveState.Deselect();
+                    }
+                }
+                else
                 {
                     DeselectChannel(new DeSelectChannelParam(this));
+                    DeselectGroup(new DeselectGroupParam(this));
+
+                    _moveState.Deselect();
                     rectAreaChannelSelection.StartFindSelect();
                 }
             }
-
-            //메뉴 팝업
-
-            if (eventData.button == PointerEventData.InputButton.Right)
+            else if (eventData.button == PointerEventData.InputButton.Right)
             {
-                _ShowVideoViewPanelMenuPopup(startPos);
+                Vector2 localMousePosition = panelRt.InverseTransformPoint(eventData.position);
+                _ShowVideoViewPanelMenuPopup(localMousePosition);
             }
         }
 
         public void OnPointerUp(PointerEventData eventData)
         {
-            Vector2 endPos = TransformEx.GetRelativeAnchorPosition_Screen(panelRt, eventData.position);
-
-            if(_moveState.IsMoving())
+            Vector2 localMousePosition = panelRt.InverseTransformPoint(eventData.position);
+            if (_moveState.IsMoving(localMousePosition))
             {
-                _MoveDeltaChannels(endPos);
-                _moveState.MoveEnd();
-                return;
+                if (_moveState.IsGroupSelected())
+                {
+                    _MoveDeltaGroup(_moveState.GetSelectedGroup(), localMousePosition);
+                }
+                else if (_moveState.IsChannelsSelected())
+                {
+                    _MoveDeltaChannels(localMousePosition);
+                }
+
+                _moveState.EndMove();
+            }
+            else
+            {
+                IPanelChannel clickedChannel = GetChannelAtPosition(eventData);
+                if (clickedChannel != null)
+                {
+                    if(rectAreaChannelSelection.IsRectActive())
+                    {
+                        _SelectRect();
+                        return;
+                    }
+
+                    if (clickedChannel.HasGroup())
+                    {
+                        //같은 그룹 내에 있는 채널을 또 선택하면, 강제 채널 하나만 선택되도록한다.
+                        if (_moveState.IsSameGroup(clickedChannel.parentGroup))
+                        {
+                            DeselectChannel(new DeSelectChannelParam(this));
+                            DeselectGroup(new DeselectGroupParam(this));
+
+                            SelectChannel(new SelectChannelParam(this, new List<int> { clickedChannel.channelIndex }));
+                            _moveState.Select(null, new List<IPanelChannel>() { clickedChannel });
+
+                            return;
+                        }
+
+                        SelectGroup(new SelectGroupParam(this, clickedChannel.parentGroup.groupIndex));
+                        _moveState.Select(clickedChannel.parentGroup, new List<IPanelChannel> { clickedChannel });
+                    }
+                    else
+                    {
+                        SelectChannel(new SelectChannelParam(this, new List<int> { clickedChannel.channelIndex }));
+                        _moveState.Select(null, new List<IPanelChannel>() { clickedChannel });
+                    }
+                }
+                else
+                {
+                    _SelectRect();
+                }
             }
 
-            rectAreaChannelSelection.EndFindSelect();
+            void _SelectRect()
+            {
+                _moveState.Deselect();
+                var indices = rectAreaChannelSelection.EndFindSelect();
+                List<IPanelChannel> selectedChannels = new List<IPanelChannel>();
+                foreach (int index in indices)
+                {
+                    IPanelChannel channel = channels.FirstOrDefault(ch => ch.channelIndex == index);
+                    if (channel != null)
+                    {
+                        selectedChannels.Add(channel);
+                    }
+                }
+                if (selectedChannels.Count > 0)
+                {
+                    _moveState.Select(null, selectedChannels);
+                }
+            }
         }
 
-        List<RaycastResult> GetRayHits(PointerEventData eventData)
+        private IPanelChannel GetChannelAtPosition(PointerEventData eventData)
         {
             List<RaycastResult> results = new List<RaycastResult>();
             graphicRaycaster.Raycast(eventData, results);
 
-            return results;
-        }
-
-        /// <summary>
-        /// 채널 하나 선택
-        /// </summary>
-        /// <param name="eventData"></param>
-        /// <returns></returns>
-        bool _SelectOnlyOneChannel(PointerEventData eventData)
-        {
-            foreach (RaycastResult result in GetRayHits(eventData))
+            foreach (var result in results)
             {
-                IPanelChannel selectedChannel = result.gameObject.GetComponent<IPanelChannel>();
-                if (selectedChannel != null)
+                IPanelChannel channel = result.gameObject.GetComponent<IPanelChannel>();
+                if (channel != null)
                 {
-                    if(selectedChannel.IsSelect()) //이미 선택된 것이면 이동이다
-                    {
-                        startPos = TransformEx.GetRelativeAnchorPosition_Screen(panelRt, eventData.position);
-                        _moveState.MoveStart(startPos);
-                    }
-                    else //선택했던 채널이 아닐 때
-                    {
-                        DeselectChannel(new DeSelectChannelParam(this));
-
-                        if (selectedChannel.HasGroup()) //선택된게 그룹이면 그룹선택으로
-                        {
-                            SelectGroupParam param = new SelectGroupParam(this, selectedChannel.parentGroup.groupIndex);
-                            SelectGroup(param);
-                        }
-                        else //선택된게 그룹이 아니었으면 그냥 단일 선택
-                        {
-                            List<int> indices = new List<int>();
-                            indices.Add(selectedChannel.channelIndex);
-                            SelectChannelParam param = new SelectChannelParam(this, indices);
-                            SelectChannel(param);
-                        }
-
-                    }
-
-                    return true;
+                    return channel;
                 }
             }
-
-            return false;
+            return null;
         }
+
+
+        #region State 
+
+        MoveState _moveState = new MoveState();
+        private class MoveState
+        {
+            Vector2? startPos = null;
+            IPanelGroup startGroup = null;
+            List<IPanelChannel> startChannels = null;
+
+            public void Select(IPanelGroup startGroup, List<IPanelChannel> startChannels)
+            {
+                this.startGroup = startGroup;
+                this.startChannels = startChannels;
+            }
+
+            public void StartMove(Vector2 startPos)
+            {
+                this.startPos = startPos;
+            }
+
+            public Vector2 GetMovedDeleta(Vector2 currentPos)
+            {
+                if (startPos.HasValue)
+                    return currentPos - startPos.Value;
+                else
+                    return Vector2.zero;
+            }
+
+            public void EndMove()
+            {
+                startPos = null;
+            }
+
+            public void Deselect()
+            {
+                startGroup = null;
+                startChannels = null;
+            }
+
+            public bool IsMoving(Vector2 currentPos)
+            {
+                if (startPos == null)
+                    return false;
+
+                return Vector2.Distance(startPos.Value, currentPos) >= 4;
+            }
+
+            public bool IsSameGroup(IPanelGroup group)
+            {
+                return startGroup != null && startGroup == group;
+            }
+
+            public bool IsSameChannels(IPanelChannel channel)
+            {
+                return startChannels != null && startChannels.Contains(channel);
+            }
+
+            public bool IsGroupSelected()
+            {
+                return startGroup != null;
+            }
+
+            public bool IsChannelsSelected()
+            {
+                return startChannels != null && startGroup == null;
+            }
+
+            public IPanelGroup GetSelectedGroup()
+            {
+                return startGroup;
+            }
+        }
+
+        #endregion
+
+        #endregion
+
 
         /// <summary>
         /// Videoview panel menu popup show
@@ -219,6 +340,25 @@ namespace DataExtract
                 videoViewPanelMenuPopup.Show(true);
             }
         }
+
+        private void _MoveDeltaGroup(IPanelGroup group, Vector2 endPos)
+        {
+            if (group == null)
+                return;
+
+            Vector2 offset = _moveState.GetMovedDeleta(endPos);
+
+            List<int> indices = new List<int>();
+            foreach (var ch in group.hasChannels)
+            {
+                indices.Add(ch.channelIndex);
+            }
+
+            MoveDeltaGroupParam param = new MoveDeltaGroupParam(this, group.groupIndex, indices, offset);
+
+            MoveDeltaGroup(param);
+        }
+
 
         /// <summary>
         /// 채널 생성
@@ -253,7 +393,7 @@ namespace DataExtract
             if (selectChannels.Count == 0)
                 return;
 
-            Vector2 offset = endPos - startPos;
+            Vector2 offset = _moveState.GetMovedDeleta(endPos);
 
             List<int> indices = new List<int>();
             foreach (var ch in selectChannels)
@@ -286,30 +426,6 @@ namespace DataExtract
             }
         }
 
-        #region State 
-
-        MoveState _moveState = new MoveState();
-
-        private class MoveState
-        {
-            Vector2? startPos = null;
-            public void MoveStart(Vector2 startPos)
-            {
-                this.startPos = startPos;
-            }
-
-            public void MoveEnd()
-            {
-                startPos = null;
-            }
-
-            public bool IsMoving()
-            {
-                return startPos != null;
-            }
-        }
-
-        #endregion
 
         #region IPanelSync
 
@@ -324,6 +440,8 @@ namespace DataExtract
             { eEditType.MakeGroup, param => MakeGroup((MakeGroupParam)param) },
             { eEditType.MoveChannel, param => MoveChannel((MoveChannelParam)param) },
             { eEditType.SelectGroup, param => SelectGroup((SelectGroupParam)param) },
+            { eEditType.DeselectGroup, param => DeselectGroup((DeselectGroupParam)param) },
+            { eEditType.MoveDeltaGroup, param => MoveDeltaGroup((MoveDeltaGroupParam)param) },
         };
 
         public void Apply(EditParam param)
@@ -349,7 +467,7 @@ namespace DataExtract
                 Apply(param);
             }
 
-            RefreshPanel();
+            RefreshPanel(channelReceiver.GetChannels(), channelReceiver.GetGroups());
         }
 
         public void CreateChannel(CreateChannelParam param)
@@ -416,52 +534,36 @@ namespace DataExtract
         {
             if (null != param.state)
             {
-                // 다 없애고
-                DestroyAll();
+                RefreshPanel(param.state.channels, param.state.groups);
 
-                // 새로 재배치
-                // 채널
-                foreach (var newCh in param.state.channels)
+                if (param.ownerPanel.Equals(this))
                 {
-                    var createParam = new CreateChannelParam(this, newCh.channelIndex, newCh.position);
-                    var ch = Instantiate(videoViewChannelPrefab, transform);
-                    ch.Init(createParam);
-                    channels.Add(ch);
+                    Apply(param);
                 }
-
-                // 그룹
-                foreach (var newGr in param.state.groups)
-                {
-                    List<int> chIndices = newGr.hasChannels.Select(ch => ch.channelIndex).ToList();
-
-                    var createParam = new MakeGroupParam(this, newGr.groupIndex, chIndices, IGroup.SortDirection.Left, newGr.name);
-
-                    var gr = Instantiate(videoViewGroupPrefab, transform);
-                    gr.Init(createParam);
-
-                    for (int i = 0; i < newGr.hasChannels.Count; i++)
-                    {
-                        channels[newGr.hasChannels[i].channelIndex].SetGroup(gr, i);
-                    }
-
-                    groups.Add(gr);
-                }
-            }
-
-            if (param.ownerPanel.Equals(this))
-            {
-                Apply(param);
             }
         }
 
-
-
         public void MakeGroup(MakeGroupParam param)
         {
-            //그룹을 생성하고
-            //Rect를 만들어줘야하나?
             VideoViewGroup gr = Instantiate(videoViewGroupPrefab, transform);
 
+            List<IPanelChannel> groupChannels = param.channelIndices.Select(index => channels.FirstOrDefault(ch => ch.channelIndex == index)).ToList();
+
+            IPanelGroup.Param createParam = new IPanelGroup.Param();
+            createParam.groupIndex = param.groupIndex;
+            createParam.name = param.name;
+            createParam.hasChannels = groupChannels;
+            createParam.sortDirection = IGroup.SortDirection.Left;
+
+            gr.Init(createParam);
+            gr.Select();
+
+            for(int i = 0; i < groupChannels.Count; i++)
+            {
+                groupChannels[i].SetGroup(gr, i);
+            }
+
+            groups.Add(gr);
 
             if (param.ownerPanel.Equals(this))
             {
@@ -474,7 +576,7 @@ namespace DataExtract
         {
             foreach (var index in param.indices)
             {
-                channels[index].Move(param.position);
+                channels[index].Move(param.movePos);
             }
 
             if (param.ownerPanel.Equals(this))
@@ -486,11 +588,14 @@ namespace DataExtract
 
         public void SelectGroup(SelectGroupParam param)
         {
-            foreach(var index in groups[param.groupIndex].channelIndices)
+            var group = groups[param.groupIndex];
+            foreach (var channel in group.hasChannels)
             {
-                channels[index].Select();
-                selectChannels.Add(channels[index]);
+                channel.Select();
+                selectChannels.Add(channel);
             }
+
+            group.Select();
 
             if (param.ownerPanel.Equals(this))
             {
@@ -498,14 +603,13 @@ namespace DataExtract
             }
         }
 
-        public void RefreshPanel()
+        public void RefreshPanel(List<IChannel> dataChannels, List<IGroup> dataGroups)
         {
             // 기존의 채널과 그룹을 파괴
             DestroyAll();
 
             // 채널리시버에서 최신 채널 정보를 가져와서 업데이트
-            var updatedChannels = channelReceiver.GetChannels();
-            foreach (var updatedChannel in updatedChannels)
+            foreach (var updatedChannel in dataChannels)
             {
                 var createParam = new CreateChannelParam(this, updatedChannel.channelIndex, updatedChannel.position);
                 var ch = Instantiate(videoViewChannelPrefab, transform);
@@ -514,12 +618,16 @@ namespace DataExtract
             }
 
             // 그룹도 업데이트
-            var updatedGroups = channelReceiver.GetGroups();
-            foreach (var updatedGroup in updatedGroups)
+            foreach (var updatedGroup in dataGroups)
             {
                 List<int> chIndices = updatedGroup.hasChannels.Select(ch => ch.channelIndex).ToList();
 
-                var createParam = new MakeGroupParam(this, updatedGroup.groupIndex, chIndices, IGroup.SortDirection.Left, updatedGroup.name);
+                IPanelGroup.Param createParam = new IPanelGroup.Param();
+                createParam.groupIndex = updatedGroup.groupIndex;
+                createParam.name = updatedGroup.name;
+                createParam.hasChannels = updatedGroup.hasChannels.Select(ch => channels.FirstOrDefault(c => c.channelIndex == ch.channelIndex)).ToList();
+
+                createParam.sortDirection = IGroup.SortDirection.Left;
 
                 var gr = Instantiate(videoViewGroupPrefab, transform);
                 gr.Init(createParam);
@@ -533,6 +641,40 @@ namespace DataExtract
             }
         }
 
+        public void DeselectGroup(DeselectGroupParam param)
+        {
+            foreach (var gr in groups)
+            {
+                gr.Deselect();
+            }
+
+            foreach(var ch in channels)
+            {
+                ch.Deselect();
+            }
+
+
+            if (param.ownerPanel.Equals(this))
+            {
+                Apply(param);
+            }
+        }
+
+        public void MoveDeltaGroup(MoveDeltaGroupParam param)
+        {
+            foreach (var index in param.indices)
+            {
+                channels[index].MoveDelta(param.movePos);
+            }
+
+            groups[param.groupIndex].Select();
+
+            if (param.ownerPanel.Equals(this))
+            {
+                channelUpdater.MoveDeltaGroup(param);
+                Apply(param);
+            }
+        }
 
         #endregion
     }

@@ -38,5 +38,10 @@ namespace DataExtract
         {
             _dataStore.MakeGroup(param);
         }
+
+        public void MoveDeltaGroup(MoveDeltaGroupParam param)
+        {
+            _dataStore.MoveDeltaGroup(param);
+        }
     }
 }
