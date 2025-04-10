@@ -17,7 +17,7 @@ namespace DataExtract
 
         public void Deselect()
         {
-            throw new System.NotImplementedException();
+            bgImage.color = new Color32(100, 100, 100, 255);
         }
 
         public GameObject GetObject()
@@ -29,13 +29,14 @@ namespace DataExtract
         {
             groupName = param.name;
             hasChannels = param.hasChannels;
+            groupIndex = param.groupIndex;
 
             groupNameText.text = groupName;
         }
 
         public void Select()
         {
-            throw new System.NotImplementedException();
+            bgImage.color = new Color32(200, 50, 50, 255);
         }
     }
 }

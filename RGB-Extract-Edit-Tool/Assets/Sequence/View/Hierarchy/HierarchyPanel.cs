@@ -131,6 +131,7 @@ namespace DataExtract
             { eEditType.MoveChannel, param => MoveChannel((MoveChannelParam)param) },
             { eEditType.SelectGroup, param => SelectGroup((SelectGroupParam)param) },
             { eEditType.DeselectGroup, param => DeselectGroup((DeselectGroupParam)param) },
+            { eEditType.MoveDeltaGroup, param => MoveDeltaGroup((MoveDeltaGroupParam)param) },
         };
 
 
@@ -242,25 +243,26 @@ namespace DataExtract
 
         public void MakeGroup(MakeGroupParam param)
         {
-            //그룹을 생성하고
             HierarchyGroup gr = Instantiate(hierarchyGroupPrefab, scrollViewContentRt);
+
+            List<IPanelChannel> groupChannels = param.channelIndices.Select(index => channels.FirstOrDefault(ch => ch.channelIndex == index)).ToList();
 
             IPanelGroup.Param createParam = new IPanelGroup.Param();
             createParam.groupIndex = param.groupIndex;
             createParam.name = param.name;
-            createParam.hasChannels = selectChannels;
+            createParam.hasChannels = groupChannels;
             createParam.sortDirection = IGroup.SortDirection.Left;
 
             gr.Init(createParam);
+            gr.Select();
 
             //채널들도 생성하고
-            for (int i = 0; i < selectChannels.Count; i++)
+            for (int i = 0; i < groupChannels.Count; i++)
             {
-                selectChannels[i].SetGroup(gr, i);
+                groupChannels[i].SetGroup(gr, i);
             }
 
             groups.Add(gr);
-
             _SortPanel();
 
             if (param.ownerPanel.Equals(this))
@@ -274,7 +276,7 @@ namespace DataExtract
         {
             foreach(var index in param.indices)
             {
-                channels[index].position = param.position;
+                channels[index].position = param.movePos;
             }
 
             if (param.ownerPanel.Equals(this))
@@ -292,6 +294,8 @@ namespace DataExtract
                 channel.Select();
                 selectChannels.Add(channel);
             }
+
+            group.Select();
 
             if (param.ownerPanel.Equals(this))
             {
@@ -359,6 +363,20 @@ namespace DataExtract
 
             if (param.ownerPanel.Equals(this))
             {
+                Apply(param);
+            }
+        }
+
+        public void MoveDeltaGroup(MoveDeltaGroupParam param)
+        {
+            foreach (var index in param.indices)
+            {
+                channels[index].MoveDelta(param.movePos);
+            }
+
+            if (param.ownerPanel.Equals(this))
+            {
+                channelUpdater.MoveDeltaGroup(param);
                 Apply(param);
             }
         }

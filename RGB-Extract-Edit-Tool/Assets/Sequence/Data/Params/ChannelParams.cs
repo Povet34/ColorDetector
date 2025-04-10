@@ -12,10 +12,13 @@ namespace DataExtract
         DeleteChannel,
         SelectChannel,
         DeSelectChannel,
+        
         Undo,
+
         MakeGroup,
         SelectGroup,
         DeselectGroup,
+        MoveDeltaGroup,
     }
 
     public class EditParam
@@ -50,15 +53,15 @@ namespace DataExtract
     public class MoveChannelParam : EditParam
     {
         public List<int> indices;
-        public Vector2 position;
+        public Vector2 movePos;
 
         public MoveChannelParam() { }
 
-        public MoveChannelParam(IPanelSync ownerPanel, List<int> indices, Vector2 position)
+        public MoveChannelParam(IPanelSync ownerPanel, List<int> indices, Vector2 movePos)
             : base(ownerPanel, eEditType.MoveChannel)
         {
             this.indices = indices;
-            this.position = position;
+            this.movePos = movePos;
         }
     }
 
@@ -72,6 +75,23 @@ namespace DataExtract
         public MoveDeltaChannelParam(IPanelSync ownerPanel, List<int> indices, Vector2 movePos)
             : base(ownerPanel, eEditType.MoveDeltaChannel)
         {
+            this.indices = indices;
+            this.movePos = movePos;
+        }
+    }
+
+    public class MoveDeltaGroupParam : EditParam
+    {
+        public int groupIndex;
+        public List<int> indices;
+        public Vector2 movePos;
+
+        public MoveDeltaGroupParam() { }
+
+        public MoveDeltaGroupParam(IPanelSync ownerPanel, int groupIndex, List<int> indices, Vector2 movePos)
+            : base(ownerPanel, eEditType.MoveDeltaGroup)
+        {
+            this.groupIndex = groupIndex;
             this.indices = indices;
             this.movePos = movePos;
         }

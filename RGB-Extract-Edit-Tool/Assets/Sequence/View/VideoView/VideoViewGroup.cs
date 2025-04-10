@@ -25,6 +25,7 @@ public class VideoViewGroup : MonoBehaviour, IPanelGroup
     {
         groupName = param.name;
         hasChannels = param.hasChannels;
+        groupIndex = param.groupIndex;
     }
 
     public void Select()

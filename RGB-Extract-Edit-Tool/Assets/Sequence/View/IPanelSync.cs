@@ -24,6 +24,7 @@ namespace DataExtract
         void MakeGroup(MakeGroupParam param);
         void SelectGroup(SelectGroupParam param);
         void DeselectGroup(DeselectGroupParam param);
+        void MoveDeltaGroup(MoveDeltaGroupParam param);
 
 
         void Undo(UndoParam param);

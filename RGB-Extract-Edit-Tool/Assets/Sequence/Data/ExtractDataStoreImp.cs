@@ -143,7 +143,7 @@ namespace DataExtract
             foreach (int index in param.indices)
             {
                 IChannel channel = _channels.Find(x => x.channelIndex == index);
-                channel.position = param.position;
+                channel.position = param.movePos;
             }
         }
 
@@ -225,10 +225,23 @@ namespace DataExtract
                 }
             }
 
-            if (!isCan)
-                DLogger.Log_Red(log);
-
             return isCan;
+        }
+
+        public void MoveDeltaGroup(MoveDeltaGroupParam param)
+        {
+            _StackEditParam(param);
+
+            foreach (var group in _groups)
+            {
+                foreach (var channel in group.hasChannels)
+                {
+                    if (param.indices.Contains(channel.channelIndex))
+                    {
+                        channel.position += param.movePos;
+                    }
+                }
+            }
         }
 
         #endregion
