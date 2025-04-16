@@ -160,7 +160,7 @@ namespace DataExtract
         public void OnPointerUp(PointerEventData eventData)
         {
             Vector2 localMousePosition = panelRt.InverseTransformPoint(eventData.position);
-            if (_moveState.IsMoving(localMousePosition))
+            if (_moveState.IsMoving(localMousePosition) && (_moveState.IsGroupSelected() || _moveState.IsChannelsSelected()))
             {
                 if (_moveState.IsGroupSelected())
                 {
@@ -186,12 +186,12 @@ namespace DataExtract
 
                     if (clickedChannel.HasGroup())
                     {
+                        DeselectChannel(new DeSelectChannelParam(this));
+                        DeselectGroup(new DeselectGroupParam(this));
+
                         //같은 그룹 내에 있는 채널을 또 선택하면, 강제 채널 하나만 선택되도록한다.
                         if (_moveState.IsSameGroup(clickedChannel.parentGroup))
                         {
-                            DeselectChannel(new DeSelectChannelParam(this));
-                            DeselectGroup(new DeselectGroupParam(this));
-
                             SelectChannel(new SelectChannelParam(this, new List<int> { clickedChannel.channelIndex }));
                             _moveState.Select(null, new List<IPanelChannel>() { clickedChannel });
 
@@ -263,6 +263,13 @@ namespace DataExtract
             {
                 this.startGroup = startGroup;
                 this.startChannels = startChannels;
+            }
+
+            public void Reset()
+            {
+                startPos = null;
+                startGroup = null;
+                startChannels = null;
             }
 
             public void StartMove(Vector2 startPos)
@@ -639,6 +646,8 @@ namespace DataExtract
 
                 groups.Add(gr);
             }
+
+            _moveState.Reset();
         }
 
         public void DeselectGroup(DeselectGroupParam param)
