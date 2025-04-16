@@ -159,59 +159,63 @@ namespace DataExtract
 
         public void OnPointerUp(PointerEventData eventData)
         {
-            Vector2 localMousePosition = panelRt.InverseTransformPoint(eventData.position);
-            if (_moveState.IsMoving(localMousePosition) && (_moveState.IsGroupSelected() || _moveState.IsChannelsSelected()))
+            if (eventData.button == PointerEventData.InputButton.Left)
             {
-                if (_moveState.IsGroupSelected())
+                Vector2 localMousePosition = panelRt.InverseTransformPoint(eventData.position);
+                if (_moveState.IsMoving(localMousePosition) && (_moveState.IsGroupSelected() || _moveState.IsChannelsSelected()))
                 {
-                    _MoveDeltaGroup(_moveState.GetSelectedGroup(), localMousePosition);
-                }
-                else if (_moveState.IsChannelsSelected())
-                {
-                    _MoveDeltaChannels(localMousePosition);
-                }
-
-                _moveState.EndMove();
-            }
-            else
-            {
-                IPanelChannel clickedChannel = GetChannelAtPosition(eventData);
-                if (clickedChannel != null)
-                {
-                    if(rectAreaChannelSelection.IsRectActive())
+                    if (_moveState.IsGroupSelected())
                     {
-                        _SelectRect();
-                        return;
+                        _MoveDeltaGroup(_moveState.GetSelectedGroup(), localMousePosition);
+                    }
+                    else if (_moveState.IsChannelsSelected())
+                    {
+                        _MoveDeltaChannels(localMousePosition);
                     }
 
-                    if (clickedChannel.HasGroup())
-                    {
-                        DeselectChannel(new DeSelectChannelParam(this));
-                        DeselectGroup(new DeselectGroupParam(this));
-
-                        //같은 그룹 내에 있는 채널을 또 선택하면, 강제 채널 하나만 선택되도록한다.
-                        if (_moveState.IsSameGroup(clickedChannel.parentGroup))
-                        {
-                            SelectChannel(new SelectChannelParam(this, new List<int> { clickedChannel.channelIndex }));
-                            _moveState.Select(null, new List<IPanelChannel>() { clickedChannel });
-
-                            return;
-                        }
-
-                        SelectGroup(new SelectGroupParam(this, clickedChannel.parentGroup.groupIndex));
-                        _moveState.Select(clickedChannel.parentGroup, new List<IPanelChannel> { clickedChannel });
-                    }
-                    else
-                    {
-                        SelectChannel(new SelectChannelParam(this, new List<int> { clickedChannel.channelIndex }));
-                        _moveState.Select(null, new List<IPanelChannel>() { clickedChannel });
-                    }
+                    _moveState.EndMove();
                 }
                 else
                 {
-                    _SelectRect();
+                    IPanelChannel clickedChannel = GetChannelAtPosition(eventData);
+                    if (clickedChannel != null)
+                    {
+                        if (rectAreaChannelSelection.IsRectActive())
+                        {
+                            _SelectRect();
+                            return;
+                        }
+
+                        if (clickedChannel.HasGroup())
+                        {
+                            DeselectChannel(new DeSelectChannelParam(this));
+                            DeselectGroup(new DeselectGroupParam(this));
+
+                            //같은 그룹 내에 있는 채널을 또 선택하면, 강제 채널 하나만 선택되도록한다.
+                            if (_moveState.IsSameGroup(clickedChannel.parentGroup))
+                            {
+                                SelectChannel(new SelectChannelParam(this, new List<int> { clickedChannel.channelIndex }));
+                                _moveState.Select(null, new List<IPanelChannel>() { clickedChannel });
+
+                                return;
+                            }
+
+                            SelectGroup(new SelectGroupParam(this, clickedChannel.parentGroup.groupIndex));
+                            _moveState.Select(clickedChannel.parentGroup, new List<IPanelChannel> { clickedChannel });
+                        }
+                        else
+                        {
+                            SelectChannel(new SelectChannelParam(this, new List<int> { clickedChannel.channelIndex }));
+                            _moveState.Select(null, new List<IPanelChannel>() { clickedChannel });
+                        }
+                    }
+                    else
+                    {
+                        _SelectRect();
+                    }
                 }
             }
+
 
             void _SelectRect()
             {
@@ -644,6 +648,7 @@ namespace DataExtract
                     channels[updatedGroup.hasChannels[i].channelIndex].SetGroup(gr, i);
                 }
 
+                gr.Deselect();
                 groups.Add(gr);
             }
 
