@@ -25,7 +25,8 @@ public class Group : IGroup
         {
             name = this.name,
             sortDirection = this.sortDirection,
-            hasChannels = new List<IChannel>()
+            hasChannels = new List<IChannel>(),
+            groupIndex = this.groupIndex
         };
 
         foreach (var ch in hasChannels)

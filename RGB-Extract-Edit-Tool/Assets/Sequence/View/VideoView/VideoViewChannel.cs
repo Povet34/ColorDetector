@@ -7,8 +7,8 @@ namespace DataExtract
     {
         public int channelIndex { get; set; }
         public Vector2 position { get; set; }
-        public int parentGroupIndex { get; set; }
-        public int groupInIndex { get; set; }
+        public int parentGroupIndex { get; set; } = -1;
+        public int groupInIndex { get; set; } = -1;
         public IPanelGroup parentGroup { get; set; }
 
         public GameObject GetObject() => gameObject;
@@ -72,6 +72,8 @@ namespace DataExtract
         {
             this.parentGroup = parentGroup;
             this.groupInIndex = groupInIndex;
+
+            parentGroupIndex = parentGroup.groupIndex;
         }
 
         public bool HasGroup()
