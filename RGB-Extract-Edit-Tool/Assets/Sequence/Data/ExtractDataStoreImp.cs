@@ -45,6 +45,7 @@ namespace DataExtract
         {
             // 삭제할 그룹을 저장할 리스트
             List<IGroup> groupsToRemove = new List<IGroup>();
+            int groupIndex = 0;
 
             foreach (var gr in groups)
             {
@@ -75,6 +76,8 @@ namespace DataExtract
                     }
                     log += "\n";
                     DLogger.Log_Green(log);
+
+                    gr.groupIndex = groupIndex++;
                 }
             }
 
