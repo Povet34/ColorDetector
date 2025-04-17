@@ -49,7 +49,7 @@ namespace DataExtract
             foreach (var gr in groups)
             {
                 // 그룹의 채널이 channels에 존재하는지 확인하고, 존재하지 않는 채널을 제거
-                gr.hasChannels = gr.hasChannels.Where(ch => _channels.Contains(ch)).ToList();
+                gr.hasChannels = gr.hasChannels.Where(ch => _channels.Any(c => c.channelIndex == ch.channelIndex)).ToList();
 
                 // inIndex 순으로 정렬
                 gr.hasChannels = gr.hasChannels.OrderBy(ch => ch.individualInfo.inIndex).ToList();

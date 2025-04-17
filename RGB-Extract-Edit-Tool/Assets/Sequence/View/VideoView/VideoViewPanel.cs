@@ -447,9 +447,11 @@ namespace DataExtract
             { eEditType.SelectChannel, param => SelectChannel((SelectChannelParam)param) },
             { eEditType.DeSelectChannel, param => DeselectChannel((DeSelectChannelParam)param) },
             { eEditType.MoveDeltaChannel, param => MoveDeltaChannel((MoveDeltaChannelParam)param) },
-            { eEditType.Undo, param => Undo((UndoParam)param) },
-            { eEditType.MakeGroup, param => MakeGroup((MakeGroupParam)param) },
             { eEditType.MoveChannel, param => MoveChannel((MoveChannelParam)param) },
+
+            { eEditType.Undo, param => Undo((UndoParam)param) },
+
+            { eEditType.MakeGroup, param => MakeGroup((MakeGroupParam)param) },
             { eEditType.SelectGroup, param => SelectGroup((SelectGroupParam)param) },
             { eEditType.DeselectGroup, param => DeselectGroup((DeselectGroupParam)param) },
             { eEditType.MoveDeltaGroup, param => MoveDeltaGroup((MoveDeltaGroupParam)param) },
@@ -523,7 +525,6 @@ namespace DataExtract
             {
                 Apply(param);
             }
-
         }
 
         public void MoveDeltaChannel(MoveDeltaChannelParam param)

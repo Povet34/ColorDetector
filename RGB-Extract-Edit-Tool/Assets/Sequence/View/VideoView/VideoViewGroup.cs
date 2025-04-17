@@ -23,8 +23,6 @@ public class VideoViewGroup : MonoBehaviour, IPanelGroup
 
     public void Init(IPanelGroup.Param param)
     {
-        DLogger.Log_Blue($"MakeGroup : {param.groupIndex}");
-
         groupName = param.name;
         hasChannels = param.hasChannels;
         groupIndex = param.groupIndex;
