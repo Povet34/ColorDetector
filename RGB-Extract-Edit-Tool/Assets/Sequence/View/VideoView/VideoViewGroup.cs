@@ -14,7 +14,6 @@ public class VideoViewGroup : MonoBehaviour, IPanelGroup
 
     public void ChnageSortDirection()
     {
-        throw new System.NotImplementedException();
     }
 
     public void Deselect()

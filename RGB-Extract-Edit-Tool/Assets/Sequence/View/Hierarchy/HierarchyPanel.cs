@@ -102,18 +102,29 @@ namespace DataExtract
         void _SortPanel()
         {
             int siblingIndex = 0;
+
+            // 그룹을 SiblingIndex 순서대로 정렬
             foreach (var group in groups.OrderBy(g => g.GetObject().transform.GetSiblingIndex()))
             {
+                // 그룹의 SiblingIndex 설정
                 group.GetObject().transform.SetSiblingIndex(siblingIndex++);
 
-                foreach (var channel in group.hasChannels)
+                // 그룹 내 채널을 inIndex 순서대로 정렬
+                foreach (var channel in group.hasChannels.OrderBy(ch => ch.groupInIndex))
                 {
                     if (channel != null)
                     {
+                        // 채널의 SiblingIndex 설정
                         channel.GetObject().transform.SetSiblingIndex(siblingIndex++);
                     }
                 }
             }
+        }
+
+        void _ChanageGroupSortDirection(int groupIndex, IGroup.SortDirection direction)
+        {
+            var param = new ChangeGroupSortDirectionParam(this, groupIndex, direction);
+            ChangeGroupSortDirection(param);
         }
 
 
@@ -252,6 +263,7 @@ namespace DataExtract
             createParam.name = param.name;
             createParam.hasChannels = groupChannels;
             createParam.sortDirection = IGroup.SortDirection.Left;
+            createParam.onSort = _ChanageGroupSortDirection;
 
             gr.Init(createParam);
             gr.Select();
@@ -383,13 +395,42 @@ namespace DataExtract
 
         public void ChangeGroupSortDirection(ChangeGroupSortDirectionParam param)
         {
+            // 그룹을 찾음
             var group = groups[param.groupIndex];
-            group.ChnageSortDirection();
+            if (group == null)
+            {
+                Debug.LogError($"Group with index {param.groupIndex} not found.");
+                return;
+            }
+
+            // Apply 호출
             if (param.ownerPanel.Equals(this))
             {
                 channelUpdater.ChangeGroupSortDirection(param);
                 Apply(param);
             }
+
+            // 채널리시버를 통해 그룹 정보를 가져옴
+            var updatedGroup = channelReceiver.GetGroups().FirstOrDefault(g => g.groupIndex == param.groupIndex);
+            if (updatedGroup == null)
+            {
+                DLogger.LogError($"Updated group with index {param.groupIndex} not found in ChannelReceiver.");
+                return;
+            }
+
+            // 그룹 내 채널들의 inIndex를 업데이트
+            for (int i = 0; i < updatedGroup.hasChannels.Count; i++)
+            {
+                var channel = channels.FirstOrDefault(ch => ch.channelIndex == updatedGroup.hasChannels[i].channelIndex);
+                if (channel != null)
+                {
+                    channel.SetGroup(group, i); // 그룹과 새로운 inIndex 설정
+                }
+            }
+
+            _SortPanel();
+
+            DLogger.Log($"Group {param.groupIndex} channels' inIndex updated.");
         }
 
         #endregion

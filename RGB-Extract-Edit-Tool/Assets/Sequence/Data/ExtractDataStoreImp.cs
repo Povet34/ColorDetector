@@ -147,10 +147,10 @@ namespace DataExtract
             switch (group.sortDirection)
             {
                 case IGroup.SortDirection.Left:
-                    group.hasChannels = group.hasChannels.OrderBy(ch => ch.position.x).ToList();
+                    group.hasChannels = group.hasChannels.OrderByDescending(ch => ch.position.x).ToList();
                     break;
                 case IGroup.SortDirection.Right:
-                    group.hasChannels = group.hasChannels.OrderByDescending(ch => ch.position.x).ToList();
+                    group.hasChannels = group.hasChannels.OrderBy(ch => ch.position.x).ToList();
                     break;
                 case IGroup.SortDirection.Up:
                     group.hasChannels = group.hasChannels.OrderBy(ch => ch.position.y).ToList();

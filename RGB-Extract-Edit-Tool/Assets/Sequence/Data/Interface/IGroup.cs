@@ -9,7 +9,9 @@ public interface IGroup
         Left,
         Up,
         Right,
-        Down
+        Down,
+        
+        Count,
     }
 
     public int groupIndex { get; set; }

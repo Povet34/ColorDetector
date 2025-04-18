@@ -17,7 +17,7 @@ namespace DataExtract
         public int groupIndex { get; set; }
         public string groupName { get; set; }
         public IGroup.SortDirection sortDirection { get; set; }
-        Action<IGroup.SortDirection> onSort;
+        Action<int, IGroup.SortDirection> onSort;
 
         void Awake()
         {
@@ -52,10 +52,10 @@ namespace DataExtract
         public void ChnageSortDirection()
         {
             int currentIndex = (int)sortDirection;
-            int nextIndex = (currentIndex + 1) % System.Enum.GetValues(typeof(IGroup.SortDirection)).Length;
+            int nextIndex = (currentIndex + 1) % (int)IGroup.SortDirection.Count;
 
             sortDirection = (IGroup.SortDirection)nextIndex;
-            onSort?.Invoke(sortDirection);
+            onSort?.Invoke(groupIndex, sortDirection);
 
             RectTransform rectTransform = sortDirectionButton.GetComponent<RectTransform>();
             if (rectTransform != null)

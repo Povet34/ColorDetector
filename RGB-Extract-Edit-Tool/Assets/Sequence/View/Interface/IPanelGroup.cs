@@ -11,7 +11,7 @@ public interface IPanelGroup
         public string name;
         public IGroup.SortDirection sortDirection;
         public int groupIndex;
-        public Action<IGroup.SortDirection> onSort;
+        public Action<int, IGroup.SortDirection> onSort;
     }
 
     string groupName { get; set; }
