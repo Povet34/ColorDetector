@@ -127,6 +127,46 @@ namespace DataExtract
             _SortChannels();
         }
 
+        public void ChangeGroupSortDirection(ChangeGroupSortDirectionParam param)
+        {
+            // 변경 사항을 스택에 저장
+            _StackEditParam(param);
+
+            // 그룹을 찾음
+            IGroup group = _groups.Find(x => x.groupIndex == param.groupIndex);
+            if (group == null)
+            {
+                Debug.LogError($"Group with index {param.groupIndex} not found.");
+                return;
+            }
+
+            // 그룹의 정렬 방향 변경
+            group.sortDirection = param.sortDirection;
+
+            // 그룹 내 채널 정렬
+            switch (group.sortDirection)
+            {
+                case IGroup.SortDirection.Left:
+                    group.hasChannels = group.hasChannels.OrderBy(ch => ch.position.x).ToList();
+                    break;
+                case IGroup.SortDirection.Right:
+                    group.hasChannels = group.hasChannels.OrderByDescending(ch => ch.position.x).ToList();
+                    break;
+                case IGroup.SortDirection.Up:
+                    group.hasChannels = group.hasChannels.OrderBy(ch => ch.position.y).ToList();
+                    break;
+                case IGroup.SortDirection.Down:
+                    group.hasChannels = group.hasChannels.OrderByDescending(ch => ch.position.y).ToList();
+                    break;
+            }
+
+            // 그룹 내 인덱스 재정의
+            for (int i = 0; i < group.hasChannels.Count; i++)
+            {
+                group.hasChannels[i].individualInfo.inIndex = i;
+            }
+        }
+
         #endregion
 
         #region EditParam

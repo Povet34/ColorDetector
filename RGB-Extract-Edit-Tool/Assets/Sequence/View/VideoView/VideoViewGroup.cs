@@ -10,6 +10,12 @@ public class VideoViewGroup : MonoBehaviour, IPanelGroup
     public string groupName { get;set; }
     public List<IPanelChannel> hasChannels { get; set; }
     public int groupIndex { get; set; }
+    public IGroup.SortDirection sortDirection { get; set; }
+
+    public void ChnageSortDirection()
+    {
+        throw new System.NotImplementedException();
+    }
 
     public void Deselect()
     {

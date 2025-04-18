@@ -57,6 +57,7 @@ namespace DataExtract
         int GetGroupCount();
         bool CanGroup(List<int> indices);
         void MoveDeltaGroup(MoveDeltaGroupParam param);
+        void ChangeGroupSortDirection(ChangeGroupSortDirectionParam param);
 
         #endregion
     }

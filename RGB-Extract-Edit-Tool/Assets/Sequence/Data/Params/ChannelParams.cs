@@ -19,6 +19,7 @@ namespace DataExtract
         SelectGroup,
         DeselectGroup,
         MoveDeltaGroup,
+        ChangeGroupSortDirection,
     }
 
     public class EditParam
@@ -173,6 +174,18 @@ namespace DataExtract
         public DeselectGroupParam(IPanelSync ownerPanel)
             : base(ownerPanel, eEditType.DeselectGroup)
         {
+        }
+    }
+
+    public class ChangeGroupSortDirectionParam : EditParam
+    {
+        public int groupIndex;
+        public IGroup.SortDirection sortDirection;
+        public ChangeGroupSortDirectionParam(IPanelSync ownerPanel, int groupIndex, IGroup.SortDirection sortDirection)
+            : base(ownerPanel, eEditType.ChangeGroupSortDirection)
+        {
+            this.groupIndex = groupIndex;
+            this.sortDirection = sortDirection;
         }
     }
 }

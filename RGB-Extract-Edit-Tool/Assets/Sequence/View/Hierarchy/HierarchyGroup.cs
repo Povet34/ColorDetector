@@ -2,6 +2,7 @@ using TMPro;
 using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.UI;
+using System;
 
 namespace DataExtract
 {
@@ -10,10 +11,18 @@ namespace DataExtract
     {
         [SerializeField] TMP_Text groupNameText;
         [SerializeField] Image bgImage;
+        [SerializeField] Button sortDirectionButton;
 
         public List<IPanelChannel> hasChannels { get; set; }
         public int groupIndex { get; set; }
         public string groupName { get; set; }
+        public IGroup.SortDirection sortDirection { get; set; }
+        Action<IGroup.SortDirection> onSort;
+
+        void Awake()
+        {
+            sortDirectionButton.onClick.AddListener(ChnageSortDirection);
+        }
 
         public void Deselect()
         {
@@ -30,6 +39,7 @@ namespace DataExtract
             groupName = param.name;
             hasChannels = param.hasChannels;
             groupIndex = param.groupIndex;
+            onSort = param.onSort;
 
             groupNameText.text = groupName;
         }
@@ -37,6 +47,21 @@ namespace DataExtract
         public void Select()
         {
             bgImage.color = new Color32(200, 50, 50, 255);
+        }
+
+        public void ChnageSortDirection()
+        {
+            int currentIndex = (int)sortDirection;
+            int nextIndex = (currentIndex + 1) % System.Enum.GetValues(typeof(IGroup.SortDirection)).Length;
+
+            sortDirection = (IGroup.SortDirection)nextIndex;
+            onSort?.Invoke(sortDirection);
+
+            RectTransform rectTransform = sortDirectionButton.GetComponent<RectTransform>();
+            if (rectTransform != null)
+            {
+                rectTransform.Rotate(0, 0, -90); // ZÃà È¸Àü
+            }
         }
     }
 }

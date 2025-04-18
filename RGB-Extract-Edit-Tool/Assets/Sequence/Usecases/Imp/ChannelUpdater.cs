@@ -43,5 +43,10 @@ namespace DataExtract
         {
             _dataStore.MoveDeltaGroup(param);
         }
+
+        public void ChangeGroupSortDirection(ChangeGroupSortDirectionParam param)
+        {
+            _dataStore.ChangeGroupSortDirection(param);
+        }
     }
 }

@@ -132,6 +132,7 @@ namespace DataExtract
             { eEditType.SelectGroup, param => SelectGroup((SelectGroupParam)param) },
             { eEditType.DeselectGroup, param => DeselectGroup((DeselectGroupParam)param) },
             { eEditType.MoveDeltaGroup, param => MoveDeltaGroup((MoveDeltaGroupParam)param) },
+            { eEditType.ChangeGroupSortDirection, param => ChangeGroupSortDirection((ChangeGroupSortDirectionParam)param) },
         };
 
 
@@ -163,7 +164,6 @@ namespace DataExtract
                 Apply(param);
             }
         }
-
 
         public void DeleteChannel(DeleteChannelParam param)
         {
@@ -377,6 +377,17 @@ namespace DataExtract
             if (param.ownerPanel.Equals(this))
             {
                 channelUpdater.MoveDeltaGroup(param);
+                Apply(param);
+            }
+        }
+
+        public void ChangeGroupSortDirection(ChangeGroupSortDirectionParam param)
+        {
+            var group = groups[param.groupIndex];
+            group.ChnageSortDirection();
+            if (param.ownerPanel.Equals(this))
+            {
+                channelUpdater.ChangeGroupSortDirection(param);
                 Apply(param);
             }
         }

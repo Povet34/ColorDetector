@@ -7,8 +7,8 @@ public interface IGroup
     public enum SortDirection //어떤 방향으로 채널들을 재정렬할지 정하는 key
     {
         Left,
-        Right,
         Up,
+        Right,
         Down
     }
 
