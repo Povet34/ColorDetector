@@ -120,7 +120,7 @@ namespace DataExtract
 
         public void OnPointerDown(PointerEventData eventData)
         {
-            videoViewPanelMenuPopup.gameObject.SetActive(false);
+            DisableMenuPopup(new DisableMenuPopupParam(this));
 
             if (eventData.button == PointerEventData.InputButton.Left)
             {
@@ -455,6 +455,7 @@ namespace DataExtract
             { eEditType.DeselectGroup, param => DeselectGroup((DeselectGroupParam)param) },
             { eEditType.MoveDeltaGroup, param => MoveDeltaGroup((MoveDeltaGroupParam)param) },
             { eEditType.ChangeGroupSortDirection, param => ChangeGroupSortDirection((ChangeGroupSortDirectionParam)param) },
+            { eEditType.DisableMenuPopup, param => DisableMenuPopup((DisableMenuPopupParam)param) },
         };
 
         public void Apply(EditParam param)
@@ -699,6 +700,16 @@ namespace DataExtract
             if (param.ownerPanel.Equals(this))
             {
                 channelUpdater.ChangeGroupSortDirection(param);
+                Apply(param);
+            }
+        }
+
+        public void DisableMenuPopup(DisableMenuPopupParam param)
+        {
+            videoViewPanelMenuPopup.Show(false);
+            //Apply
+            if (param.ownerPanel.Equals(this))
+            {
                 Apply(param);
             }
         }

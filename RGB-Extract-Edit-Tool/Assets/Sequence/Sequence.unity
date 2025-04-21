@@ -208,6 +208,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ed79867f5b4b6f409c9c8e9b2af7c69, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hierarchyPanelMenuPopupPrefab: {fileID: 6117450583436712085, guid: 626b625328b0cdb478f2ea6f22563199, type: 3}
   hierarchyChannelPrefab: {fileID: 2575049122829711139, guid: bbebaf8ab84994d4e8e207ae23826d94, type: 3}
   hierarchyGroupPrefab: {fileID: 3976620690337738053, guid: 1772a2de90438f74baa0bffc0b17e64a, type: 3}
   scrollViewContentRt: {fileID: 1596305661}
@@ -1334,8 +1335,8 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 169088796}
   - {fileID: 862540758}
+  - {fileID: 169088796}
   m_Father: {fileID: 1162363324}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}

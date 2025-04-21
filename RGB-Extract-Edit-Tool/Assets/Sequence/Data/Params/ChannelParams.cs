@@ -20,6 +20,8 @@ namespace DataExtract
         DeselectGroup,
         MoveDeltaGroup,
         ChangeGroupSortDirection,
+        
+        DisableMenuPopup,
     }
 
     public class EditParam
@@ -186,6 +188,15 @@ namespace DataExtract
         {
             this.groupIndex = groupIndex;
             this.sortDirection = sortDirection;
+        }
+    }
+
+    public class DisableMenuPopupParam : EditParam
+    {
+        public DisableMenuPopupParam(IPanelSync ownerPanel) :
+            base (ownerPanel, eEditType.DisableMenuPopup)
+        {
+
         }
     }
 }

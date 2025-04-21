@@ -6,7 +6,6 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityEditor;
 using System.Linq;
-using Unity.VisualScripting;
 
 namespace DataExtract
 {
@@ -20,6 +19,7 @@ namespace DataExtract
 
         #endregion
 
+        [SerializeField] HierarchyPanelMenuPopup hierarchyPanelMenuPopupPrefab;
         [SerializeField] HierarchyChannel hierarchyChannelPrefab;
         [SerializeField] HierarchyGroup hierarchyGroupPrefab;
 
@@ -28,6 +28,9 @@ namespace DataExtract
         [SerializeField] GraphicRaycaster graphicRaycaster;
         [SerializeField] EventSystem eventSystem;
 
+        RectTransform panelRt;
+
+        HierarchyPanelMenuPopup hierarchyPanelMenuPopup;
         List<IPanelChannel> channels;
         List<IPanelChannel> selectChannels;
         List<IPanelGroup> groups;
@@ -38,7 +41,22 @@ namespace DataExtract
             channels = new List<IPanelChannel>();
             selectChannels = new List<IPanelChannel>();
             groups = new List<IPanelGroup>();
-            changeState = new ChangeState(this);
+
+            hierarchyPanelMenuPopup = Instantiate(hierarchyPanelMenuPopupPrefab, transform);
+
+            //GetComp
+            panelRt = GetComponent<RectTransform>();
+
+            hierarchyPanelMenuPopup.Init(
+                new HierarchyPanelMenuPopup.MenuActions(
+                    onAddChannelsToGroup: null,
+                    onDeleteChannel: null,
+                    onMakeGroup: null,
+                    onReleaseGroup: null,
+                    onRenameGroup: null,
+                    onUngroupForFree: null
+                    ));
+            hierarchyPanelMenuPopup.Show(false);
         }
 
         public void Init(ChannelUpdater channelUpdater, ChannelReceiver channelReceiver, ChannelSyncer channelSyncer)
@@ -50,13 +68,12 @@ namespace DataExtract
 
         public void OnPointerDown(PointerEventData eventData)
         {
-            if (eventData.button == PointerEventData.InputButton.Left)
+            DisableMenuPopup(new DisableMenuPopupParam(this));
+
+            if (eventData.button == PointerEventData.InputButton.Right)
             {
-                // ChangeState 시작
-                if (selectChannels.Count > 0 && !IsGroupSelected())
-                {
-                    changeState.Start(eventData, selectChannels);
-                }
+                // 오른쪽 클릭 처리
+                _HandleRightClick(eventData);
             }
         }
 
@@ -64,33 +81,44 @@ namespace DataExtract
         {
             if (eventData.button == PointerEventData.InputButton.Left)
             {
-                // 홀딩 상태가 아니라면, 이건 그냥 선택이다.
-                if (!changeState.IsHolding)
-                {
-                    _SelectUIElement(eventData);
-                }
-
-                changeState.End();
+                _SelectUIElement(eventData);
             }
         }
 
-        private void ApplyGrayEffectToSelectedChannels()
+
+        private void _HandleRightClick(PointerEventData eventData)
         {
-            foreach (var channel in selectChannels)
+            // Raycast를 통해 클릭된 UI 요소 확인
+            List<RaycastResult> results = new List<RaycastResult>();
+            graphicRaycaster.Raycast(eventData, results);
+
+            HierarchyPanelMenuPopup.ShowType showType = HierarchyPanelMenuPopup.ShowType.OnNothing;
+
+            foreach (RaycastResult result in results)
             {
-                if(null != channel)
+                // 그룹인지 확인
+                IPanelGroup selectedGroup = result.gameObject.GetComponent<IPanelGroup>();
+                if (selectedGroup != null)
                 {
-                    channel.SelectForChangeHierarchy();
+                    showType |= HierarchyPanelMenuPopup.ShowType.OnSelectGroup;
+                }
+
+                // 채널이 선택된 상태인지 확인
+                if (selectChannels.Count > 0)
+                {
+                    showType |= HierarchyPanelMenuPopup.ShowType.OnSelectChannels;
                 }
             }
+
+            Vector2 localMousePosition = panelRt.InverseTransformPoint(eventData.position);
+
+            // HierarchyPanelMenuPopup를 Show
+            hierarchyPanelMenuPopup.SetPosition(localMousePosition);
+            hierarchyPanelMenuPopup.Show(true, showType);
         }
 
-        private bool IsGroupSelected()
-        {
-            return selectChannels.Count == 0 && groups.Any(gr => gr.IsSelect());
-        }
 
-        void DestroyAll()
+        void _DestroyAll()
         {
             foreach (var ch in channels)
             {
@@ -107,7 +135,7 @@ namespace DataExtract
             groups.Clear();
         }
 
-        private void HandleChannelSelection(IPanelChannel selectedChannel)
+        private void _HandleChannelSelection(IPanelChannel selectedChannel)
         {
             if (!selectedChannel.HasGroup())
             {
@@ -138,7 +166,7 @@ namespace DataExtract
             }
         }
 
-        private void HandleGroupSelection(IPanelGroup selectedGroup)
+        private void _HandleGroupSelection(IPanelGroup selectedGroup)
         {
             // 이전 선택 상태를 무조건 초기화
             DeselectChannel(new DeSelectChannelParam(this));
@@ -160,7 +188,7 @@ namespace DataExtract
                 IPanelChannel selectedChannel = result.gameObject.GetComponent<IPanelChannel>();
                 if (selectedChannel != null)
                 {
-                    HandleChannelSelection(selectedChannel);
+                    _HandleChannelSelection(selectedChannel);
                     return;
                 }
 
@@ -168,7 +196,7 @@ namespace DataExtract
                 IPanelGroup selectedGroup = result.gameObject.GetComponent<IPanelGroup>();
                 if (selectedGroup != null)
                 {
-                    HandleGroupSelection(selectedGroup);
+                    _HandleGroupSelection(selectedGroup);
                     return;
                 }
             }
@@ -208,61 +236,6 @@ namespace DataExtract
             ChangeGroupSortDirection(param);
         }
 
-        #region ChangeState
-
-        private ChangeState changeState;
-        private class ChangeState
-        {
-            private readonly HierarchyPanel panel;
-            private List<IPanelChannel> selectedChannels;
-            private bool isActive;
-            private float holdTime;
-            private const float HoldThreshold = 1.0f; // 1초 이상 꾹 눌렀을 때 활성화
-            public bool IsHolding { get; private set; } // 상태를 외부에서 확인 가능하도록 추가
-
-            public ChangeState(HierarchyPanel panel)
-            {
-                this.panel = panel;
-                this.isActive = false;
-                this.holdTime = 0f;
-                this.IsHolding = false;
-            }
-
-            public void Start(PointerEventData eventData, List<IPanelChannel> selectedChannels)
-            {
-                this.selectedChannels = selectedChannels;
-                this.holdTime = 0f;
-                this.isActive = true;
-                this.IsHolding = false;
-
-                panel.StartCoroutine(HoldCheck());
-            }
-
-            public void End()
-            {
-                isActive = false;
-                IsHolding = false;
-            }
-
-            private IEnumerator HoldCheck()
-            {
-                while (isActive)
-                {
-                    holdTime += Time.deltaTime;
-                    if (holdTime >= HoldThreshold)
-                    {
-                        IsHolding = true; // 상태를 활성화
-                        panel.ApplyGrayEffectToSelectedChannels(); // 일정 시간이 지나면 바로 작업 실행
-                        yield break;
-                    }
-                    yield return null;
-                }
-            }
-        }
-
-        #endregion
-
-
         #region IPanelSync
 
         public Dictionary<eEditType, Action<EditParam>> syncParamMap => new Dictionary<eEditType, Action<EditParam>>()
@@ -279,6 +252,7 @@ namespace DataExtract
             { eEditType.DeselectGroup, param => DeselectGroup((DeselectGroupParam)param) },
             { eEditType.MoveDeltaGroup, param => MoveDeltaGroup((MoveDeltaGroupParam)param) },
             { eEditType.ChangeGroupSortDirection, param => ChangeGroupSortDirection((ChangeGroupSortDirectionParam)param) },
+            { eEditType.DisableMenuPopup, param => DisableMenuPopup((DisableMenuPopupParam)param) },
         };
 
 
@@ -453,7 +427,7 @@ namespace DataExtract
         public void RefreshPanel(List<IChannel> dataChannels, List<IGroup> dataGroups)
         {
             // 기존의 채널과 그룹을 파괴
-            DestroyAll();
+            _DestroyAll();
 
             // 채널리시버에서 최신 채널 정보를 가져와서 업데이트
             foreach (var updatedChannel in dataChannels)
@@ -582,6 +556,16 @@ namespace DataExtract
             _SortPanel();
 
             DLogger.Log($"Group {param.groupIndex} channels' inIndex updated.");
+        }
+
+        public void DisableMenuPopup(DisableMenuPopupParam param)
+        {
+            hierarchyPanelMenuPopup.Show(false);
+            //Apply
+            if (param.ownerPanel.Equals(this))
+            {
+                Apply(param);
+            }
         }
 
         #endregion

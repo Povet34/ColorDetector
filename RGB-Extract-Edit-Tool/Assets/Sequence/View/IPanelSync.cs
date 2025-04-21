@@ -27,7 +27,7 @@ namespace DataExtract
         void MoveDeltaGroup(MoveDeltaGroupParam param);
         void ChangeGroupSortDirection(ChangeGroupSortDirectionParam param);
 
-
+        void DisableMenuPopup(DisableMenuPopupParam param);
         void Undo(UndoParam param);
     }
 }
