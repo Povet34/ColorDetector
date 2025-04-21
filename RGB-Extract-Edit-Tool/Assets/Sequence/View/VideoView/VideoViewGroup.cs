@@ -14,6 +14,7 @@ public class VideoViewGroup : MonoBehaviour, IPanelGroup
 
     public void ChnageSortDirection()
     {
+        DLogger.LogWarning("VideoViewGroup : ChnageSortDirection 구현 안함");
     }
 
     public void Deselect()
@@ -31,6 +32,11 @@ public class VideoViewGroup : MonoBehaviour, IPanelGroup
         groupName = param.name;
         hasChannels = param.hasChannels;
         groupIndex = param.groupIndex;
+    }
+
+    public bool IsSelect()
+    {
+        return bgImage.gameObject.activeSelf;
     }
 
     public void Select()

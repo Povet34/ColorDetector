@@ -6,10 +6,11 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityEditor;
 using System.Linq;
+using Unity.VisualScripting;
 
 namespace DataExtract
 {
-    public class HierarchyPanel : MonoBehaviour, IPanelSync, IPointerDownHandler
+    public class HierarchyPanel : MonoBehaviour, IPanelSync, IPointerDownHandler, IPointerUpHandler
     {
         #region Injection
 
@@ -31,11 +32,13 @@ namespace DataExtract
         List<IPanelChannel> selectChannels;
         List<IPanelGroup> groups;
 
+
         void Awake()
         {
             channels = new List<IPanelChannel>();
             selectChannels = new List<IPanelChannel>();
             groups = new List<IPanelGroup>();
+            changeState = new ChangeState(this);
         }
 
         public void Init(ChannelUpdater channelUpdater, ChannelReceiver channelReceiver, ChannelSyncer channelSyncer)
@@ -47,12 +50,44 @@ namespace DataExtract
 
         public void OnPointerDown(PointerEventData eventData)
         {
-            //DeselectChannel(new DeSelectChannelParam(this));
-
             if (eventData.button == PointerEventData.InputButton.Left)
             {
-                _SelectUIElement(eventData);
+                // ChangeState 시작
+                if (selectChannels.Count > 0 && !IsGroupSelected())
+                {
+                    changeState.Start(eventData, selectChannels);
+                }
             }
+        }
+
+        public void OnPointerUp(PointerEventData eventData)
+        {
+            if (eventData.button == PointerEventData.InputButton.Left)
+            {
+                // 홀딩 상태가 아니라면, 이건 그냥 선택이다.
+                if (!changeState.IsHolding)
+                {
+                    _SelectUIElement(eventData);
+                }
+
+                changeState.End();
+            }
+        }
+
+        private void ApplyGrayEffectToSelectedChannels()
+        {
+            foreach (var channel in selectChannels)
+            {
+                if(null != channel)
+                {
+                    channel.SelectForChangeHierarchy();
+                }
+            }
+        }
+
+        private bool IsGroupSelected()
+        {
+            return selectChannels.Count == 0 && groups.Any(gr => gr.IsSelect());
         }
 
         void DestroyAll()
@@ -72,6 +107,47 @@ namespace DataExtract
             groups.Clear();
         }
 
+        private void HandleChannelSelection(IPanelChannel selectedChannel)
+        {
+            if (!selectedChannel.HasGroup())
+            {
+                // 채널이 그룹에 속해 있지 않은 경우
+                DeselectGroup(new DeselectGroupParam(this));
+                DeselectChannel(new DeSelectChannelParam(this));
+                SelectChannel(new SelectChannelParam(this, new List<int> { selectedChannel.channelIndex }));
+            }
+            else
+            {
+                // 채널이 그룹에 속해 있는 경우
+                var parentGroup = selectedChannel.parentGroup;
+
+                if (selectChannels.Count > 0 && selectChannels.All(ch => ch.parentGroup == parentGroup))
+                {
+                    // 이미 그룹이 선택된 상태에서 그룹 내 채널을 선택한 경우
+                    DeselectGroup(new DeselectGroupParam(this));
+                    DeselectChannel(new DeSelectChannelParam(this));
+                    SelectChannel(new SelectChannelParam(this, new List<int> { selectedChannel.channelIndex }));
+                }
+                else
+                {
+                    // 그룹 선택 상태로 전환
+                    DeselectGroup(new DeselectGroupParam(this));
+                    DeselectChannel(new DeSelectChannelParam(this));
+                    SelectGroup(new SelectGroupParam(this, parentGroup.groupIndex));
+                }
+            }
+        }
+
+        private void HandleGroupSelection(IPanelGroup selectedGroup)
+        {
+            // 이전 선택 상태를 무조건 초기화
+            DeselectChannel(new DeSelectChannelParam(this));
+            DeselectGroup(new DeselectGroupParam(this));
+
+            // 새로운 그룹 선택
+            SelectGroup(new SelectGroupParam(this, selectedGroup.groupIndex));
+        }
+
         void _SelectUIElement(PointerEventData eventData)
         {
             // Raycast를 통해 클릭된 UI 요소를 찾음  
@@ -80,54 +156,19 @@ namespace DataExtract
 
             foreach (RaycastResult result in results)
             {
-                // 채널 선택 처리  
+                // 채널 선택 처리
                 IPanelChannel selectedChannel = result.gameObject.GetComponent<IPanelChannel>();
                 if (selectedChannel != null)
                 {
-                    // 채널이 그룹에 속해 있지 않은 경우  
-                    if (!selectedChannel.HasGroup())
-                    {
-                        // 그룹 선택 해제 후 채널만 선택  
-                        DeselectGroup(new DeselectGroupParam(this));
-                        SelectChannel(new SelectChannelParam(this, new List<int> { selectedChannel.channelIndex }));
-                    }
-                    else
-                    {
-                        // 채널이 그룹에 속해 있는 경우  
-                        var parentGroup = selectedChannel.parentGroup;
-
-                        // 이미 그룹이 선택된 상태에서 그룹 내 채널을 선택한 경우  
-                        if (selectChannels.Count > 0 && selectChannels.All(ch => ch.parentGroup == parentGroup))
-                        {
-                            // 그룹 선택 해제 후 해당 채널만 선택  
-                            DeselectGroup(new DeselectGroupParam(this));
-                            SelectChannel(new SelectChannelParam(this, new List<int> { selectedChannel.channelIndex }));
-                        }
-                        else
-                        {
-                            // 다른 그룹을 선택한 경우  
-                            DeselectGroup(new DeselectGroupParam(this));
-                            DeselectChannel(new DeSelectChannelParam(this));
-                            SelectGroup(new SelectGroupParam(this, parentGroup.groupIndex));
-                        }
-                    }
-
+                    HandleChannelSelection(selectedChannel);
                     return;
                 }
 
-                // 그룹 선택 처리  
+                // 그룹 선택 처리
                 IPanelGroup selectedGroup = result.gameObject.GetComponent<IPanelGroup>();
                 if (selectedGroup != null)
                 {
-                    // 다른 그룹을 선택한 경우  
-                    if (selectChannels.Count > 0 || groups.Any(gr => gr.groupIndex == selectedGroup.groupIndex))
-                    {
-                        DeselectChannel(new DeSelectChannelParam(this));
-                        DeselectGroup(new DeselectGroupParam(this));
-                    }
-
-                    // 그룹 선택 시 그룹 내 모든 채널 선택  
-                    SelectGroup(new SelectGroupParam(this, selectedGroup.groupIndex));
+                    HandleGroupSelection(selectedGroup);
                     return;
                 }
             }
@@ -166,6 +207,60 @@ namespace DataExtract
             var param = new ChangeGroupSortDirectionParam(this, groupIndex, direction);
             ChangeGroupSortDirection(param);
         }
+
+        #region ChangeState
+
+        private ChangeState changeState;
+        private class ChangeState
+        {
+            private readonly HierarchyPanel panel;
+            private List<IPanelChannel> selectedChannels;
+            private bool isActive;
+            private float holdTime;
+            private const float HoldThreshold = 1.0f; // 1초 이상 꾹 눌렀을 때 활성화
+            public bool IsHolding { get; private set; } // 상태를 외부에서 확인 가능하도록 추가
+
+            public ChangeState(HierarchyPanel panel)
+            {
+                this.panel = panel;
+                this.isActive = false;
+                this.holdTime = 0f;
+                this.IsHolding = false;
+            }
+
+            public void Start(PointerEventData eventData, List<IPanelChannel> selectedChannels)
+            {
+                this.selectedChannels = selectedChannels;
+                this.holdTime = 0f;
+                this.isActive = true;
+                this.IsHolding = false;
+
+                panel.StartCoroutine(HoldCheck());
+            }
+
+            public void End()
+            {
+                isActive = false;
+                IsHolding = false;
+            }
+
+            private IEnumerator HoldCheck()
+            {
+                while (isActive)
+                {
+                    holdTime += Time.deltaTime;
+                    if (holdTime >= HoldThreshold)
+                    {
+                        IsHolding = true; // 상태를 활성화
+                        panel.ApplyGrayEffectToSelectedChannels(); // 일정 시간이 지나면 바로 작업 실행
+                        yield break;
+                    }
+                    yield return null;
+                }
+            }
+        }
+
+        #endregion
 
 
         #region IPanelSync

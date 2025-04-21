@@ -23,4 +23,5 @@ public interface IPanelGroup
     void Select();
     void Deselect();
     void ChnageSortDirection();
+    bool IsSelect();
 }

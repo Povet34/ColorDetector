@@ -3,15 +3,16 @@ using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.UI;
 using System;
+using Unity.VisualScripting;
 
 namespace DataExtract
 {
-
     public class HierarchyGroup : MonoBehaviour, IPanelGroup
     {
         [SerializeField] TMP_Text groupNameText;
         [SerializeField] Image bgImage;
         [SerializeField] Button sortDirectionButton;
+        bool isSelect = false;
 
         public List<IPanelChannel> hasChannels { get; set; }
         public int groupIndex { get; set; }
@@ -26,7 +27,8 @@ namespace DataExtract
 
         public void Deselect()
         {
-            bgImage.color = new Color32(100, 100, 100, 255);
+            isSelect = false;
+            bgImage.color = Definitions.DeselectColor;
         }
 
         public GameObject GetObject()
@@ -46,7 +48,8 @@ namespace DataExtract
 
         public void Select()
         {
-            bgImage.color = new Color32(200, 50, 50, 255);
+            isSelect = true;
+            bgImage.color = Definitions.SelectColor;
         }
 
         public void ChnageSortDirection()
@@ -62,6 +65,11 @@ namespace DataExtract
             {
                 rectTransform.Rotate(0, 0, -90); // ZÃà È¸Àü
             }
+        }
+
+        public bool IsSelect()
+        {
+            return isSelect;
         }
     }
 }

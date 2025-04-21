@@ -41,13 +41,13 @@ namespace DataExtract
 
         public void Select()
         {
-            handleImage.color = new Color32(200, 50, 50, 255);
+            handleImage.color = Definitions.SelectColor;
             isSelect = true;
         }
 
         public void Deselect()
         {
-            handleImage.color = new Color32(255, 255, 255, 255);
+            handleImage.color = Definitions.DeselectColor;
             isSelect = false;
         }
 
@@ -79,6 +79,11 @@ namespace DataExtract
         public bool HasGroup()
         {
             return null != parentGroup;
+        }
+
+        public void SelectForChangeHierarchy()
+        {
+            handleImage.color = Definitions.ChangeSelectColor;
         }
     }
 }

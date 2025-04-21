@@ -19,6 +19,7 @@ namespace DataExtract
         void Select();
         void Deselect();
         bool IsSelect();
+        void SelectForChangeHierarchy();
 
         //------
 

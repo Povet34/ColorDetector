@@ -79,13 +79,13 @@ namespace DataExtract
 
         public void Select()
         {
-            bgImage.color = new Color32(200, 50, 50, 255);
+            bgImage.color = Definitions.SelectColor;
             isSelect = true;
         }
 
         public void Deselect()
         {
-            bgImage.color = new Color32(96, 96, 96, 255);
+            bgImage.color = Definitions.DeselectColor;
             isSelect = false;
         }
 
@@ -124,6 +124,11 @@ namespace DataExtract
         public bool HasGroup()
         {
             return null != parentGroup;
+        }
+
+        public void SelectForChangeHierarchy()
+        {
+            bgImage.color = Definitions.ChangeSelectColor;
         }
     }
 }
