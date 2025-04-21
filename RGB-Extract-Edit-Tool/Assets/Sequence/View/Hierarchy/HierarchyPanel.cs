@@ -47,7 +47,7 @@ namespace DataExtract
 
         public void OnPointerDown(PointerEventData eventData)
         {
-            DeselectChannel(new DeSelectChannelParam(this));
+            //DeselectChannel(new DeSelectChannelParam(this));
 
             if (eventData.button == PointerEventData.InputButton.Left)
             {
@@ -74,20 +74,60 @@ namespace DataExtract
 
         void _SelectUIElement(PointerEventData eventData)
         {
+            // Raycast를 통해 클릭된 UI 요소를 찾음  
             List<RaycastResult> results = new List<RaycastResult>();
             graphicRaycaster.Raycast(eventData, results);
 
             foreach (RaycastResult result in results)
             {
+                // 채널 선택 처리  
                 IPanelChannel selectedChannel = result.gameObject.GetComponent<IPanelChannel>();
                 if (selectedChannel != null)
                 {
-                    List<int> indices = new List<int>();
-                    indices.Add(selectedChannel.channelIndex);
+                    // 채널이 그룹에 속해 있지 않은 경우  
+                    if (!selectedChannel.HasGroup())
+                    {
+                        // 그룹 선택 해제 후 채널만 선택  
+                        DeselectGroup(new DeselectGroupParam(this));
+                        SelectChannel(new SelectChannelParam(this, new List<int> { selectedChannel.channelIndex }));
+                    }
+                    else
+                    {
+                        // 채널이 그룹에 속해 있는 경우  
+                        var parentGroup = selectedChannel.parentGroup;
 
-                    SelectChannelParam param = new SelectChannelParam(this, indices);
-                    SelectChannel(param);
+                        // 이미 그룹이 선택된 상태에서 그룹 내 채널을 선택한 경우  
+                        if (selectChannels.Count > 0 && selectChannels.All(ch => ch.parentGroup == parentGroup))
+                        {
+                            // 그룹 선택 해제 후 해당 채널만 선택  
+                            DeselectGroup(new DeselectGroupParam(this));
+                            SelectChannel(new SelectChannelParam(this, new List<int> { selectedChannel.channelIndex }));
+                        }
+                        else
+                        {
+                            // 다른 그룹을 선택한 경우  
+                            DeselectGroup(new DeselectGroupParam(this));
+                            DeselectChannel(new DeSelectChannelParam(this));
+                            SelectGroup(new SelectGroupParam(this, parentGroup.groupIndex));
+                        }
+                    }
 
+                    return;
+                }
+
+                // 그룹 선택 처리  
+                IPanelGroup selectedGroup = result.gameObject.GetComponent<IPanelGroup>();
+                if (selectedGroup != null)
+                {
+                    // 다른 그룹을 선택한 경우  
+                    if (selectChannels.Count > 0 || groups.Any(gr => gr.groupIndex == selectedGroup.groupIndex))
+                    {
+                        DeselectChannel(new DeSelectChannelParam(this));
+                        DeselectGroup(new DeselectGroupParam(this));
+                    }
+
+                    // 그룹 선택 시 그룹 내 모든 채널 선택  
+                    SelectGroup(new SelectGroupParam(this, selectedGroup.groupIndex));
                     return;
                 }
             }
@@ -321,9 +361,14 @@ namespace DataExtract
             DestroyAll();
 
             // 채널리시버에서 최신 채널 정보를 가져와서 업데이트
-            var updatedChannels = dataChannels;
-            foreach (var updatedChannel in updatedChannels)
+            foreach (var updatedChannel in dataChannels)
             {
+                if (hierarchyChannelPrefab == null || scrollViewContentRt == null)
+                {
+                    Debug.LogError("HierarchyChannelPrefab or ScrollViewContentRt is null.");
+                    continue;
+                }
+
                 var createParam = new HierarchyChannel.CreateParam
                 {
                     chIndex = updatedChannel.channelIndex,
@@ -339,21 +384,21 @@ namespace DataExtract
             // 그룹도 업데이트
             foreach (var updatedGroup in dataGroups)
             {
-                IPanelGroup.Param createParam = new IPanelGroup.Param();
-                createParam.groupIndex = updatedGroup.groupIndex;
-                createParam.name = updatedGroup.name;
-                createParam.hasChannels = updatedGroup.hasChannels.Select(ch => channels.FirstOrDefault(c => c.channelIndex == ch.channelIndex)).ToList();
+                if (hierarchyGroupPrefab == null || scrollViewContentRt == null)
+                {
+                    Debug.LogError("HierarchyGroupPrefab or ScrollViewContentRt is null.");
+                    continue;
+                }
 
-                createParam.sortDirection = updatedGroup.sortDirection;
+                IPanelGroup.Param createParam = new IPanelGroup.Param
+                {
+                    groupIndex = updatedGroup.groupIndex,
+                    name = updatedGroup.name,
+                    hasChannels = updatedGroup.hasChannels.Select(ch => channels.FirstOrDefault(c => c.channelIndex == ch.channelIndex)).ToList()
+                };
 
                 HierarchyGroup gr = Instantiate(hierarchyGroupPrefab, scrollViewContentRt);
                 gr.Init(createParam);
-
-                for (int i = 0; i < updatedGroup.hasChannels.Count; i++)
-                {
-                    channels[updatedGroup.hasChannels[i].channelIndex].SetGroup(gr, i);
-                }
-
                 groups.Add(gr);
             }
 
