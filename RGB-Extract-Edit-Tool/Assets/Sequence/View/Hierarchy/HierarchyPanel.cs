@@ -399,6 +399,17 @@ namespace DataExtract
 
                 HierarchyGroup gr = Instantiate(hierarchyGroupPrefab, scrollViewContentRt);
                 gr.Init(createParam);
+
+                // 그룹에 속한 채널들에게 그룹 정보를 업데이트
+                for (int i = 0; i < createParam.hasChannels.Count; i++)
+                {
+                    var channel = createParam.hasChannels[i];
+                    if (channel != null)
+                    {
+                        channel.SetGroup(gr, i); // 그룹과 그룹 내 인덱스 설정
+                    }
+                }
+
                 groups.Add(gr);
             }
 
