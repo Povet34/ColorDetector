@@ -48,5 +48,15 @@ namespace DataExtract
         {
             _dataStore.ChangeGroupSortDirection(param);
         }
+
+        public void ReleaseGroup(ReleaseGroupParam param)
+        {
+            _dataStore.ReleaseGroup(param);
+        }
+
+        public void UnGroupForFree(UnGroupForFreeParam param)
+        {
+            _dataStore.UnGroupForFree(param);
+        }
     }
 }

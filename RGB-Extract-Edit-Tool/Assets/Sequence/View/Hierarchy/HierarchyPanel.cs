@@ -49,12 +49,12 @@ namespace DataExtract
 
             hierarchyPanelMenuPopup.Init(
                 new HierarchyPanelMenuPopup.MenuActions(
-                    onAddChannelsToGroup: null,
-                    onDeleteChannel: null,
-                    onMakeGroup: null,
-                    onReleaseGroup: null,
-                    onRenameGroup: null,
-                    onUngroupForFree: null
+                    onAddChannelsToGroup:   null,
+                    onDeleteChannel:        _DeleteChannel,
+                    onMakeGroup:            _MakeGroup,
+                    onReleaseGroup:         _ReleaseGroup,
+                    onRenameGroup:          null,
+                    onUngroupForFree:       null
                     ));
             hierarchyPanelMenuPopup.Show(false);
         }
@@ -92,7 +92,8 @@ namespace DataExtract
             List<RaycastResult> results = new List<RaycastResult>();
             graphicRaycaster.Raycast(eventData, results);
 
-            HierarchyPanelMenuPopup.ShowType showType = HierarchyPanelMenuPopup.ShowType.OnNothing;
+            int groupIndex = -1; 
+            List<int> channelIndices = null;
 
             foreach (RaycastResult result in results)
             {
@@ -100,21 +101,21 @@ namespace DataExtract
                 IPanelGroup selectedGroup = result.gameObject.GetComponent<IPanelGroup>();
                 if (selectedGroup != null)
                 {
-                    showType |= HierarchyPanelMenuPopup.ShowType.OnSelectGroup;
+                    groupIndex = selectedGroup.groupIndex;
                 }
+            }
 
-                // 채널이 선택된 상태인지 확인
-                if (selectChannels.Count > 0)
-                {
-                    showType |= HierarchyPanelMenuPopup.ShowType.OnSelectChannels;
-                }
+            // selectChannels 확인
+            if (selectChannels.Count > 0)
+            {
+                channelIndices = selectChannels.Select(ch => ch.channelIndex).ToList();
             }
 
             Vector2 localMousePosition = panelRt.InverseTransformPoint(eventData.position);
 
             // HierarchyPanelMenuPopup를 Show
             hierarchyPanelMenuPopup.SetPosition(localMousePosition);
-            hierarchyPanelMenuPopup.Show(true, showType);
+            hierarchyPanelMenuPopup.Show(true, groupIndex, channelIndices);
         }
 
 
@@ -208,6 +209,24 @@ namespace DataExtract
             MoveChannel(param);
         }
 
+        void _MakeGroup()
+        {
+            int groupIndex = channelReceiver.GetGroupCount();
+
+            List<int> indices = new List<int>();
+            foreach (var ch in selectChannels)
+            {
+                indices.Add(ch.channelIndex);
+            }
+
+            if (channelReceiver.CanGroup(indices))
+            {
+                MakeGroupParam param = new MakeGroupParam(this, groupIndex, indices, IGroup.SortDirection.Left, Definitions.GetDefaultGroupName(groupIndex.ToString()));
+
+                MakeGroup(param);
+            }
+        }
+
         void _SortPanel()
         {
             int siblingIndex = 0;
@@ -236,6 +255,25 @@ namespace DataExtract
             ChangeGroupSortDirection(param);
         }
 
+        void _DeleteChannel()
+        {
+            List<int> indices = selectChannels.Select(ch => ch.channelIndex).ToList();
+
+            DeselectChannel(new DeSelectChannelParam(this));
+            DeleteChannel(new DeleteChannelParam(this, indices));
+        }
+
+        void _ReleaseGroup(int groupInex)
+        {
+            ReleaseGroup(new ReleaseGroupParam(this, groupInex));
+        }
+
+        void _UnGroupForFree()
+        {
+            List<int> indices = selectChannels.Select(ch => ch.channelIndex).ToList();
+            UnGroupForFree(new UnGroupForFreeParam(this, indices));
+        }
+
         #region IPanelSync
 
         public Dictionary<eEditType, Action<EditParam>> syncParamMap => new Dictionary<eEditType, Action<EditParam>>()
@@ -253,6 +291,8 @@ namespace DataExtract
             { eEditType.MoveDeltaGroup, param => MoveDeltaGroup((MoveDeltaGroupParam)param) },
             { eEditType.ChangeGroupSortDirection, param => ChangeGroupSortDirection((ChangeGroupSortDirectionParam)param) },
             { eEditType.DisableMenuPopup, param => DisableMenuPopup((DisableMenuPopupParam)param) },
+            { eEditType.ReleaseGroup, param => ReleaseGroup((ReleaseGroupParam)param) },
+            { eEditType.UnGroupForFree, param => UnGroupForFree((UnGroupForFreeParam)param) }
         };
 
 
@@ -371,7 +411,7 @@ namespace DataExtract
             createParam.groupIndex = param.groupIndex;
             createParam.name = param.name;
             createParam.hasChannels = groupChannels;
-            createParam.sortDirection = IGroup.SortDirection.Left;
+            createParam.sortDirection = param.sortDirection;
             createParam.onSort = _ChanageGroupSortDirection;
 
             gr.Init(createParam);
@@ -564,6 +604,51 @@ namespace DataExtract
             //Apply
             if (param.ownerPanel.Equals(this))
             {
+                Apply(param);
+            }
+        }
+
+        public void ReleaseGroup(ReleaseGroupParam param)
+        {
+            // 1. 해당 그룹 찾기
+            var group = groups.FirstOrDefault(gr => gr.groupIndex == param.groupIndex);
+            if (group == null)
+            {
+                Debug.LogError($"Group with index {param.groupIndex} not found.");
+                return;
+            }
+
+            // 2. 그룹 제거 
+            groups.Remove(group);
+            Destroy(group.GetObject());
+
+            // 3. 그룹이 가지고 있는 채널들을 그룹 없음으로 업데이트
+            foreach (var channel in group.hasChannels)
+            {
+                if (channel != null)
+                {
+                    channel.SetGroup(null, -1); // 그룹 정보 제거
+                }
+            }
+
+            // 4. 상태 동기화
+            if (param.ownerPanel.Equals(this))
+            {
+                channelUpdater.ReleaseGroup(param);
+                Apply(param);
+            }
+
+            // 5. 패널 새로고침
+            var updatedChannels = channelReceiver.GetChannels();
+            var updatedGroups = channelReceiver.GetGroups();
+            RefreshPanel(updatedChannels, updatedGroups);
+        }
+
+        public void UnGroupForFree(UnGroupForFreeParam param)
+        {
+            if (param.ownerPanel.Equals(this))
+            {
+                channelUpdater.UnGroupForFree(param);
                 Apply(param);
             }
         }

@@ -58,6 +58,8 @@ namespace DataExtract
         bool CanGroup(List<int> indices);
         void MoveDeltaGroup(MoveDeltaGroupParam param);
         void ChangeGroupSortDirection(ChangeGroupSortDirectionParam param);
+        void ReleaseGroup(ReleaseGroupParam param);
+        void UnGroupForFree(UnGroupForFreeParam param);
 
         #endregion
     }

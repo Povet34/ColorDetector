@@ -7,5 +7,8 @@ public static class Definitions
     public static readonly Color32 DeselectColor = new Color32(200, 200, 200, 255);
     public static readonly Color32 ChangeSelectColor = new Color32(255, 50, 50, 100);
 
-
+    public static string GetDefaultGroupName(string prefix)
+    {
+        return $"{prefix} NewGroup";
+    }
 }

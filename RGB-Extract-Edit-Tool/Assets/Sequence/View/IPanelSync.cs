@@ -26,6 +26,8 @@ namespace DataExtract
         void DeselectGroup(DeselectGroupParam param);
         void MoveDeltaGroup(MoveDeltaGroupParam param);
         void ChangeGroupSortDirection(ChangeGroupSortDirectionParam param);
+        void ReleaseGroup(ReleaseGroupParam param);
+        void UnGroupForFree(UnGroupForFreeParam param);
 
         void DisableMenuPopup(DisableMenuPopupParam param);
         void Undo(UndoParam param);

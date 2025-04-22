@@ -26,6 +26,7 @@ public interface IGroup
     void Create(MakeGroupParam param, List<IChannel> channels);
     void AddNewGroupable(IChannel newTarget);
     void RemoveGroupable(IChannel removeTarget);
+    void ReleaseGroup();
 
     IGroup Clone();
 }

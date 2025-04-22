@@ -57,7 +57,7 @@ namespace DataExtract
                         onCreateSegment:    null,
                         onDeleteChannel:    _DeleteChannel,
                         onMakeGroup:        _MakeGroup,
-                        onReleaseGroup:     null
+                        onReleaseGroup:     _ReleaseGroup
                     ));
             videoViewPanelMenuPopup.Show(false);
 
@@ -385,11 +385,7 @@ namespace DataExtract
         /// </summary>
         void _DeleteChannel()
         {
-            List<int> indices = new List<int>();
-            foreach (var ch in selectChannels)
-            {
-                indices.Add(ch.channelIndex);
-            }
+            List<int> indices = selectChannels.Select(ch => ch.channelIndex).ToList();
 
             DeselectChannel(new DeSelectChannelParam(this));
             DeleteChannel(new DeleteChannelParam(this, indices));
@@ -430,10 +426,20 @@ namespace DataExtract
 
             if(channelReceiver.CanGroup(indices))
             {
-                MakeGroupParam param = new MakeGroupParam(this, groupIndex, indices, IGroup.SortDirection.Left, $"{groupIndex} NewGroup");
+                MakeGroupParam param = new MakeGroupParam(this, groupIndex, indices, IGroup.SortDirection.Left, Definitions.GetDefaultGroupName(groupIndex.ToString()));
 
                 MakeGroup(param);
             }
+        }
+
+        void _ReleaseGroup()
+        {
+
+        }
+
+        void _UnGroupForFree()
+        {
+
         }
 
 
@@ -456,6 +462,8 @@ namespace DataExtract
             { eEditType.MoveDeltaGroup, param => MoveDeltaGroup((MoveDeltaGroupParam)param) },
             { eEditType.ChangeGroupSortDirection, param => ChangeGroupSortDirection((ChangeGroupSortDirectionParam)param) },
             { eEditType.DisableMenuPopup, param => DisableMenuPopup((DisableMenuPopupParam)param) },
+            { eEditType.ReleaseGroup, param => ReleaseGroup((ReleaseGroupParam)param) },
+            { eEditType.UnGroupForFree, param => UnGroupForFree((UnGroupForFreeParam)param) },
         };
 
         public void Apply(EditParam param)
@@ -566,7 +574,7 @@ namespace DataExtract
             createParam.groupIndex = param.groupIndex;
             createParam.name = param.name;
             createParam.hasChannels = groupChannels;
-            createParam.sortDirection = IGroup.SortDirection.Left;
+            createParam.sortDirection = param.sortDirection;
 
             gr.Init(createParam);
             gr.Select();
@@ -712,6 +720,47 @@ namespace DataExtract
             {
                 Apply(param);
             }
+        }
+
+        public void ReleaseGroup(ReleaseGroupParam param)
+        {
+            // 1. 해당 그룹 찾기
+            var group = groups.FirstOrDefault(gr => gr.groupIndex == param.groupIndex);
+            if (group == null)
+            {
+                Debug.LogError($"Group with index {param.groupIndex} not found.");
+                return;
+            }
+
+            // 2. 그룹 제거
+            groups.Remove(group);
+            Destroy(group.GetObject());
+
+            // 3. 그룹이 가지고 있는 채널들을 그룹 없음으로 업데이트
+            foreach (var channel in group.hasChannels)
+            {
+                if (channel != null)
+                {
+                    channel.SetGroup(null, -1); // 그룹 정보 제거
+                }
+            }
+
+            // 4. 상태 동기화
+            if (param.ownerPanel.Equals(this))
+            {
+                channelUpdater.ReleaseGroup(param);
+                Apply(param);
+            }
+
+            // 5. 패널 새로고침
+            var updatedChannels = channelReceiver.GetChannels();
+            var updatedGroups = channelReceiver.GetGroups();
+            RefreshPanel(updatedChannels, updatedGroups);
+        }
+
+        public void UnGroupForFree(UnGroupForFreeParam param)
+        {
+            throw new NotImplementedException();
         }
 
         #endregion

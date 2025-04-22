@@ -7,7 +7,6 @@ namespace DataExtract
         int channelIndex { get; set; }
         Vector2 position { get; set; }
         IPanelGroup parentGroup { get; set; }
-        int parentGroupIndex { get; set; }
         int groupInIndex { get; set; }
 
         //------

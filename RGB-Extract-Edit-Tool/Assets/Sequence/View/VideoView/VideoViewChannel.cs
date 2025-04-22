@@ -72,8 +72,6 @@ namespace DataExtract
         {
             this.parentGroup = parentGroup;
             this.groupInIndex = groupInIndex;
-
-            parentGroupIndex = parentGroup.groupIndex;
         }
 
         public bool HasGroup()

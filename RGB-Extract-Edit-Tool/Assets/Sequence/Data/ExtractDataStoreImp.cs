@@ -88,37 +88,6 @@ namespace DataExtract
             }
         }
 
-        public void MakeGroup(MakeGroupParam param)
-        {
-            _StackEditParam(param);
-            IGroup group = new Group();
-
-            int inIndex = 0;
-            List<IChannel> hasChannels = new List<IChannel>();
-
-            foreach (var index in param.channelIndices)
-            {
-                IChannel channel = _channels.Find(ch => ch.channelIndex == index);
-                if (channel == null)
-                {
-                    Debug.LogError($"Channel with index {index} not found.");
-                    continue;
-                }
-
-                var info = new IndividualInfo();
-                info.parentGroup = group;
-                info.inIndex = inIndex++;
-
-                hasChannels.Add(channel);
-
-                if (!channel.TryIncludeNewGroup(info))
-                    continue;
-            }
-
-            group.Create(param, hasChannels);
-            _groups.Add(group);
-        }
-
         public void DeleteGroup(IGroup group)
         {
             _groups.Remove(group);
@@ -127,6 +96,10 @@ namespace DataExtract
             _SortChannels();
         }
 
+
+        #endregion
+
+        #region EditParam
         public void ChangeGroupSortDirection(ChangeGroupSortDirectionParam param)
         {
             // 변경 사항을 스택에 저장
@@ -166,10 +139,6 @@ namespace DataExtract
                 group.hasChannels[i].individualInfo.inIndex = i;
             }
         }
-
-        #endregion
-
-        #region EditParam
 
         public void CreateChannel(CreateChannelParam param)
         {
@@ -212,6 +181,37 @@ namespace DataExtract
         {
             editParamStack.Push(param);
             stateStack.Push(new DatatStoreState(channels, groups));
+        }
+
+        public void MakeGroup(MakeGroupParam param)
+        {
+            _StackEditParam(param);
+            IGroup group = new Group();
+
+            int inIndex = 0;
+            List<IChannel> hasChannels = new List<IChannel>();
+
+            foreach (var index in param.channelIndices)
+            {
+                IChannel channel = _channels.Find(ch => ch.channelIndex == index);
+                if (channel == null)
+                {
+                    Debug.LogError($"Channel with index {index} not found.");
+                    continue;
+                }
+
+                var info = new IndividualInfo();
+                info.parentGroup = group;
+                info.inIndex = inIndex++;
+
+                hasChannels.Add(channel);
+
+                if (!channel.TryIncludeNewGroup(info))
+                    continue;
+            }
+
+            group.Create(param, hasChannels);
+            _groups.Add(group);
         }
 
         public void MoveDeltaChannel(MoveDeltaChannelParam param)
@@ -285,6 +285,31 @@ namespace DataExtract
                     }
                 }
             }
+        }
+
+        public void ReleaseGroup(ReleaseGroupParam param)
+        {
+            _StackEditParam(param);
+            IGroup group = null;
+            foreach (var gr in _groups)
+            {
+                if (gr.groupIndex == param.groupIndex)
+                {
+                    group = gr;
+                    break;
+                }
+            }
+
+            group.ReleaseGroup();
+            _groups.Remove(group);
+
+            _SortGroups();
+            _SortChannels();
+        }
+
+        public void UnGroupForFree(UnGroupForFreeParam param)
+        {
+            throw new System.NotImplementedException();
         }
 
         #endregion

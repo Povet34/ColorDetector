@@ -60,4 +60,20 @@ public class Group : IGroup
     {
         hasChannels.Remove(removeTarget);
     }
+
+    public void ReleaseGroup()
+    {
+        // 그룹에 속한 모든 채널 갱신
+        foreach (var channel in hasChannels)
+        {
+            if (channel != null)
+            {
+                // 채널의 그룹 정보 제거
+                channel.ExcludeGroup(); // ExcludeGroup 메서드 호출
+            }
+        }
+
+        // 그룹의 채널 리스트 초기화
+        hasChannels.Clear();
+    }
 }

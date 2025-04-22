@@ -12,7 +12,7 @@ namespace DataExtract
         DeleteChannel,
         SelectChannel,
         DeSelectChannel,
-        
+
         Undo,
 
         MakeGroup,
@@ -20,7 +20,9 @@ namespace DataExtract
         DeselectGroup,
         MoveDeltaGroup,
         ChangeGroupSortDirection,
-        
+        ReleaseGroup,
+        UnGroupForFree,
+
         DisableMenuPopup,
     }
 
@@ -130,15 +132,15 @@ namespace DataExtract
     {
         public DeSelectChannelParam(IPanelSync ownerPanel)
             : base(ownerPanel, eEditType.DeSelectChannel) { }
-    }    
-    
-    
+    }
+
+
     public class UndoParam : EditParam
     {
         public IExtractDataStore.DatatStoreState state;
 
         public UndoParam(IPanelSync ownerPanel, IExtractDataStore.DatatStoreState state)
-            : base(ownerPanel, eEditType.Undo) 
+            : base(ownerPanel, eEditType.Undo)
         {
             this.state = state;
         }
@@ -194,9 +196,28 @@ namespace DataExtract
     public class DisableMenuPopupParam : EditParam
     {
         public DisableMenuPopupParam(IPanelSync ownerPanel) :
-            base (ownerPanel, eEditType.DisableMenuPopup)
+            base(ownerPanel, eEditType.DisableMenuPopup)
         {
+        }
+    }
 
+    public class ReleaseGroupParam : EditParam
+    {
+        public int groupIndex;
+        public ReleaseGroupParam(IPanelSync ownerPanel, int groupIndex)
+            : base(ownerPanel, eEditType.ReleaseGroup)
+        {
+            this.groupIndex = groupIndex;
+        }
+    }
+
+    public class UnGroupForFreeParam : EditParam
+    {
+        public List<int> channelIndices;
+        public UnGroupForFreeParam(IPanelSync ownerPanel, List<int> channelIndices)
+            : base(ownerPanel, eEditType.UnGroupForFree)
+        {
+            this.channelIndices = channelIndices;
         }
     }
 }
