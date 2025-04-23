@@ -53,7 +53,6 @@ namespace DataExtract
         #region Group
 
         void MakeGroup(MakeGroupParam param);
-        void DeleteGroup(IGroup group);
         int GetGroupCount();
         bool CanGroup(List<int> indices);
         void MoveDeltaGroup(MoveDeltaGroupParam param);

@@ -18,86 +18,76 @@ namespace DataExtract
         public List<IChannel> channels { get => _channels; set => _channels = value; }
         public List<IGroup> groups { get => _groups; set => _groups = value; }
 
-        #region Channel
-
-        void _SortChannels()
+        void _SortGroupsAndChannels()
         {
-            _channels = _channels.OrderBy(ch => ch.channelIndex).ToList();
-
-            // channelIndex를 0부터 순차적으로 재설정
+            // 1. 기존 인덱스와 새로운 인덱스 매핑 생성
+            Dictionary<int, int> indexMapping = new Dictionary<int, int>();
             for (int i = 0; i < _channels.Count; i++)
             {
-                _channels[i].channelIndex = i;
+                indexMapping[_channels[i].channelIndex] = -1; // 초기값은 -1로 설정
             }
-        }
 
-        void _DeleteChannelBody(IChannel channel)
-        {
-            _channels.Remove(channel);
-        }
+            // 2. 채널 정렬
+            _channels = _channels.OrderBy(ch => ch.channelIndex).ToList();
 
+            // 3. 채널들 매핑 업데이트
+            for (int i = 0; i < _channels.Count; i++)
+            {
+                indexMapping[_channels[i].channelIndex] = i;
+            }
 
-        #endregion
-
-        #region Group
-
-        void _SortGroups()
-        {
-            // 삭제할 그룹을 저장할 리스트
+            // 4. 그룹 정리
             List<IGroup> groupsToRemove = new List<IGroup>();
             int groupIndex = 0;
 
-            foreach (var gr in groups)
+            foreach (var gr in _groups)
             {
-                // 그룹의 채널이 channels에 존재하는지 확인하고, 존재하지 않는 채널을 제거
-                gr.hasChannels = gr.hasChannels.Where(ch => _channels.Any(c => c.channelIndex == ch.channelIndex)).ToList();
+                // 그룹 내 채널을 매핑 정보를 기반으로 업데이트
+                gr.hasChannels = gr.hasChannels
+                    .Select(ch =>
+                    {
+                        if (indexMapping.ContainsKey(ch.channelIndex))
+                        {
+                            int newIndex = indexMapping[ch.channelIndex];
+                            return newIndex != -1 ? _channels[newIndex] : null; // -1이면 제거 대상
+                        }
+                        return null;
+                    })
+                    .Where(ch => ch != null) // 유효하지 않은 채널 제거
+                    .ToList();
 
-                // inIndex 순으로 정렬
+                // 그룹 내 채널을 inIndex 순으로 정렬
                 gr.hasChannels = gr.hasChannels.OrderBy(ch => ch.individualInfo.inIndex).ToList();
 
-                // 빈 곳을 매꾸기 위해 inIndex를 재설정
+                // 그룹 내 채널의 inIndex를 재설정
                 for (int i = 0; i < gr.hasChannels.Count; i++)
                 {
                     gr.hasChannels[i].individualInfo.inIndex = i;
                 }
 
-                // 그룹 안에 채널이 하나도 없는 경우 그룹을 삭제할 리스트에 추가
+                // 그룹 안에 채널이 하나도 없는 경우 삭제 대상에 추가
                 if (gr.hasChannels.Count == 0)
                 {
                     groupsToRemove.Add(gr);
                 }
                 else
                 {
-                    // 로그 출력
-                    string log = $"{gr.name}";
-                    foreach (var ch in gr.hasChannels)
-                    {
-                        log += $"({ch.channelIndex} | {ch.individualInfo.inIndex})";
-                    }
-                    log += "\n";
-                    DLogger.Log_Green(log);
-
+                    // 그룹의 인덱스를 재설정
                     gr.groupIndex = groupIndex++;
                 }
             }
 
-            // 삭제할 그룹을 실제로 삭제
+            // 5. 삭제할 그룹 제거
             foreach (var group in groupsToRemove)
             {
-                groups.Remove(group);
+                _groups.Remove(group);
+            }
+
+            for (int i = 0; i < _channels.Count; i++)
+            {
+                _channels[i].channelIndex = i;
             }
         }
-
-        public void DeleteGroup(IGroup group)
-        {
-            _groups.Remove(group);
-
-            _SortGroups();
-            _SortChannels();
-        }
-
-
-        #endregion
 
         #region EditParam
         public void ChangeGroupSortDirection(ChangeGroupSortDirectionParam param)
@@ -147,6 +137,8 @@ namespace DataExtract
 
             channel.Create(param);
             _channels.Add(channel);
+
+            _SortGroupsAndChannels();
         }
 
         public void MoveChannel(MoveChannelParam param)
@@ -165,11 +157,10 @@ namespace DataExtract
             foreach (int index in param.indices)
             {
                 IChannel channel = _channels.Find(x => x.channelIndex == index);
-                _DeleteChannelBody(channel);
+                _channels.Remove(channel);
             }
 
-            _SortGroups();
-            _SortChannels();
+            _SortGroupsAndChannels();
         }
 
         public EditParam GetLastestEditParam()
@@ -303,8 +294,7 @@ namespace DataExtract
             group.ReleaseGroup();
             _groups.Remove(group);
 
-            _SortGroups();
-            _SortChannels();
+            _SortGroupsAndChannels();
         }
 
         public void UnGroupForFree(UnGroupForFreeParam param)

@@ -234,16 +234,34 @@ namespace DataExtract
             // 그룹을 SiblingIndex 순서대로 정렬
             foreach (var group in groups.OrderBy(g => g.GetObject().transform.GetSiblingIndex()))
             {
+                if (group == null)
+                {
+                    Debug.LogError("Group is null in _SortPanel.");
+                    continue;
+                }
+
                 // 그룹의 SiblingIndex 설정
                 group.GetObject().transform.SetSiblingIndex(siblingIndex++);
 
                 // 그룹 내 채널을 inIndex 순서대로 정렬
-                foreach (var channel in group.hasChannels.OrderBy(ch => ch.groupInIndex))
+                foreach (var channel in group.hasChannels.OrderBy(ch =>
+                {
+                    if (ch == null)
+                    {
+                        Debug.LogError($"Channel is null in group {group.groupIndex}.");
+                        return int.MaxValue; // null 채널은 가장 뒤로 정렬
+                    }
+                    return ch.groupInIndex;
+                }))
                 {
                     if (channel != null)
                     {
                         // 채널의 SiblingIndex 설정
                         channel.GetObject().transform.SetSiblingIndex(siblingIndex++);
+                    }
+                    else
+                    {
+                        Debug.LogError($"Null channel found in group {group.groupIndex} during sorting.");
                     }
                 }
             }
@@ -323,6 +341,8 @@ namespace DataExtract
                 channelUpdater.CreateChannel(param);
                 Apply(param);
             }
+
+            RefreshPanel(channelReceiver.GetChannels(), channelReceiver.GetGroups());
         }
 
         public void DeleteChannel(DeleteChannelParam param)
@@ -424,13 +444,14 @@ namespace DataExtract
             }
 
             groups.Add(gr);
-            _SortPanel();
 
             if (param.ownerPanel.Equals(this))
             {
                 channelUpdater.MakeGroup(param);
                 Apply(param);
             }
+
+            RefreshPanel(channelReceiver.GetChannels(), channelReceiver.GetGroups());
         }
 
         public void MoveChannel(MoveChannelParam param)
@@ -466,12 +487,20 @@ namespace DataExtract
 
         public void RefreshPanel(List<IChannel> dataChannels, List<IGroup> dataGroups)
         {
+            Debug.Log($"Refreshing panel with {dataChannels.Count} channels and {dataGroups.Count} groups.");
+
             // 기존의 채널과 그룹을 파괴
             _DestroyAll();
 
             // 채널리시버에서 최신 채널 정보를 가져와서 업데이트
             foreach (var updatedChannel in dataChannels)
             {
+                if (updatedChannel == null)
+                {
+                    Debug.LogError("Null channel found in dataChannels during RefreshPanel.");
+                    continue;
+                }
+
                 if (hierarchyChannelPrefab == null || scrollViewContentRt == null)
                 {
                     Debug.LogError("HierarchyChannelPrefab or ScrollViewContentRt is null.");
@@ -493,6 +522,12 @@ namespace DataExtract
             // 그룹도 업데이트
             foreach (var updatedGroup in dataGroups)
             {
+                if (updatedGroup == null)
+                {
+                    Debug.LogError("Null group found in dataGroups during RefreshPanel.");
+                    continue;
+                }
+
                 if (hierarchyGroupPrefab == null || scrollViewContentRt == null)
                 {
                     Debug.LogError("HierarchyGroupPrefab or ScrollViewContentRt is null.");
@@ -503,7 +538,15 @@ namespace DataExtract
                 {
                     groupIndex = updatedGroup.groupIndex,
                     name = updatedGroup.name,
-                    hasChannels = updatedGroup.hasChannels.Select(ch => channels.FirstOrDefault(c => c.channelIndex == ch.channelIndex)).ToList()
+                    hasChannels = updatedGroup.hasChannels.Select(ch =>
+                    {
+                        if (ch == null)
+                        {
+                            Debug.LogError($"Null channel found in group {updatedGroup.groupIndex} during RefreshPanel.");
+                            return null;
+                        }
+                        return channels.FirstOrDefault(c => c.channelIndex == ch.channelIndex);
+                    }).ToList()
                 };
 
                 HierarchyGroup gr = Instantiate(hierarchyGroupPrefab, scrollViewContentRt);
@@ -516,6 +559,10 @@ namespace DataExtract
                     if (channel != null)
                     {
                         channel.SetGroup(gr, i); // 그룹과 그룹 내 인덱스 설정
+                    }
+                    else
+                    {
+                        Debug.LogError($"Null channel in group {updatedGroup.groupIndex} at index {i}.");
                     }
                 }
 
@@ -638,10 +685,7 @@ namespace DataExtract
                 Apply(param);
             }
 
-            // 5. 패널 새로고침
-            var updatedChannels = channelReceiver.GetChannels();
-            var updatedGroups = channelReceiver.GetGroups();
-            RefreshPanel(updatedChannels, updatedGroups);
+            RefreshPanel(channelReceiver.GetChannels(), channelReceiver.GetGroups());
         }
 
         public void UnGroupForFree(UnGroupForFreeParam param)
