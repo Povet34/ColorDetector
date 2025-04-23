@@ -84,7 +84,7 @@ public class HierarchyPanelMenuPopup : MonoBehaviour
 
         // OnSelectChannels 관련 버튼 활성화
         DeleteChannelsButton.interactable = isExistSelectChannels;
-        MakeGroupButton.interactable = isExistSelectChannels;
+        MakeGroupButton.interactable = isExistSelectChannels && !isExistGroup;
         UngroupForFreeButton.interactable = isExistSelectChannels;
 
         // OnSelectGroup 관련 버튼 활성화

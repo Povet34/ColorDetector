@@ -124,35 +124,11 @@ namespace DataExtract
 
             if (eventData.button == PointerEventData.InputButton.Left)
             {
-                Vector2 localMousePosition = panelRt.InverseTransformPoint(eventData.position);
-
-                IPanelChannel clickedChannel = GetChannelAtPosition(eventData);
-                if (clickedChannel != null)
-                {
-                    if (_moveState.IsSameChannels(clickedChannel) || _moveState.IsSameGroup(clickedChannel.parentGroup))
-                    {
-                        _moveState.StartMove(localMousePosition);
-                    }
-                    else
-                    {
-                        DeselectChannel(new DeSelectChannelParam(this));
-                        DeselectGroup(new DeselectGroupParam(this));
-                        _moveState.Deselect();
-                    }
-                }
-                else
-                {
-                    DeselectChannel(new DeSelectChannelParam(this));
-                    DeselectGroup(new DeselectGroupParam(this));
-
-                    _moveState.Deselect();
-                    rectAreaChannelSelection.StartFindSelect();
-                }
+                _HandleLeftClick(eventData);
             }
             else if (eventData.button == PointerEventData.InputButton.Right)
             {
-                Vector2 localMousePosition = panelRt.InverseTransformPoint(eventData.position);
-                _ShowVideoViewPanelMenuPopup(localMousePosition);
+                _HandleRightClick(eventData);
             }
         }
 
@@ -252,6 +228,55 @@ namespace DataExtract
             return null;
         }
 
+        private void _HandleRightClick(PointerEventData eventData)
+        {
+            List<RaycastResult> results = new List<RaycastResult>();
+            graphicRaycaster.Raycast(eventData, results);
+
+            int groupIndex = _moveState.GetSelectedGroup()?.groupIndex ?? -1;
+            List<int> channelIndices = null;
+
+            // selectChannels È®ÀÎ
+            if (selectChannels.Count > 0)
+            {
+                channelIndices = selectChannels.Select(ch => ch.channelIndex).ToList();
+            }
+
+            Vector2 localMousePosition = panelRt.InverseTransformPoint(eventData.position);
+
+            // HierarchyPanelMenuPopup¸¦ Show
+            videoViewPanelMenuPopup.SetPosition(localMousePosition);
+            videoViewPanelMenuPopup.Show(true, groupIndex, channelIndices);
+        }
+
+        private void _HandleLeftClick(PointerEventData eventData)
+        {
+            Vector2 localMousePosition = panelRt.InverseTransformPoint(eventData.position);
+
+            IPanelChannel clickedChannel = GetChannelAtPosition(eventData);
+            if (clickedChannel != null)
+            {
+                if (_moveState.IsSameChannels(clickedChannel) || _moveState.IsSameGroup(clickedChannel.parentGroup))
+                {
+                    _moveState.StartMove(localMousePosition);
+                }
+                else
+                {
+                    DeselectChannel(new DeSelectChannelParam(this));
+                    DeselectGroup(new DeselectGroupParam(this));
+                    _moveState.Deselect();
+                }
+            }
+            else
+            {
+                DeselectChannel(new DeSelectChannelParam(this));
+                DeselectGroup(new DeselectGroupParam(this));
+
+                _moveState.Deselect();
+                rectAreaChannelSelection.StartFindSelect();
+            }
+        }
+
 
         #region State 
 
@@ -337,20 +362,6 @@ namespace DataExtract
 
         #endregion
 
-
-        /// <summary>
-        /// Videoview panel menu popup show
-        /// </summary>
-        /// <param name="pos"></param>
-        void _ShowVideoViewPanelMenuPopup(Vector2 pos)
-        {
-            if (videoViewPanelMenuPopup)
-            {
-                videoViewPanelMenuPopup.SetPosition(pos);
-                videoViewPanelMenuPopup.Show(true);
-            }
-        }
-
         private void _MoveDeltaGroup(IPanelGroup group, Vector2 endPos)
         {
             if (group == null)
@@ -418,13 +429,9 @@ namespace DataExtract
         {
             int groupIndex = channelReceiver.GetGroupCount();
 
-            List<int> indices = new List<int>();
-            foreach(var ch in selectChannels)
-            {
-                indices.Add(ch.channelIndex);
-            }
+            List<int> indices = selectChannels.Select(ch => ch.channelIndex).ToList();
 
-            if(channelReceiver.CanGroup(indices))
+            if (channelReceiver.CanGroup(indices))
             {
                 MakeGroupParam param = new MakeGroupParam(this, groupIndex, indices, IGroup.SortDirection.Left, Definitions.GetDefaultGroupName(groupIndex.ToString()));
 
@@ -432,9 +439,9 @@ namespace DataExtract
             }
         }
 
-        void _ReleaseGroup()
+        void _ReleaseGroup(int groupInex)
         {
-
+            ReleaseGroup(new ReleaseGroupParam(this, groupInex));
         }
 
         void _UnGroupForFree()
@@ -728,7 +735,7 @@ namespace DataExtract
             var group = groups.FirstOrDefault(gr => gr.groupIndex == param.groupIndex);
             if (group == null)
             {
-                Debug.LogError($"Group with index {param.groupIndex} not found.");
+                DLogger.LogError($"Group with index {param.groupIndex} not found.");
                 return;
             }
 

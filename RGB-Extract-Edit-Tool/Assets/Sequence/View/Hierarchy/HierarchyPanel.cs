@@ -236,7 +236,6 @@ namespace DataExtract
             {
                 if (group == null)
                 {
-                    Debug.LogError("Group is null in _SortPanel.");
                     continue;
                 }
 
@@ -248,7 +247,6 @@ namespace DataExtract
                 {
                     if (ch == null)
                     {
-                        Debug.LogError($"Channel is null in group {group.groupIndex}.");
                         return int.MaxValue; // null 채널은 가장 뒤로 정렬
                     }
                     return ch.groupInIndex;
@@ -261,7 +259,7 @@ namespace DataExtract
                     }
                     else
                     {
-                        Debug.LogError($"Null channel found in group {group.groupIndex} during sorting.");
+                        DLogger.LogError($"Null channel found in group {group.groupIndex} during sorting.");
                     }
                 }
             }
@@ -487,8 +485,6 @@ namespace DataExtract
 
         public void RefreshPanel(List<IChannel> dataChannels, List<IGroup> dataGroups)
         {
-            Debug.Log($"Refreshing panel with {dataChannels.Count} channels and {dataGroups.Count} groups.");
-
             // 기존의 채널과 그룹을 파괴
             _DestroyAll();
 
@@ -497,13 +493,13 @@ namespace DataExtract
             {
                 if (updatedChannel == null)
                 {
-                    Debug.LogError("Null channel found in dataChannels during RefreshPanel.");
+                    DLogger.LogError("Null channel found in dataChannels during RefreshPanel.");
                     continue;
                 }
 
                 if (hierarchyChannelPrefab == null || scrollViewContentRt == null)
                 {
-                    Debug.LogError("HierarchyChannelPrefab or ScrollViewContentRt is null.");
+                    DLogger.LogError("HierarchyChannelPrefab or ScrollViewContentRt is null.");
                     continue;
                 }
 
@@ -524,13 +520,13 @@ namespace DataExtract
             {
                 if (updatedGroup == null)
                 {
-                    Debug.LogError("Null group found in dataGroups during RefreshPanel.");
+                    DLogger.LogError("Null group found in dataGroups during RefreshPanel.");
                     continue;
                 }
 
                 if (hierarchyGroupPrefab == null || scrollViewContentRt == null)
                 {
-                    Debug.LogError("HierarchyGroupPrefab or ScrollViewContentRt is null.");
+                    DLogger.LogError("HierarchyGroupPrefab or ScrollViewContentRt is null.");
                     continue;
                 }
 
@@ -562,7 +558,7 @@ namespace DataExtract
                     }
                     else
                     {
-                        Debug.LogError($"Null channel in group {updatedGroup.groupIndex} at index {i}.");
+                        DLogger.LogError($"Null channel in group {updatedGroup.groupIndex} at index {i}.");
                     }
                 }
 
