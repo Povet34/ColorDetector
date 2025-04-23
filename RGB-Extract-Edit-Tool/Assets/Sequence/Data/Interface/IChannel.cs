@@ -28,7 +28,7 @@ public interface IChannel
             inIndex = -1;
         }
 
-        public void Redefine(int inIndex)
+        public void RedefineInGroupInIndex(int inIndex)
         {
             this.inIndex = inIndex;
         }
@@ -67,9 +67,7 @@ public interface IChannel
     /// <summary>
     /// 그룹원의 정보를 재정의하기
     /// </summary>
-    void Redefine(IndividualInfo info);
-    void Redefine(IGroup parentGroup, int inIndex);
-    void Redefine(int inIndex);
+    void RedefineInGroupInIndex(int inIndex);
 
     IChannel Clone();
 }

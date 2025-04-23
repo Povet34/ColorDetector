@@ -62,7 +62,7 @@ namespace DataExtract
                 // 그룹 내 채널의 inIndex를 재설정
                 for (int i = 0; i < gr.hasChannels.Count; i++)
                 {
-                    gr.hasChannels[i].individualInfo.inIndex = i;
+                    gr.hasChannels[i].RedefineInGroupInIndex(i);
                 }
 
                 // 그룹 안에 채널이 하나도 없는 경우 삭제 대상에 추가
@@ -127,7 +127,7 @@ namespace DataExtract
             // 그룹 내 인덱스 재정의
             for (int i = 0; i < group.hasChannels.Count; i++)
             {
-                group.hasChannels[i].individualInfo.inIndex = i;
+                group.hasChannels[i].RedefineInGroupInIndex(i);
             }
         }
 
@@ -193,8 +193,7 @@ namespace DataExtract
                 }
 
                 var info = new IndividualInfo();
-                info.parentGroup = group;
-                info.inIndex = inIndex++;
+                info.Redefine(group, inIndex++);
 
                 hasChannels.Add(channel);
 

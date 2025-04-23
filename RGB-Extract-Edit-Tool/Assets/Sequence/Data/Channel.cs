@@ -52,19 +52,9 @@ namespace DataExtract
             individualInfo = null;
         }
 
-        public void Redefine(IChannel.IndividualInfo info)
+        public void RedefineInGroupInIndex(int inIndex)
         {
-            individualInfo = info;
-        }
-
-        public void Redefine(IGroup parentGroup, int inIndex)
-        {
-            individualInfo.Redefine(parentGroup, inIndex);
-        }
-
-        public void Redefine(int inIndex)
-        {
-            individualInfo.Redefine(inIndex);
+            individualInfo.RedefineInGroupInIndex(inIndex);
         }
 
         #endregion
