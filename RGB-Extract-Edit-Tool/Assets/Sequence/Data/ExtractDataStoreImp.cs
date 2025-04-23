@@ -30,7 +30,7 @@ namespace DataExtract
             // 2. 채널 정렬
             _channels = _channels.OrderBy(ch => ch.channelIndex).ToList();
 
-            // 3. 채널들 매핑 업데이트
+            // 3. 이전 채널들이 어떻게 변화했는지 체크,
             for (int i = 0; i < _channels.Count; i++)
             {
                 indexMapping[_channels[i].channelIndex] = i;
@@ -83,6 +83,7 @@ namespace DataExtract
                 _groups.Remove(group);
             }
 
+            // 6. 마지막으로 채널들 순서 갱신
             for (int i = 0; i < _channels.Count; i++)
             {
                 _channels[i].channelIndex = i;
