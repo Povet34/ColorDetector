@@ -36,9 +36,6 @@ namespace DataExtract
         List<IChannel> channels { get; set; }
         List<IGroup> groups { get; set; }
 
-        EditParam GetLastestEditParam();
-        DatatStoreState GetLastestStoreState();
-        DatatStoreState PopLastestStoreState();
         DatatStoreState Undo();
 
         #region Channel

@@ -164,11 +164,6 @@ namespace DataExtract
             _SortGroupsAndChannels();
         }
 
-        public EditParam GetLastestEditParam()
-        {
-            return editParamStack.Peek();
-        }
-
         private void _StackEditParam(EditParam param)
         {
             editParamStack.Push(param);
@@ -215,12 +210,7 @@ namespace DataExtract
             }
         }
 
-        public DatatStoreState GetLastestStoreState()
-        {
-            return stateStack.Peek();
-        }
-
-        public DatatStoreState PopLastestStoreState()
+        private DatatStoreState PopLastestStoreState()
         {
             return stateStack.Pop();
         }
