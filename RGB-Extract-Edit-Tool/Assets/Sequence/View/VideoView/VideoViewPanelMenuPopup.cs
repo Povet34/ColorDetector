@@ -12,14 +12,16 @@ public class VideoViewPanelMenuPopup : MonoBehaviour
         public Action onDeleteChannel;
         public Action onMakeGroup;
         public Action<int> onReleaseGroup;
+        public Action onUnGroupForFree;
 
-        public MenuActions(Action<Vector2> onCreateChannel, Action<Vector2> onCreateSegment, Action onDeleteChannel, Action onMakeGroup, Action<int> onReleaseGroup)
+        public MenuActions(Action<Vector2> onCreateChannel, Action<Vector2> onCreateSegment, Action onDeleteChannel, Action onMakeGroup, Action<int> onReleaseGroup, Action onUnGroupForFree)
         {
             this.onCreateChannel = onCreateChannel;
             this.onCreateSegment = onCreateSegment;
             this.onDeleteChannel = onDeleteChannel;
             this.onMakeGroup = onMakeGroup;
             this.onReleaseGroup = onReleaseGroup;
+            this.onUnGroupForFree = onUnGroupForFree;
         }
     }
 
@@ -28,6 +30,7 @@ public class VideoViewPanelMenuPopup : MonoBehaviour
     [SerializeField] Button DeleteChannelButton;
     [SerializeField] Button MakeGroupButton;
     [SerializeField] Button ReleaseGroupButton;
+    [SerializeField] Button UnGroupForFreeButton;
 
     RectTransform rt;
 
@@ -46,6 +49,7 @@ public class VideoViewPanelMenuPopup : MonoBehaviour
         DeleteChannelButton.onClick.AddListener(() =>   { menuActions.onDeleteChannel(); });
         MakeGroupButton.onClick.AddListener(() =>       { menuActions.onMakeGroup(); });
         ReleaseGroupButton.onClick.AddListener(() =>    { menuActions.onReleaseGroup(cachedGroupIndex); });
+        UnGroupForFreeButton.onClick.AddListener(() =>  { menuActions.onUnGroupForFree(); });
 
         //Show
         CreateChannelButton.onClick.AddListener(() =>   { Show(false); });
@@ -53,6 +57,7 @@ public class VideoViewPanelMenuPopup : MonoBehaviour
         DeleteChannelButton.onClick.AddListener(() =>   { Show(false); });
         MakeGroupButton.onClick.AddListener(() =>       { Show(false); });
         ReleaseGroupButton.onClick.AddListener(() =>    { Show(false); });
+        UnGroupForFreeButton.onClick.AddListener(() =>  { Show(false); });
     }
 
     public void Show(bool isShow, int groupIndex = -1, List<int> selectChannels = null)
@@ -70,8 +75,8 @@ public class VideoViewPanelMenuPopup : MonoBehaviour
         bool isExistSelectChannels = selectChannels != null && selectChannels.Count > 0;
 
         MakeGroupButton.interactable = isExistSelectChannels && !isExistGroup;
-
         ReleaseGroupButton.interactable = isExistGroup;
+        UnGroupForFreeButton.interactable = isExistSelectChannels;
 
         gameObject.SetActive(true);
     }

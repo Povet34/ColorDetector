@@ -54,7 +54,7 @@ namespace DataExtract
                     onMakeGroup:            _MakeGroup,
                     onReleaseGroup:         _ReleaseGroup,
                     onRenameGroup:          null,
-                    onUngroupForFree:       null
+                    onUngroupForFree:       _UnGroupForFree
                     ));
             hierarchyPanelMenuPopup.Show(false);
         }
@@ -691,6 +691,8 @@ namespace DataExtract
                 channelUpdater.UnGroupForFree(param);
                 Apply(param);
             }
+
+            RefreshPanel(channelReceiver.GetChannels(), channelReceiver.GetGroups());
         }
 
         #endregion

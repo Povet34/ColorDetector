@@ -57,7 +57,8 @@ namespace DataExtract
                         onCreateSegment:    null,
                         onDeleteChannel:    _DeleteChannel,
                         onMakeGroup:        _MakeGroup,
-                        onReleaseGroup:     _ReleaseGroup
+                        onReleaseGroup:     _ReleaseGroup,
+                        onUnGroupForFree:   _UnGroupForFree
                     ));
             videoViewPanelMenuPopup.Show(false);
 
@@ -446,9 +447,9 @@ namespace DataExtract
 
         void _UnGroupForFree()
         {
-
+            List<int> indices = selectChannels.Select(ch => ch.channelIndex).ToList();
+            UnGroupForFree(new UnGroupForFreeParam(this, indices));
         }
-
 
         #region IPanelSync
 
@@ -767,7 +768,15 @@ namespace DataExtract
 
         public void UnGroupForFree(UnGroupForFreeParam param)
         {
-            throw new NotImplementedException();
+            DLogger.LogWarning("UnGroupForFree is not implemented in VideoViewPanel.");
+
+            if (param.ownerPanel.Equals(this))
+            {
+                channelUpdater.UnGroupForFree(param);
+                Apply(param);
+            }
+
+            RefreshPanel(channelReceiver.GetChannels(), channelReceiver.GetGroups());
         }
 
         #endregion

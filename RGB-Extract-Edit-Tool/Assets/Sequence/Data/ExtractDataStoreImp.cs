@@ -289,7 +289,33 @@ namespace DataExtract
 
         public void UnGroupForFree(UnGroupForFreeParam param)
         {
-            throw new System.NotImplementedException();
+            // 1. 채널의 그룹 정보 제거
+            foreach (var channelIndex in param.channelIndices)
+            {
+                IChannel channel = _channels.FirstOrDefault(ch => ch.channelIndex == channelIndex);
+                if (channel == null)
+                {
+                    Debug.LogError($"Channel with index {channelIndex} not found.");
+                    continue;
+                }
+
+                // 그룹 정보 제거
+                channel.ExcludeGroup();
+            }
+
+            // 2. 그룹에서 채널 제거
+            foreach (var group in _groups)
+            {
+                group.hasChannels = group.hasChannels
+                    .Where(ch => !param.channelIndices.Contains(ch.channelIndex))
+                    .ToList();
+            }
+
+            // 3. 채널이 없는 그룹 삭제
+            _groups = _groups.Where(gr => gr.hasChannels.Count > 0).ToList();
+
+            // 4. 상태 동기화
+            _SortGroupsAndChannels();
         }
 
         #endregion
