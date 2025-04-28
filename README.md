@@ -73,3 +73,7 @@ ColorDetector
 
 ![SequenceViewSync drawio](https://github.com/user-attachments/assets/22a1f66e-684e-42dc-bb3c-84567a05910c)
 
+
+
+----
+
