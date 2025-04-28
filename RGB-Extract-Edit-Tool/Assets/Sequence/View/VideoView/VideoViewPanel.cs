@@ -768,8 +768,6 @@ namespace DataExtract
 
         public void UnGroupForFree(UnGroupForFreeParam param)
         {
-            DLogger.LogWarning("UnGroupForFree is not implemented in VideoViewPanel.");
-
             if (param.ownerPanel.Equals(this))
             {
                 channelUpdater.UnGroupForFree(param);
