@@ -15,13 +15,16 @@ public class DataExtractMain : MonoBehaviour
 
     public class LoadInjection
     {
-        public LocalFileLoader_Video fileLoader_Video;
-        public LocalFileLoader_Excel fileLoader_Excel;
+        public VideoDataUpdater videoDataUpdater;
+        public VideoDataReceiver videoDataReceiver;
+
         public ChannelUpdater channelUpdater;
     }
 
     [SerializeField] HierarchyPanel hierarchyPanel;
     [SerializeField] VideoViewPanel videoViewPanel;
+
+    [SerializeField] DataExtractTool dataExtractTool;
 
     private void Start()
     {
@@ -37,18 +40,25 @@ public class DataExtractMain : MonoBehaviour
         ChannelSyncer channelSyncer = new ChannelSyncer();
         channelSyncer.Init(new List<IPanelSync>() { videoViewPanel, hierarchyPanel });
 
-        LocalFileLoader_Video fileLoader_Video = new LocalFileLoader_Video(loadDataStore);
-
         PanelInjection panelInjection = new PanelInjection();
         panelInjection.channelReceiver = channelReceiver;
         panelInjection.channelUpdater = channelUpdater;
         panelInjection.channelSyncer = channelSyncer;
 
+        VideoDataUpdater videoDataUpdater = new VideoDataUpdater();
+        videoDataUpdater.Init(loadDataStore);
+
+        VideoDataReceiver videoDataReceiver = new VideoDataReceiver();
+        videoDataReceiver.Init(loadDataStore);
+
         LoadInjection loadInjection = new LoadInjection();
-        loadInjection.fileLoader_Video = fileLoader_Video;
+        loadInjection.videoDataUpdater = videoDataUpdater;
+        loadInjection.videoDataReceiver = videoDataReceiver;
         loadInjection.channelUpdater = channelUpdater;
 
         videoViewPanel.Init(panelInjection);
         hierarchyPanel.Init(panelInjection);
+        
+        dataExtractTool.Init(loadInjection);
     }
 }

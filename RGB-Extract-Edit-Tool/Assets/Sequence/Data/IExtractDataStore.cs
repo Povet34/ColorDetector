@@ -58,5 +58,12 @@ namespace DataExtract
         void UnGroupForFree(UnGroupForFreeParam param);
 
         #endregion
+
+
+        #region Extract
+
+        void Extract(Texture2D texture);
+
+        #endregion
     }
 }

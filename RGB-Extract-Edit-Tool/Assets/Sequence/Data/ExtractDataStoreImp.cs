@@ -318,6 +318,11 @@ namespace DataExtract
             _SortGroupsAndChannels();
         }
 
+        public void Extract(Texture2D texture)
+        {
+
+        }
+
         #endregion
     }
 }

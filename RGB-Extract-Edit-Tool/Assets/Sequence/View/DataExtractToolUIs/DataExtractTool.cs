@@ -2,14 +2,14 @@ using DataExtract;
 using System;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Video;
 
 public class DataExtractTool : MonoBehaviour
 {
     #region Injection
 
-    LocalFileLoader_Video fileLoader_Video;
-    LocalFileLoader_Excel fileLoader_Excel;
-
+    VideoDataReceiver videoDataReceiver;
+    VideoDataUpdater videoDataUpdater;
     ChannelUpdater channelUpdater;
 
     #endregion
@@ -19,41 +19,42 @@ public class DataExtractTool : MonoBehaviour
     [SerializeField] Button playVideoButton;
     [SerializeField] Button ExtractVideoButton;
 
+    VideoPlayer videoPlayer;
+
 
     public void Init(DataExtractMain.LoadInjection injection)
     {
-        fileLoader_Video = injection.fileLoader_Video;
-        fileLoader_Excel = injection.fileLoader_Excel;
 
         channelUpdater = injection.channelUpdater;
     }
 
     private void Awake()
     {
+        videoPlayer.GetComponent<VideoPlayer>();
+
         loadVideoButton.onClick.AddListener(OnLoadVideoButtonClicked);
         loadExcelButton.onClick.AddListener(OnLoadExcelButtonClicked);
         playVideoButton.onClick.AddListener(OnPlayVideoButtonClicked);
         ExtractVideoButton.onClick.AddListener(OnExtractVideoButtonClicked);
     }
 
-
     private void OnExtractVideoButtonClicked()
     {
-        throw new NotImplementedException();
+        channelUpdater.Extract(null);
     }
 
     private void OnPlayVideoButtonClicked()
     {
-        throw new NotImplementedException();
+        videoPlayer.url = fileLoader_Video.GetPath();
     }
 
     private void OnLoadExcelButtonClicked()
     {
-        fileLoader_Video.OpenFilePath();
+        fileLoader_Excel.OpenFilePath();
     }
 
     private void OnLoadVideoButtonClicked()
     {
-        throw new NotImplementedException();
+        fileLoader_Video.OpenFilePath();
     }
 }
