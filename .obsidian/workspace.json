@@ -160,6 +160,8 @@
   },
   "left-ribbon": {
     "hiddenItems": {
+      "obsidian-textgenerator-plugin:Generate Text!": false,
+      "obsidian-textgenerator-plugin:Text Generator: Templates Packages Manager": false,
       "switcher:Open quick switcher": false,
       "graph:Open graph view": false,
       "canvas:Create new canvas": false,
@@ -170,10 +172,23 @@
   },
   "active": "8bf5ed2c003b9a3f",
   "lastOpenFiles": [
-    "2025-05-07.md",
+    "RGB-Extract-Edit-Tool/Library/Search/propertyDatabase.db_1a39e540b8af4e1eb319d7abde13c617_temp",
+    "RGB-Extract-Edit-Tool/Temp/ADB-Refresh696f932ba29369d45a319364ffa7c62f",
+    "RGB-Extract-Edit-Tool/Temp/ADB-Refresh4710bc1695525244ba8b72d543d0c905",
+    "RGB-Extract-Edit-Tool/Library/Artifacts/9b/9bff6d5d56c57019f12e8536b4a5e057",
+    "RGB-Extract-Edit-Tool/Library/Artifacts/8e/8e18c8a02002be32ef0ee801c7852314",
+    "RGB-Extract-Edit-Tool/Library/Artifacts/1b/1b93158aee24d424fac5e61a2094760d",
+    "RGB-Extract-Edit-Tool/Library/Artifacts/8d/8d435cec3eb3de5896aa73eee86ba06d",
+    "RGB-Extract-Edit-Tool/Temp/ADB-Refreshe1c7dc9f58d7db546994e16cb14ad28b",
+    "RGB-Extract-Edit-Tool/Assets/packages.config.meta",
+    "RGB-Extract-Edit-Tool/Assets/Packages.meta",
+    "RGB-Extract-Edit-Tool/Temp/ADB-Refresh5f2fe586fff79e34883bcaf3c150381c",
+    "RGB-Extract-Edit-Tool/Library/PackageCache/com.github-glitchenzo.nugetforunity/Editor/Resources/defaultIcon.png",
+    "RGB-Extract-Edit-Tool/Library/PackageCache/com.github-glitchenzo.nugetforunity/LICENSE.md",
     "README.md",
-    "RGB-Extract-Edit-Tool/Assets/Sprites/arrow.png",
     "Untitled.canvas",
+    "2025-05-07.md",
+    "RGB-Extract-Edit-Tool/Assets/Sprites/arrow.png",
     "RGB-Extract-Edit-Tool/Library/PackageCache/com.unity.shadergraph/Documentation~/TableOfContents.md"
   ]
 }
