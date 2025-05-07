@@ -45,7 +45,7 @@ public class DataExtractTool : MonoBehaviour
 
     private void OnExtractVideoButtonClicked()
     {
-        channelUpdater.Extract(null);
+        channelUpdater.Extract(videoPlayer.targetTexture);
     }
 
     private void OnPlayVideoButtonClicked()
@@ -88,6 +88,8 @@ public class DataExtractTool : MonoBehaviour
         };
     }
 
+    #region RenderTexture
+
     void ClearRenderTexture(RenderTexture rt)
     {
         RenderTexture currentRT = RenderTexture.active;
@@ -128,4 +130,6 @@ public class DataExtractTool : MonoBehaviour
 
         Debug.Log($"RenderTexture resized to: {newWidth}x{newHeight}");
     }
+
+    #endregion
 }

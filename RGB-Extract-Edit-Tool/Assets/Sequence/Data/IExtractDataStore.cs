@@ -62,7 +62,7 @@ namespace DataExtract
 
         #region Extract
 
-        void Extract(Texture2D texture);
+        void Extract(RenderTexture texture);
 
         #endregion
     }

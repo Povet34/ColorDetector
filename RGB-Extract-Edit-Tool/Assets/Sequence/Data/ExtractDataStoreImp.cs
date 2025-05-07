@@ -318,7 +318,7 @@ namespace DataExtract
             _SortGroupsAndChannels();
         }
 
-        public void Extract(Texture2D texture)
+        public void Extract(RenderTexture texture)
         {
 
         }

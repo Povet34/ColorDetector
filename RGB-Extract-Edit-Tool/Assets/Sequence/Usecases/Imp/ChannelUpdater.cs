@@ -59,7 +59,7 @@ namespace DataExtract
             _dataStore.UnGroupForFree(param);
         }
 
-        public void Extract(Texture2D texture)
+        public void Extract(RenderTexture texture)
         {
             _dataStore.Extract(texture);
         }
