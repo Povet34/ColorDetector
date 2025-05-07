@@ -320,7 +320,7 @@ namespace DataExtract
 
         public void Extract(RenderTexture texture)
         {
-
+            //랜더 텍스쳐를 텍스처2d로 변경하라.
         }
 
         #endregion
