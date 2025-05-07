@@ -11,6 +11,7 @@ public class DataExtractMain : MonoBehaviour
         public ChannelReceiver channelReceiver;
         public ChannelUpdater channelUpdater;
         public ChannelSyncer channelSyncer;
+        public VideoDataReceiver videoDataReceiver;
     }
 
     public class LoadInjection
@@ -40,16 +41,17 @@ public class DataExtractMain : MonoBehaviour
         ChannelSyncer channelSyncer = new ChannelSyncer();
         channelSyncer.Init(new List<IPanelSync>() { videoViewPanel, hierarchyPanel });
 
-        PanelInjection panelInjection = new PanelInjection();
-        panelInjection.channelReceiver = channelReceiver;
-        panelInjection.channelUpdater = channelUpdater;
-        panelInjection.channelSyncer = channelSyncer;
-
         VideoDataUpdater videoDataUpdater = new VideoDataUpdater();
         videoDataUpdater.Init(loadDataStore);
 
         VideoDataReceiver videoDataReceiver = new VideoDataReceiver();
         videoDataReceiver.Init(loadDataStore);
+
+        PanelInjection panelInjection = new PanelInjection();
+        panelInjection.channelReceiver = channelReceiver;
+        panelInjection.channelUpdater = channelUpdater;
+        panelInjection.channelSyncer = channelSyncer;
+        panelInjection.videoDataReceiver = videoDataReceiver;
 
         LoadInjection loadInjection = new LoadInjection();
         loadInjection.videoDataUpdater = videoDataUpdater;

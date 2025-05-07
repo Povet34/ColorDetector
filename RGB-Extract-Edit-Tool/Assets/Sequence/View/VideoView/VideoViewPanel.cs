@@ -19,6 +19,7 @@ namespace DataExtract
         ChannelUpdater channelUpdater;
         ChannelReceiver channelReceiver;
         ChannelSyncer channelSyncer;
+        VideoDataReceiver videoDataReceiver;
 
         #endregion
 
@@ -37,6 +38,7 @@ namespace DataExtract
 
         RectAreaChannelSelection rectAreaChannelSelection;
         VideoViewPanelMenuPopup videoViewPanelMenuPopup;
+        RawImage videoViewImage;
 
 
         void Awake()
@@ -48,6 +50,7 @@ namespace DataExtract
 
             //GetComp
             panelRt = GetComponent<RectTransform>();
+            videoViewImage = GetComponent<RawImage>();
 
             //MeunPopup
             videoViewPanelMenuPopup = Instantiate(videoViewPanelMenuPopupPrefab, transform);
@@ -77,7 +80,9 @@ namespace DataExtract
             channelUpdater = injection.channelUpdater;
             channelReceiver = injection.channelReceiver;
             channelSyncer = injection.channelSyncer;
+            videoDataReceiver = injection.videoDataReceiver;
         }
+
 
         void Update()
         {

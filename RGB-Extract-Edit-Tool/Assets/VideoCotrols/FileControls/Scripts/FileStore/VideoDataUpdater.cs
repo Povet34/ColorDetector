@@ -1,13 +1,16 @@
 using UnityEngine;
 
-public class VideoDataUpdater : MonoBehaviour
+public class VideoDataUpdater
 {
     ILoadDataStore loadDataStore;
-    LocalFileLoader_Video videoFileLoader = new LocalFileLoader_Video();
-    LocalFileLoader_Excel excelFileLoader = new LocalFileLoader_Excel();
+    LocalFileLoader_Video videoFileLoader;
+    LocalFileLoader_Excel excelFileLoader;
 
     public void Init(ILoadDataStore loadDataStore)
     {
+        videoFileLoader = new LocalFileLoader_Video();
+        excelFileLoader = new LocalFileLoader_Excel();
+
         this.loadDataStore = loadDataStore;
     }
 

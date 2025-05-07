@@ -1,6 +1,7 @@
+using System;
 using UnityEngine;
 
-public class VideoDataReceiver : MonoBehaviour
+public class VideoDataReceiver
 {
     ILoadDataStore loadDataStore;
 

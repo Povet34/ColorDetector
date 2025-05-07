@@ -18,14 +18,14 @@ public class LoadDataStoreImpl : ILoadDataStore
     {
     }
 
-    public void UpdateLoadedVideoData(string url)
+    public void UpdateLoadedVideoData(string path)
     {
-        videoUrl = url;
-        videoName = Path.GetFileName(url);
+        videoUrl = path;
+        videoName = Path.GetFileName(path);
 
         // VideoPlayer를 사용하여 메타데이터 추출
         var videoPlayer = new GameObject("VideoPlayer").AddComponent<UnityEngine.Video.VideoPlayer>();
-        videoPlayer.url = url;
+        videoPlayer.url = path;
 
         videoPlayer.Prepare();
         videoPlayer.prepareCompleted += (source) =>

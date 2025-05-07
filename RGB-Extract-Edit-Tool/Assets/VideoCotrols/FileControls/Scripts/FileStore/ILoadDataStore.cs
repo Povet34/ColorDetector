@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -13,6 +14,5 @@ public interface ILoadDataStore
     Vector2 videoResolution { get; set; }
     float videoFrameRate { get; set; }
 
-    void Init();
     void UpdateLoadedVideoData(string path);
 }

@@ -17,25 +17,25 @@ public class DataExtractTool : MonoBehaviour
     [SerializeField] Button loadVideoButton;
     [SerializeField] Button loadExcelButton;
     [SerializeField] Button playVideoButton;
-    [SerializeField] Button ExtractVideoButton;
+    [SerializeField] Button extractVideoButton;
 
     VideoPlayer videoPlayer;
 
-
     public void Init(DataExtractMain.LoadInjection injection)
     {
-
+        videoDataReceiver = injection.videoDataReceiver;
+        videoDataUpdater = injection.videoDataUpdater;
         channelUpdater = injection.channelUpdater;
     }
 
     private void Awake()
     {
-        videoPlayer.GetComponent<VideoPlayer>();
+        videoPlayer = GetComponent<VideoPlayer>();
 
         loadVideoButton.onClick.AddListener(OnLoadVideoButtonClicked);
         loadExcelButton.onClick.AddListener(OnLoadExcelButtonClicked);
         playVideoButton.onClick.AddListener(OnPlayVideoButtonClicked);
-        ExtractVideoButton.onClick.AddListener(OnExtractVideoButtonClicked);
+        extractVideoButton.onClick.AddListener(OnExtractVideoButtonClicked);
     }
 
     private void OnExtractVideoButtonClicked()
@@ -45,16 +45,42 @@ public class DataExtractTool : MonoBehaviour
 
     private void OnPlayVideoButtonClicked()
     {
-        videoPlayer.url = fileLoader_Video.GetPath();
+        videoPlayer.Play();
     }
 
     private void OnLoadExcelButtonClicked()
     {
-        fileLoader_Excel.OpenFilePath();
+        SetInteractable(false);
+
+        videoDataUpdater.UpdateLoadedVideoData_ByExcel();
+        PrepareAndViewVideo();
     }
 
     private void OnLoadVideoButtonClicked()
     {
-        fileLoader_Video.OpenFilePath();
+        SetInteractable(false);
+
+        videoDataUpdater.UpdateLoadedVideoData_ByVideo();
+        PrepareAndViewVideo();
+    }
+
+    private void SetInteractable(bool canInteract)
+    {
+        extractVideoButton.interactable = canInteract;
+        playVideoButton.interactable = canInteract;
+    }
+
+    private void PrepareAndViewVideo()
+    {
+        videoPlayer.url = videoDataReceiver.GetVideoUrl();
+        videoPlayer.Prepare();
+
+        videoPlayer.prepareCompleted += (source) =>
+        {
+            SetInteractable(true);
+            
+            videoPlayer.frame = 0;
+            videoPlayer.Pause();
+        };
     }
 }
