@@ -4,11 +4,11 @@
     "type": "split",
     "children": [
       {
-        "id": "de6173a7cb5586f5",
+        "id": "7e92a0b22b95768d",
         "type": "tabs",
         "children": [
           {
-            "id": "5296283038aecb4c",
+            "id": "8bf5ed2c003b9a3f",
             "type": "leaf",
             "state": {
               "type": "markdown",
@@ -168,9 +168,12 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "5296283038aecb4c",
+  "active": "8bf5ed2c003b9a3f",
   "lastOpenFiles": [
-    "RGB-Extract-Edit-Tool/Library/PackageCache/com.unity.shadergraph/Documentation~/TableOfContents.md",
-    "README.md"
+    "2025-05-07.md",
+    "README.md",
+    "RGB-Extract-Edit-Tool/Assets/Sprites/arrow.png",
+    "Untitled.canvas",
+    "RGB-Extract-Edit-Tool/Library/PackageCache/com.unity.shadergraph/Documentation~/TableOfContents.md"
   ]
 }
