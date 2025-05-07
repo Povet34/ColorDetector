@@ -14,10 +14,6 @@ public class LoadDataStoreImpl : ILoadDataStore
         throw new System.NotImplementedException();
     }
 
-    public void Init()
-    {
-    }
-
     public void UpdateLoadedVideoData(string path)
     {
         videoUrl = path;

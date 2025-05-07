@@ -14,4 +14,9 @@ public class VideoDataReceiver
     {
         return loadDataStore.videoUrl;
     }
+
+    public Vector2 GetVideoResolution()
+    {
+        return loadDataStore.videoResolution;
+    }
 }
