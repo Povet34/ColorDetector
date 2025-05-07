@@ -72,12 +72,11 @@ namespace DataExtract
                 );
         }
 
-        public void Init(ChannelUpdater channelUpdater, ChannelReceiver channelReceiver, ChannelSyncer channelSyncer)
+        public void Init(DataExtractMain.PanelInjection injection)
         {
-            this.channelUpdater = channelUpdater;
-            this.channelReceiver = channelReceiver;
-            this.channelSyncer = channelSyncer;
-
+            channelUpdater = injection.channelUpdater;
+            channelReceiver = injection.channelReceiver;
+            channelSyncer = injection.channelSyncer;
         }
 
         void Update()
