@@ -338,7 +338,8 @@ namespace DataExtract
                 int y = Mathf.Clamp((int)position.y, 0, texture.height - 1);
 
                 // 텍스처에서 해당 위치의 픽셀 색상 가져오기
-                Color32 pixelColor = texture.GetPixel(x, y);
+                Color pixelColor = texture.GetPixel(x, y);
+                Color32 pixelColor32 = (Color32)pixelColor;
 
                 // extractMap에 채널의 색상 데이터 추가
                 if (!extractMap.ContainsKey(channel.channelIndex))
@@ -346,7 +347,7 @@ namespace DataExtract
                     extractMap[channel.channelIndex] = new List<Color32>();
                 }
 
-                extractMap[channel.channelIndex].Add(pixelColor);
+                extractMap[channel.channelIndex].Add(pixelColor32);
             }
 
         }

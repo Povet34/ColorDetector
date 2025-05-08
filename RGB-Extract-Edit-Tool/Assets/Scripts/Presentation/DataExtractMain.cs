@@ -25,7 +25,7 @@ public class DataExtractMain : MonoBehaviour
 
     public class ExportInjection
     {
-
+        public ToExcelExportor toExcelExportor;
     }
 
     [SerializeField] HierarchyPanel hierarchyPanel;
@@ -65,9 +65,12 @@ public class DataExtractMain : MonoBehaviour
         loadInjection.channelUpdater = channelUpdater;
         loadInjection.channelReceiver = channelReceiver;
 
+        ExportInjection exportInjection = new ExportInjection();
+        exportInjection.toExcelExportor = new ToExcelExportor();
+
         videoViewPanel.Init(panelInjection);
         hierarchyPanel.Init(panelInjection);
         
-        dataExtractTool.Init(loadInjection);
+        dataExtractTool.Init(loadInjection, exportInjection);
     }
 }

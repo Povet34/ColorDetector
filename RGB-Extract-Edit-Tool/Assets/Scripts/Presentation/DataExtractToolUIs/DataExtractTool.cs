@@ -13,6 +13,7 @@ public class DataExtractTool : MonoBehaviour
     VideoDataUpdater videoDataUpdater;
     ChannelUpdater channelUpdater;
     ChannelReceiver channelReceiver;
+    ToExcelExportor toExcelExportor;
 
     #endregion
 
@@ -25,12 +26,13 @@ public class DataExtractTool : MonoBehaviour
     VideoPlayer videoPlayer;
     ExtractTextureChanger extractTextureChanger;
 
-    public void Init(DataExtractMain.LoadInjection injection)
+    public void Init(DataExtractMain.LoadInjection injection, DataExtractMain.ExportInjection exportInjection)
     {
         videoDataReceiver = injection.videoDataReceiver;
         videoDataUpdater = injection.videoDataUpdater;
         channelUpdater = injection.channelUpdater;
         channelReceiver = injection.channelReceiver;
+        toExcelExportor = exportInjection.toExcelExportor;
 
         extractTextureChanger = new ExtractTextureChanger();
 
@@ -58,6 +60,7 @@ public class DataExtractTool : MonoBehaviour
         var data = channelReceiver.GetExtractData();
         if(null != data)
         {
+            toExcelExportor.ExportToExcel(data, videoDataReceiver.GetVideoUrl());
         }
     }
 
@@ -68,10 +71,6 @@ public class DataExtractTool : MonoBehaviour
 
     private IEnumerator ExtractBody()
     {
-        int count = 10;
-        int temp = 0;
-
-        // VideoDataReceiver로부터 데이터 가져오기
         int totalFrames = videoDataReceiver.GetTotalFrame();
         RenderTexture videoTexture = videoDataReceiver.GetVideoTexture();
 
@@ -85,9 +84,25 @@ public class DataExtractTool : MonoBehaviour
 
         channelUpdater.StoreStart();
 
-        // 0번 프레임부터 끝 프레임까지 반복
+        videoPlayer.Prepare();
+        while (!videoPlayer.isPrepared)
+        {
+            yield return null; // 준비가 완료될 때까지 대기
+        }
+
+        videoPlayer.targetTexture = videoTexture;
+
         for (int currentFrame = 0; currentFrame < totalFrames; currentFrame++)
         {
+            videoPlayer.frame = currentFrame;
+            videoPlayer.Play();
+
+            // 프레임이 RenderTexture에 적용될 때까지 대기
+            yield return new WaitForEndOfFrame();
+            videoPlayer.Pause();
+
+            yield return null; // 한 프레임 추가 대기
+
             // RenderTexture를 Texture2D로 변환
             var texture2D = extractTextureChanger.ChangeTexture(videoTexture);
 
@@ -97,15 +112,7 @@ public class DataExtractTool : MonoBehaviour
                 continue;
             }
 
-            // ChannelUpdater의 Extract 메서드 호출
             channelUpdater.StoreExtractData(texture2D);
-
-            temp++;
-            if(temp == count)
-            {
-                yield return null;
-                temp = 0;
-            }
 
             Debug.Log($"Frame {currentFrame + 1}/{totalFrames} extracted.");
         }
