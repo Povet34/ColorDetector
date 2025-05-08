@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -13,6 +12,9 @@ public interface ILoadDataStore
     float videoLength { get; set; }
     Vector2 videoResolution { get; set; }
     float videoFrameRate { get; set; }
+
+    RenderTexture videoTexture { get; set; }
+    Action onUpdateVideoTexture { get; set; }
 
     void UpdateLoadedVideoData(string path);
 }

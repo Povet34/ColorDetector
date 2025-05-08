@@ -26,6 +26,13 @@ public class DataExtractTool : MonoBehaviour
         videoDataReceiver = injection.videoDataReceiver;
         videoDataUpdater = injection.videoDataUpdater;
         channelUpdater = injection.channelUpdater;
+
+        videoDataReceiver.RegistUpdateVideoTexture(ChangeRenderTexture);
+    }
+
+    private void OnDestroy()
+    {
+        videoDataReceiver.UnregistUpdateVideoTexture(ChangeRenderTexture);
     }
 
     private void Awake()
@@ -36,11 +43,6 @@ public class DataExtractTool : MonoBehaviour
         loadExcelButton.onClick.AddListener(OnLoadExcelButtonClicked);
         playVideoButton.onClick.AddListener(OnPlayVideoButtonClicked);
         extractVideoButton.onClick.AddListener(OnExtractVideoButtonClicked);
-    }
-
-    private void OnEnable()
-    {
-        ClearRenderTexture(videoPlayer.targetTexture);
     }
 
     private void OnExtractVideoButtonClicked()
@@ -55,21 +57,20 @@ public class DataExtractTool : MonoBehaviour
 
     private void OnLoadExcelButtonClicked()
     {
+        SetInteractable(false);
         videoDataUpdater.UpdateLoadedVideoData_ByExcel();
         PrepareAndViewVideo();
     }
 
     private void OnLoadVideoButtonClicked()
     {
+        SetInteractable(false);
         videoDataUpdater.UpdateLoadedVideoData_ByVideo();
         PrepareAndViewVideo();
     }
 
     private void SetInteractable(bool canInteract)
     {
-        var rt = videoPlayer.targetTexture;
-        ResizeRenderTexture(ref rt, videoDataReceiver.GetVideoResolution());
-
         extractVideoButton.interactable = canInteract;
         playVideoButton.interactable = canInteract;
     }
@@ -83,53 +84,13 @@ public class DataExtractTool : MonoBehaviour
         {
             SetInteractable(true);
             
-            videoPlayer.frame = 0;
+            videoPlayer.frame = 1;
             videoPlayer.Pause();
         };
     }
 
-    #region RenderTexture
-
-    void ClearRenderTexture(RenderTexture rt)
+    private void ChangeRenderTexture()
     {
-        RenderTexture currentRT = RenderTexture.active;
-        RenderTexture.active = rt;
-
-        GL.Clear(true, true, Color.black);
-
-        RenderTexture.active = currentRT;
+        videoPlayer.targetTexture = videoDataReceiver.GetVideoTexture();
     }
-
-    void ResizeRenderTexture(ref RenderTexture renderTexture, Vector2 newResolution)
-    {
-        if (newResolution == Vector2.zero)
-        {
-            Debug.LogError("New resolution is invalid. Cannot resize RenderTexture.");
-            return;
-        }
-
-        int newWidth = (int)newResolution.x;
-        int newHeight = (int)newResolution.y;
-
-        // 기존 RenderTexture가 존재하면 해제
-        if (renderTexture != null)
-        {
-            if (renderTexture.width == newWidth && renderTexture.height == newHeight)
-            {
-                Debug.Log("RenderTexture already matches the desired resolution. No resizing needed.");
-                return;
-            }
-
-            renderTexture.Release();
-            Debug.Log("Existing RenderTexture released.");
-        }
-
-        // 새로운 크기로 RenderTexture 생성
-        renderTexture = new RenderTexture(newWidth, newHeight, 0, RenderTextureFormat.Default);
-        renderTexture.Create();
-
-        Debug.Log($"RenderTexture resized to: {newWidth}x{newHeight}");
-    }
-
-    #endregion
 }

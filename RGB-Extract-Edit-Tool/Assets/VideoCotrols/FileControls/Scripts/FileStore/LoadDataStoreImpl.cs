@@ -1,5 +1,6 @@
 using System.IO;
 using UnityEngine;
+using System;
 
 public class LoadDataStoreImpl : ILoadDataStore
 {
@@ -8,6 +9,9 @@ public class LoadDataStoreImpl : ILoadDataStore
     public float videoLength { get; set; }
     public Vector2 videoResolution { get; set; }
     public float videoFrameRate { get; set; }
+    public RenderTexture videoTexture { get; set; }
+
+    public Action onUpdateVideoTexture { get; set; }
 
     public void StoreExtractData()
     {
@@ -32,7 +36,37 @@ public class LoadDataStoreImpl : ILoadDataStore
 
             Debug.Log($"Video Loaded: {videoName}, Length: {videoLength}s, Resolution: {videoResolution}, FrameRate: {videoFrameRate}fps");
 
-            Object.Destroy(videoPlayer.gameObject); // VideoPlayer 객체 제거
+            GameObject.Destroy(videoPlayer.gameObject); // VideoPlayer 객체 제거
+
+            CreateVideoRenderTarget();
         };
+    }
+
+    void CreateVideoRenderTarget()
+    {
+        // 기존 RenderTexture가 존재하면 해제
+        if (videoTexture != null)
+        {
+            videoTexture.Release();
+            GameObject.Destroy(videoTexture);
+            Debug.Log("Existing videoTexture released.");
+        }
+
+        // videoResolution에 맞는 RenderTexture 생성
+        int width = (int)videoResolution.x;
+        int height = (int)videoResolution.y;
+
+        if (width <= 0 || height <= 0)
+        {
+            Debug.LogError("Invalid video resolution. Cannot create RenderTexture.");
+            return;
+        }
+
+        videoTexture = new RenderTexture(width, height, 0, RenderTextureFormat.Default);
+        videoTexture.Create();
+
+        Debug.Log($"New videoTexture created with resolution: {videoTexture.width}x{videoTexture.height}");
+
+        onUpdateVideoTexture?.Invoke();
     }
 }

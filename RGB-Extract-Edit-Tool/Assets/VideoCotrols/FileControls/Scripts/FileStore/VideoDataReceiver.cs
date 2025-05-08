@@ -19,4 +19,19 @@ public class VideoDataReceiver
     {
         return loadDataStore.videoResolution;
     }
+
+    public RenderTexture GetVideoTexture()
+    {
+        return loadDataStore.videoTexture;
+    }
+
+    public void RegistUpdateVideoTexture(Action callback)
+    {
+        loadDataStore.onUpdateVideoTexture += callback;
+    }
+
+    public void UnregistUpdateVideoTexture(Action callback)
+    {
+        loadDataStore.onUpdateVideoTexture -= callback;
+    }
 }

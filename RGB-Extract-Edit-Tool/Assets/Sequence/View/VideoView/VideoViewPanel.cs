@@ -40,7 +40,6 @@ namespace DataExtract
         VideoViewPanelMenuPopup videoViewPanelMenuPopup;
         RawImage videoViewImage;
 
-
         void Awake()
         {
             //Channel Init
@@ -81,8 +80,14 @@ namespace DataExtract
             channelReceiver = injection.channelReceiver;
             channelSyncer = injection.channelSyncer;
             videoDataReceiver = injection.videoDataReceiver;
+
+            videoDataReceiver.RegistUpdateVideoTexture(ChnageVideoViewImage);
         }
 
+        void OnDestroy()
+        {
+            videoDataReceiver.UnregistUpdateVideoTexture(ChnageVideoViewImage);
+        }
 
         void Update()
         {
@@ -103,7 +108,6 @@ namespace DataExtract
             }
         }
 
-
         void DestroyAll()
         {
             foreach (var ch in channels)
@@ -120,6 +124,12 @@ namespace DataExtract
             selectChannels.Clear();
             groups.Clear();
         }
+
+        void ChnageVideoViewImage()
+        {
+            videoViewImage.texture = videoDataReceiver.GetVideoTexture();
+        }
+
 
         #region UI Select
 
