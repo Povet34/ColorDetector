@@ -15,9 +15,10 @@ namespace DataExtract
         Stack<EditParam> editParamStack = new Stack<EditParam>();
         Stack<DatatStoreState> stateStack = new Stack<DatatStoreState>();
 
-        public Dictionary<int, List<Color32>> extractMap { get; set; }
         public List<IChannel> channels { get => _channels; set => _channels = value; }
         public List<IGroup> groups { get => _groups; set => _groups = value; }
+        public Dictionary<int, List<Color32>> extractMap { get; set; }
+        public Vector2 videoResoultion { get; set; }
 
         void _SortGroupsAndChannels()
         {

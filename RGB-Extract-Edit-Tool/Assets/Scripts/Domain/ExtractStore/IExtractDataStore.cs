@@ -37,6 +37,13 @@ namespace DataExtract
         List<IGroup> groups { get; set; }
         Dictionary<int, List<Color32>> extractMap { get; set; }
 
+
+        #region VideoData
+
+        Vector2 videoResoultion { get; set; }
+
+        #endregion
+
         DatatStoreState Undo();
 
         #region Channel

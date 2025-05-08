@@ -19,6 +19,7 @@ namespace DataExtract
         ChannelUpdater channelUpdater;
         ChannelReceiver channelReceiver;
         ChannelSyncer channelSyncer;
+
         VideoDataReceiver videoDataReceiver;
 
         #endregion
@@ -390,9 +391,7 @@ namespace DataExtract
                 indices.Add(ch.channelIndex);
             }
 
-            MoveDeltaGroupParam param = new MoveDeltaGroupParam(this, group.groupIndex, indices, offset);
-
-            MoveDeltaGroup(param);
+            MoveDeltaGroup(new MoveDeltaGroupParam(this, group.groupIndex, indices, offset));
         }
 
 
@@ -402,8 +401,10 @@ namespace DataExtract
         /// <param name="position"></param>
         void _CreateChannel(Vector2 position)
         {
-            CreateChannelParam param = new CreateChannelParam(this, channels.Count, position);
-            CreateChannel(param);
+            //position을 
+            //1. Videoview의 좌하단으로변경
+            //2. Video해상도에 대응할 수 있게 변경해야한다.
+            CreateChannel(new CreateChannelParam(this, channels.Count, position));
         }
 
         /// <summary>
@@ -520,7 +521,7 @@ namespace DataExtract
             ch.Init(param);
             channels.Add(ch);
 
-            if (param.ownerPanel.Equals(this))
+            if (param.ownerPanel.Equals(this))  
             {
                 channelUpdater.CreateChannel(param);
                 Apply(param);
@@ -698,7 +699,6 @@ namespace DataExtract
             {
                 ch.Deselect();
             }
-
 
             if (param.ownerPanel.Equals(this))
             {
