@@ -151,10 +151,9 @@ public class DataExtractTool : MonoBehaviour
         videoPlayer.url = videoDataReceiver.GetVideoUrl();
         videoPlayer.Prepare();
 
-        channelUpdater.SetCurrentVideoResoultion(videoDataReceiver.GetVideoResolution());
-
         videoPlayer.prepareCompleted += (source) =>
         {
+            channelUpdater.SetCurrentVideoResoultion(videoDataReceiver.GetVideoResolution());
             SetInteractable(true);
             
             videoPlayer.frame = 1;

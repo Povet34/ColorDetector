@@ -40,7 +40,7 @@ namespace DataExtract
 
         #region VideoData
 
-        Vector2 videoResoultion { get; set; }
+        Vector2 videoResolution { get; set; }
 
         #endregion
 

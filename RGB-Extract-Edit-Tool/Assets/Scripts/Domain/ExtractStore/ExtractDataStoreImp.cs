@@ -18,7 +18,7 @@ namespace DataExtract
         public List<IChannel> channels { get => _channels; set => _channels = value; }
         public List<IGroup> groups { get => _groups; set => _groups = value; }
         public Dictionary<int, List<Color32>> extractMap { get; set; }
-        public Vector2 videoResoultion { get; set; }
+        public Vector2 videoResolution { get; set; }
 
         void _SortGroupsAndChannels()
         {
@@ -357,7 +357,28 @@ namespace DataExtract
         {
             extractMap = new Dictionary<int, List<Color32>>();
         }
-
         #endregion
+
+        private Vector2 ArrangeChannelPositions(Vector2 oldPos)
+        {
+            // videoViewPanelSize의 크기
+            Vector2 videoViewPanelSize = new Vector2(1520, 940);
+            oldPos += videoViewPanelSize / 2f;
+
+            // videoResolution의 크기
+            Vector2 videoResolution = this.videoResolution;
+
+            // 비율 계산 (videoResolution을 videoViewPanelSize에 맞게 스케일링)
+            float scaleX = videoViewPanelSize.x / videoResolution.x;
+            float scaleY = videoViewPanelSize.y / videoResolution.y;
+
+            // oldPos를 스케일링하여 새로운 위치 계산
+            Vector2 newPos = new Vector2(
+                oldPos.x * scaleX,
+                oldPos.y * scaleY
+            );
+
+            return newPos;
+        }
     }
 }

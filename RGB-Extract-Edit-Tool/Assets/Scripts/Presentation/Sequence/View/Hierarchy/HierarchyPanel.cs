@@ -454,16 +454,13 @@ namespace DataExtract
 
         public void MoveChannel(MoveChannelParam param)
         {
-            foreach(var index in param.indices)
-            {
-                channels[index].position = param.movePos;
-            }
-
             if (param.ownerPanel.Equals(this))
             {
                 channelUpdater.MoveChannel(param);
                 Apply(param);
             }
+
+            RefreshPanel(channelReceiver.GetChannels(), channelReceiver.GetGroups());
         }
 
         public void SelectGroup(SelectGroupParam param)
@@ -589,16 +586,13 @@ namespace DataExtract
 
         public void MoveDeltaGroup(MoveDeltaGroupParam param)
         {
-            foreach (var index in param.indices)
-            {
-                channels[index].MoveDelta(param.movePos);
-            }
-
             if (param.ownerPanel.Equals(this))
             {
                 channelUpdater.MoveDeltaGroup(param);
                 Apply(param);
             }
+
+            RefreshPanel(channelReceiver.GetChannels(), channelReceiver.GetGroups());
         }
 
         public void ChangeGroupSortDirection(ChangeGroupSortDirectionParam param)

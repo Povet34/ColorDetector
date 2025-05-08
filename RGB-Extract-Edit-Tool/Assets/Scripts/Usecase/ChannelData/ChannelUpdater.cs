@@ -36,7 +36,7 @@ namespace DataExtract
 
         public void SetCurrentVideoResoultion(Vector2 newResoultion)
         {
-            _dataStore.videoResoultion = newResoultion;
+            _dataStore.videoResolution = newResoultion;
         }
 
         public void MakeGroup(MakeGroupParam param)
