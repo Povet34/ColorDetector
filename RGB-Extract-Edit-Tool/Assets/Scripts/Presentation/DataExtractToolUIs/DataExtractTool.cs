@@ -104,6 +104,8 @@ public class DataExtractTool : MonoBehaviour
             videoPlayer.Pause();
 
             yield return null; // 한 프레임 추가 대기
+            yield return null; // 한 프레임 추가 대기
+            yield return null; // 한 프레임 추가 대기
 
             // RenderTexture를 Texture2D로 변환
             var texture2D = extractTextureChanger.ChangeTexture(videoTexture);
@@ -146,8 +148,11 @@ public class DataExtractTool : MonoBehaviour
 
     private void SetInteractable(bool canInteract)
     {
+        loadVideoButton.interactable = canInteract;
+        loadExcelButton.interactable = canInteract;
         extractVideoButton.interactable = canInteract;
         playVideoButton.interactable = canInteract;
+        exportExcelButton.interactable = canInteract;
     }
 
     private void PrepareAndViewVideo()

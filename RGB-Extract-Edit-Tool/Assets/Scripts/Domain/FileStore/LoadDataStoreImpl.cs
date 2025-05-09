@@ -19,7 +19,7 @@ public class LoadDataStoreImpl : ILoadDataStore
         videoName = Path.GetFileName(path);
 
         // VideoPlayer를 사용하여 메타데이터 추출
-        var videoPlayer = new GameObject("Tem pVideoPlayer").AddComponent<UnityEngine.Video.VideoPlayer>();
+        var videoPlayer = new GameObject("Temp VideoPlayer").AddComponent<UnityEngine.Video.VideoPlayer>();
         videoPlayer.url = path;
 
         videoPlayer.Prepare();
