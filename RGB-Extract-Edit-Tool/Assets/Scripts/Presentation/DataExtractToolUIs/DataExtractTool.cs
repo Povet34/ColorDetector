@@ -71,6 +71,8 @@ public class DataExtractTool : MonoBehaviour
 
     private IEnumerator ExtractBody()
     {
+        SetInteractable(false);
+
         int totalFrames = videoDataReceiver.GetTotalFrame();
         RenderTexture videoTexture = videoDataReceiver.GetVideoTexture();
 
@@ -119,6 +121,8 @@ public class DataExtractTool : MonoBehaviour
 
         extractTextureChanger.ReleaseCache();
         Debug.Log("Video extraction completed.");
+
+        SetInteractable(true);
     }
 
     private void OnPlayVideoButtonClicked()
