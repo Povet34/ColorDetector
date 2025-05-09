@@ -13,5 +13,6 @@ public static class Definitions
         return $"{prefix} NewGroup";
     }
 
-
+    public static readonly Vector2 VideoViewPanelSize = new Vector2(1520, 940);
+    public static readonly Vector2 VideoViewPanelHalfSize = VideoViewPanelSize / 2f;
 }

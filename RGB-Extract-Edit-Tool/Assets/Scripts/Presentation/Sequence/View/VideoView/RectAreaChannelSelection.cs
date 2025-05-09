@@ -7,10 +7,10 @@ namespace DataExtract
 {
     public class RectAreaChannelSelection : MonoBehaviour
     {
-        private RectTransform selectionBox;
+        [SerializeField] RectTransform selectionBox;
         private Vector2 startPos;
         private bool isSelecting;
-        private List<IPanelChannel> panelChannels;
+        private List<IPanelChannel> channels;
 
         private IPanelSync panelSync;
         private RectTransform panelRt;
@@ -21,6 +21,20 @@ namespace DataExtract
         {
             if (isSelecting)
                 ResizeRect();
+        }
+
+        public void Init(
+            RectTransform panelRt,
+            IPanelSync panelSync,
+            ref List<IPanelChannel> channels,
+            Action<SelectChannelParam> selectCallback,
+            Action<DeSelectChannelParam> clearSelectCallback)
+        {
+            this.panelRt = panelRt;
+            this.channels = channels;
+            this.selectCallback = selectCallback;
+            this.clearSelectCallback = clearSelectCallback;
+            this.panelSync = panelSync;
         }
 
         public void ResizeRect()
@@ -50,7 +64,7 @@ namespace DataExtract
         {
             var list = new List<int>();
 
-            foreach (var channel in panelChannels)
+            foreach (var channel in channels)
             {
                 if (null == channel)
                     continue;
@@ -74,38 +88,5 @@ namespace DataExtract
             Bounds bounds = new Bounds(TransformEx.GetRelativeAnchorPosition_Screen(panelRt, selectionBox.anchoredPosition), selectionBox.sizeDelta);
             return bounds.Contains(position);
         }
-
-
-        public static RectAreaChannelSelection Create(
-            RectTransform parentRt,
-            IPanelSync panelSync,
-            ref List<IPanelChannel> channels,
-            Action<SelectChannelParam> addCurChannelList,
-            Action<DeSelectChannelParam> clearSelectCallback
-            )
-        {
-            var go = new GameObject("AreaSelection");
-            var selection = go.AddComponent<RectAreaChannelSelection>();
-            selection.transform.SetParent(parentRt);
-
-            var imgGo = new GameObject("selectAreaBox");
-            imgGo.transform.SetParent(selection.transform);
-
-            var img = imgGo.AddComponent<Image>();
-            img.color = new Color(1, 1, 1, 0.3f);
-
-            selection.selectionBox = imgGo.GetComponent<RectTransform>();
-            selection.selectionBox.gameObject.SetActive(false);
-
-            selection.panelRt = parentRt;
-            selection.panelChannels = channels;
-
-            selection.selectCallback = addCurChannelList;
-            selection.clearSelectCallback = clearSelectCallback;
-            selection.panelSync = panelSync;
-
-            return selection;
-        }
     }
-
 }

@@ -44,8 +44,8 @@ public class VideoViewPanelMenuPopup : MonoBehaviour
 
     public void Init(MenuActions menuActions)
     {
-        CreateChannelButton.onClick.AddListener(() =>   { menuActions.onCreateChannel(rt.anchoredPosition); });
-        CreateSegmentButton.onClick.AddListener(() =>   { menuActions.onCreateSegment(rt.anchoredPosition); });
+        CreateChannelButton.onClick.AddListener(() =>   { menuActions.onCreateChannel(rt.anchoredPosition + Definitions.VideoViewPanelHalfSize); });
+        CreateSegmentButton.onClick.AddListener(() =>   { menuActions.onCreateSegment(rt.anchoredPosition + Definitions.VideoViewPanelHalfSize); });
         DeleteChannelButton.onClick.AddListener(() =>   { menuActions.onDeleteChannel(); });
         MakeGroupButton.onClick.AddListener(() =>       { menuActions.onMakeGroup(); });
         ReleaseGroupButton.onClick.AddListener(() =>    { menuActions.onReleaseGroup(cachedGroupIndex); });

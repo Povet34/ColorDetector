@@ -49,8 +49,10 @@ public class LoadDataStoreImpl : ILoadDataStore
         }
 
         // videoResolution에 맞는 RenderTexture 생성
-        int width = (int)videoResolution.x;
-        int height = (int)videoResolution.y;
+        //int width = (int)videoResolution.x;
+        //int height = (int)videoResolution.y;
+        int width = (int)Definitions.VideoViewPanelSize.x;
+        int height = (int)Definitions.VideoViewPanelSize.y;
 
         if (width <= 0 || height <= 0)
         {

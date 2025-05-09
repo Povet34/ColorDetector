@@ -27,6 +27,7 @@ namespace DataExtract
         [SerializeField] VideoViewChannel videoViewChannelPrefab;
         [SerializeField] VideoViewGroup videoViewGroupPrefab;
         [SerializeField] VideoViewPanelMenuPopup videoViewPanelMenuPopupPrefab;
+        [SerializeField] RectAreaChannelSelection rectAreaChannelSelectionPrefab;
 
         [SerializeField] GraphicRaycaster graphicRaycaster;
         [SerializeField] EventSystem eventSystem;
@@ -65,14 +66,8 @@ namespace DataExtract
                     ));
             videoViewPanelMenuPopup.Show(false);
 
-            //UI Rect Select
-            rectAreaChannelSelection = RectAreaChannelSelection.Create(
-                panelRt,
-                this,
-                ref channels, 
-                SelectChannel, 
-                DeselectChannel
-                );
+            rectAreaChannelSelection = Instantiate(rectAreaChannelSelectionPrefab, transform);
+            rectAreaChannelSelection.Init(panelRt, this, ref channels, SelectChannel, DeselectChannel);
         }
 
         public void Init(DataExtractMain.PanelInjection injection)
