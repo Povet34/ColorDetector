@@ -38,20 +38,11 @@ public class DataExtractMain : MonoBehaviour
         IExtractDataStore extractDataStore = new ExtractDataStoreImp();
         ILoadDataStore loadDataStore = new LoadDataStoreImpl();
 
-        ChannelReceiver channelReceiver = new ChannelReceiver();
-        channelReceiver.Init(extractDataStore);
-
-        ChannelUpdater channelUpdater = new ChannelUpdater();
-        channelUpdater.Init(extractDataStore);
-
-        ChannelSyncer channelSyncer = new ChannelSyncer();
-        channelSyncer.Init(new List<IPanelSync>() { videoViewPanel, hierarchyPanel });
-
-        VideoDataUpdater videoDataUpdater = new VideoDataUpdater();
-        videoDataUpdater.Init(loadDataStore);
-
-        VideoDataReceiver videoDataReceiver = new VideoDataReceiver();
-        videoDataReceiver.Init(loadDataStore);
+        ChannelReceiver channelReceiver = new ChannelReceiver(extractDataStore);
+        ChannelUpdater channelUpdater = new ChannelUpdater(extractDataStore);
+        ChannelSyncer channelSyncer = new ChannelSyncer(new List<IPanelSync>() { videoViewPanel, hierarchyPanel });
+        VideoDataUpdater videoDataUpdater = new VideoDataUpdater(loadDataStore, new LocalFileLoader_Video(), new LocalFileLoader_Excel());
+        VideoDataReceiver videoDataReceiver = new VideoDataReceiver(loadDataStore);
 
         PanelInjection panelInjection = new PanelInjection();
         panelInjection.channelReceiver = channelReceiver;

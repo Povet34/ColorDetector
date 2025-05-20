@@ -7,7 +7,7 @@ namespace DataExtract
     {
         IExtractDataStore _dataStore;
 
-        public void Init(IExtractDataStore dataStore)
+        public ChannelReceiver(IExtractDataStore dataStore)
         {
             _dataStore = dataStore;
         }

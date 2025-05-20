@@ -6,12 +6,11 @@ public class VideoDataUpdater
     LocalFileLoader_Video videoFileLoader;
     LocalFileLoader_Excel excelFileLoader;
 
-    public void Init(ILoadDataStore loadDataStore)
+    public VideoDataUpdater(ILoadDataStore loadDataStore, LocalFileLoader_Video videoFileLoader, LocalFileLoader_Excel excelFileLoader)
     {
-        videoFileLoader = new LocalFileLoader_Video();
-        excelFileLoader = new LocalFileLoader_Excel();
-
         this.loadDataStore = loadDataStore;
+        this.videoFileLoader = videoFileLoader;
+        this.excelFileLoader = excelFileLoader;
     }
 
     public void UpdateLoadedVideoData_ByVideo()

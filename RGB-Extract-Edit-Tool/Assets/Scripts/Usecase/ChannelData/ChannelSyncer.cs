@@ -5,6 +5,12 @@ using UnityEngine;
 public class ChannelSyncer
 {
     List<IPanelSync> _panels;
+
+    public ChannelSyncer(List<IPanelSync> panels)
+    {
+        this.panels = panels;
+    }
+
     public List<IPanelSync> panels { get => _panels; set => _panels = value; }
 
     public void Init(List<IPanelSync> panels)

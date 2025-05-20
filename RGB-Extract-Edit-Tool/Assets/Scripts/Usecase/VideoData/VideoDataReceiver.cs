@@ -6,7 +6,7 @@ public class VideoDataReceiver
 {
     ILoadDataStore loadDataStore;
 
-    public void Init(ILoadDataStore loadDataStore)
+    public VideoDataReceiver(ILoadDataStore loadDataStore)
     {
         this.loadDataStore = loadDataStore;
     }

@@ -5,7 +5,8 @@ namespace DataExtract
     public class ChannelUpdater
     {
         IExtractDataStore _dataStore;
-        public void Init(IExtractDataStore dataStore)
+
+        public ChannelUpdater(IExtractDataStore dataStore)
         {
             _dataStore = dataStore;
         }
