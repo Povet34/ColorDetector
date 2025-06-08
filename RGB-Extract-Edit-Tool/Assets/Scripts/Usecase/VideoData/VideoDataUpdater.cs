@@ -19,7 +19,6 @@ public class VideoDataUpdater
         loadDataStore.UpdateLoadedVideoData(url);
     }
 
-
     public void UpdateLoadedVideoData_ByExcel()
     {
         string url = excelFileLoader.OpenFilePath();

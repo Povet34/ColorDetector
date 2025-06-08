@@ -38,26 +38,26 @@ public class DataExtractMain : MonoBehaviour
         IExtractDataStore extractDataStore = new ExtractDataStoreImp();
         ILoadDataStore loadDataStore = new LoadDataStoreImpl();
 
-        ChannelReceiver channelReceiver = new ChannelReceiver(extractDataStore);
-        ChannelUpdater channelUpdater = new ChannelUpdater(extractDataStore);
-        ChannelSyncer channelSyncer = new ChannelSyncer(new List<IPanelSync>() { videoViewPanel, hierarchyPanel });
-        VideoDataUpdater videoDataUpdater = new VideoDataUpdater(loadDataStore, new LocalFileLoader_Video(), new LocalFileLoader_Excel());
-        VideoDataReceiver videoDataReceiver = new VideoDataReceiver(loadDataStore);
+        ChannelReceiver channelReceiver = new(extractDataStore);
+        ChannelUpdater channelUpdater = new(extractDataStore);
+        ChannelSyncer channelSyncer = new(new List<IPanelSync>() { videoViewPanel, hierarchyPanel });
+        VideoDataUpdater videoDataUpdater = new(loadDataStore, new LocalFileLoader_Video(), new LocalFileLoader_Excel());
+        VideoDataReceiver videoDataReceiver = new(loadDataStore);
 
-        PanelInjection panelInjection = new PanelInjection();
+        PanelInjection panelInjection = new();
         panelInjection.channelReceiver = channelReceiver;
         panelInjection.channelUpdater = channelUpdater;
         panelInjection.channelSyncer = channelSyncer;
         panelInjection.videoDataReceiver = videoDataReceiver;
 
-        LoadInjection loadInjection = new LoadInjection();
+        LoadInjection loadInjection = new();
         loadInjection.videoDataUpdater = videoDataUpdater;
         loadInjection.videoDataReceiver = videoDataReceiver;
         loadInjection.channelUpdater = channelUpdater;
         loadInjection.channelReceiver = channelReceiver;
 
-        ExportInjection exportInjection = new ExportInjection();
-        exportInjection.toExcelExportor = new ToExcelExportor();
+        ExportInjection exportInjection = new();
+        exportInjection.toExcelExportor = new();
 
         videoViewPanel.Init(panelInjection);
         hierarchyPanel.Init(panelInjection);
