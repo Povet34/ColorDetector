@@ -53,7 +53,7 @@ namespace DataExtract
                     onDeleteChannel:        _DeleteChannel,
                     onMakeGroup:            _MakeGroup,
                     onReleaseGroup:         _ReleaseGroup,
-                    onRenameGroup:          null,
+                    onRenameGroup:          _RenameGroup,
                     onUngroupForFree:       _UnGroupForFree
                     ));
             hierarchyPanelMenuPopup.Show(false);
@@ -288,6 +288,11 @@ namespace DataExtract
         {
             List<int> indices = selectChannels.Select(ch => ch.channelIndex).ToList();
             UnGroupForFree(new UnGroupForFreeParam(this, indices));
+        }
+
+        void _RenameGroup()
+        {
+            DLogger.LogError("RenameGroup is not implemented yet.");
         }
 
         #region IPanelSync
@@ -539,7 +544,9 @@ namespace DataExtract
                             return null;
                         }
                         return channels.FirstOrDefault(c => c.channelIndex == ch.channelIndex);
-                    }).ToList()
+                    }).ToList(),
+                    sortDirection = updatedGroup.sortDirection,
+                    onSort = _ChanageGroupSortDirection,
                 };
 
                 HierarchyGroup gr = Instantiate(hierarchyGroupPrefab, scrollViewContentRt);
@@ -577,7 +584,6 @@ namespace DataExtract
                 ch.Deselect();
             }
 
-
             if (param.ownerPanel.Equals(this))
             {
                 Apply(param);
@@ -598,7 +604,7 @@ namespace DataExtract
         public void ChangeGroupSortDirection(ChangeGroupSortDirectionParam param)
         {
             // 그룹을 찾음
-            var group = groups[param.groupIndex];
+           var group = groups[param.groupIndex];
             if (group == null)
             {
                 Debug.LogError($"Group with index {param.groupIndex} not found.");
@@ -631,8 +637,6 @@ namespace DataExtract
             }
 
             _SortPanel();
-
-            DLogger.Log($"Group {param.groupIndex} channels' inIndex updated.");
         }
 
         public void DisableMenuPopup(DisableMenuPopupParam param)
