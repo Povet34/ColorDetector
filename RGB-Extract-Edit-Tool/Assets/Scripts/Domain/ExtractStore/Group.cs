@@ -37,11 +37,6 @@ public class Group : IGroup
         return clonedGroup;
     }
 
-    public void Reanme(string newName)
-    {
-        name = newName;
-    }
-
     public int GetTotalGroupableCount()
     {
         return hasChannels.Count;
@@ -75,5 +70,10 @@ public class Group : IGroup
 
         // 그룹의 채널 리스트 초기화
         hasChannels.Clear();
+    }
+
+    public void Rename(RenameGroupParam param)
+    {
+        name = param.newName;
     }
 }

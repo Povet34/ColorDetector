@@ -15,4 +15,7 @@ public static class Definitions
 
     public static readonly Vector2 VideoViewPanelSize = new Vector2(1520, 940);
     public static readonly Vector2 VideoViewPanelHalfSize = VideoViewPanelSize / 2f;
+
+    public static int GetPerceivedBrightness(Color32 color) => Mathf.RoundToInt(0.299f * color.r + 0.587f * color.g + 0.114f * color.b);
+    public static float GetPerceivedBrightness(Color color) => (0.299f * color.r + 0.587f * color.g + 0.114f * color.b);
 }

@@ -40,6 +40,7 @@ public interface IChannel
         }
     }
 
+
     IndividualInfo individualInfo { get; set; }
 
     /// <summary>

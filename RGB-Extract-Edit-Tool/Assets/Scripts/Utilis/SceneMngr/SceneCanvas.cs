@@ -4,16 +4,16 @@ using UnityEngine.UI;
 
 public class SceneCanvas : MonoBehaviour
 {
-    [SerializeField] Button goGraphButton;
+    [SerializeField] Button goDataEditButton;
     [SerializeField] Button goExtractButton;
 
     private void Awake()
     {
         DontDestroyOnLoad(gameObject);
 
-        goGraphButton.onClick.AddListener(() =>
+        goDataEditButton.onClick.AddListener(() =>
         {
-            SceneManager.LoadScene("GraphScene");
+            SceneManager.LoadScene("DataEditScene");
         });
 
         goExtractButton.onClick.AddListener(() =>

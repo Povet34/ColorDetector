@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace DataExtract
@@ -35,6 +36,11 @@ namespace DataExtract
         public Dictionary<int, List<Color32>> GetExtractData()
         {
             return _dataStore.extractMap;
+        }
+
+        public IChannel GetChannel(int channelIndex)
+        {
+            return _dataStore.channels.FirstOrDefault(c => c.channelIndex == channelIndex);
         }
     }
 }

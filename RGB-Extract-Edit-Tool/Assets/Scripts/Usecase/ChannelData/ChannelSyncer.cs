@@ -30,4 +30,12 @@ public class ChannelSyncer
             }
         }
     }
+
+    public void Refresh(EditParam param)
+    {
+        foreach (var panel in panels)
+        {
+            panel.Refresh(param as RefreshParam);
+        }
+    }
 }

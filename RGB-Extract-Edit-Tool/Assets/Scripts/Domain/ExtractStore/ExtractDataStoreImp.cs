@@ -357,6 +357,19 @@ namespace DataExtract
         {
             extractMap = new Dictionary<int, List<Color32>>();
         }
+
+        public void RenameGroup(RenameGroupParam param)
+        {
+            _StackEditParam(param);
+            IGroup group = _groups.Find(x => x.groupIndex == param.groupIndex);
+            if (group == null)
+            {
+                Debug.LogError($"Group with index {param.groupIndex} not found.");
+                return;
+            }
+            group.Rename(param);
+        }
+
         #endregion
 
         private Vector2 ArrangeChannelPositions(Vector2 oldPos)
@@ -379,6 +392,14 @@ namespace DataExtract
             );
 
             return newPos;
+        }
+
+        public void ResetAll(ResetAllParam param)
+        {
+            _StackEditParam(param);
+
+            _channels.Clear();
+            _groups.Clear();
         }
     }
 }

@@ -24,6 +24,7 @@ public interface IGroup
     /// </summary>
     /// <param name="info"></param>
     void Create(MakeGroupParam param, List<IChannel> channels);
+    void Rename(RenameGroupParam param);
     void AddNewGroupable(IChannel newTarget);
     void RemoveGroupable(IChannel removeTarget);
     void ReleaseGroup();

@@ -46,13 +46,15 @@ namespace DataExtract
 
         DatatStoreState Undo();
 
+        void ResetAll(ResetAllParam param);
+
         #region Channel
 
         void CreateChannel(CreateChannelParam param);
         void MoveChannel(MoveChannelParam param);
         void MoveDeltaChannel(MoveDeltaChannelParam param);
         void DeleteChannel(DeleteChannelParam param);
-
+        
         #endregion
 
         #region Group
@@ -64,6 +66,7 @@ namespace DataExtract
         void ChangeGroupSortDirection(ChangeGroupSortDirectionParam param);
         void ReleaseGroup(ReleaseGroupParam param);
         void UnGroupForFree(UnGroupForFreeParam param);
+        void RenameGroup(RenameGroupParam param);
 
         #endregion
 

@@ -74,5 +74,15 @@ namespace DataExtract
         {
             _dataStore.StoreStart();
         }
+
+        public void RenameGroup(RenameGroupParam param)
+        {
+            _dataStore.RenameGroup(param);
+        }
+
+        public void ResetAll(ResetAllParam param)
+        {
+            _dataStore.ResetAll(param);
+        }
     }
 }

@@ -15,7 +15,7 @@ EditorBuildSettings:
     path: Assets/Scenes/ExtractScene.unity
     guid: 4bc8a04cecc16254fb754f0d64de1536
   - enabled: 1
-    path: Assets/Scenes/GraphScene.unity
+    path: Assets/Scenes/DataEditScene.unity
     guid: e5e2337ecb0d3904eac0d28fb1d5bbc0
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}

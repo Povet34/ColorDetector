@@ -6,6 +6,8 @@ namespace DataExtract
 {
     public enum eEditType
     {
+        Refresh,
+
         CreateChannel,
         MoveChannel,
         MoveDeltaChannel,
@@ -14,6 +16,7 @@ namespace DataExtract
         DeSelectChannel,
 
         Undo,
+        ResetAll,
 
         MakeGroup,
         SelectGroup,
@@ -22,6 +25,7 @@ namespace DataExtract
         ChangeGroupSortDirection,
         ReleaseGroup,
         UnGroupForFree,
+        RenameGroup,
 
         DisableMenuPopup,
     }
@@ -30,13 +34,23 @@ namespace DataExtract
     {
         public IPanelSync ownerPanel;
         public eEditType editType;
+        public bool wantStacked = true; // If true, this edit will be added to the undo stack
 
         public EditParam() { }
 
-        public EditParam(IPanelSync ownerPanel, eEditType editType)
+        public EditParam(IPanelSync ownerPanel, eEditType editType, bool wantStacked)
         {
             this.ownerPanel = ownerPanel;
             this.editType = editType;
+            this.wantStacked = wantStacked;
+        }
+    }
+
+    public class RefreshParam : EditParam
+    {
+        public RefreshParam(IPanelSync ownerPanel = null, bool wantStacked = true)
+            : base(ownerPanel, eEditType.Refresh, wantStacked)
+        {
         }
     }
 
@@ -44,11 +58,8 @@ namespace DataExtract
     {
         public int chIndex;
         public Vector2 createPos;
-
-        public CreateChannelParam() { }
-
-        public CreateChannelParam(IPanelSync ownerPanel, int chIndex, Vector2 createPos)
-            : base(ownerPanel, eEditType.CreateChannel)
+        public CreateChannelParam(IPanelSync ownerPanel, int chIndex, Vector2 createPos, bool wantStacked = true)
+            : base(ownerPanel, eEditType.CreateChannel, wantStacked)
         {
             this.chIndex = chIndex;
             this.createPos = createPos;
@@ -59,11 +70,8 @@ namespace DataExtract
     {
         public List<int> indices;
         public Vector2 movePos;
-
-        public MoveChannelParam() { }
-
-        public MoveChannelParam(IPanelSync ownerPanel, List<int> indices, Vector2 movePos)
-            : base(ownerPanel, eEditType.MoveChannel)
+        public MoveChannelParam(IPanelSync ownerPanel, List<int> indices, Vector2 movePos, bool wantStacked = true)
+            : base(ownerPanel, eEditType.MoveChannel, wantStacked)
         {
             this.indices = indices;
             this.movePos = movePos;
@@ -74,11 +82,8 @@ namespace DataExtract
     {
         public List<int> indices;
         public Vector2 movePos;
-
-        public MoveDeltaChannelParam() { }
-
-        public MoveDeltaChannelParam(IPanelSync ownerPanel, List<int> indices, Vector2 movePos)
-            : base(ownerPanel, eEditType.MoveDeltaChannel)
+        public MoveDeltaChannelParam(IPanelSync ownerPanel, List<int> indices, Vector2 movePos, bool wantStacked = true)
+            : base(ownerPanel, eEditType.MoveDeltaChannel, wantStacked)
         {
             this.indices = indices;
             this.movePos = movePos;
@@ -90,11 +95,8 @@ namespace DataExtract
         public int groupIndex;
         public List<int> indices;
         public Vector2 movePos;
-
-        public MoveDeltaGroupParam() { }
-
-        public MoveDeltaGroupParam(IPanelSync ownerPanel, int groupIndex, List<int> indices, Vector2 movePos)
-            : base(ownerPanel, eEditType.MoveDeltaGroup)
+        public MoveDeltaGroupParam(IPanelSync ownerPanel, int groupIndex, List<int> indices, Vector2 movePos, bool wantStacked = true)
+            : base(ownerPanel, eEditType.MoveDeltaGroup, wantStacked)
         {
             this.groupIndex = groupIndex;
             this.indices = indices;
@@ -105,11 +107,8 @@ namespace DataExtract
     public class DeleteChannelParam : EditParam
     {
         public List<int> indices;
-
-        public DeleteChannelParam() { }
-
-        public DeleteChannelParam(IPanelSync ownerPanel, List<int> indices)
-            : base(ownerPanel, eEditType.DeleteChannel)
+        public DeleteChannelParam(IPanelSync ownerPanel, List<int> indices, bool wantStacked = true)
+            : base(ownerPanel, eEditType.DeleteChannel, wantStacked)
         {
             this.indices = indices;
         }
@@ -119,10 +118,8 @@ namespace DataExtract
     {
         public List<int> indices;
 
-        public SelectChannelParam() { }
-
-        public SelectChannelParam(IPanelSync ownerPanel, List<int> indices)
-            : base(ownerPanel, eEditType.SelectChannel)
+        public SelectChannelParam(IPanelSync ownerPanel, List<int> indices, bool wantStacked = true)
+            : base(ownerPanel, eEditType.SelectChannel, wantStacked)
         {
             this.indices = indices;
         }
@@ -130,8 +127,8 @@ namespace DataExtract
 
     public class DeSelectChannelParam : EditParam
     {
-        public DeSelectChannelParam(IPanelSync ownerPanel)
-            : base(ownerPanel, eEditType.DeSelectChannel) { }
+        public DeSelectChannelParam(IPanelSync ownerPanel, bool wantStacked = true)
+            : base(ownerPanel, eEditType.DeSelectChannel, wantStacked) { }
     }
 
 
@@ -139,8 +136,8 @@ namespace DataExtract
     {
         public IExtractDataStore.DatatStoreState state;
 
-        public UndoParam(IPanelSync ownerPanel, IExtractDataStore.DatatStoreState state)
-            : base(ownerPanel, eEditType.Undo)
+        public UndoParam(IPanelSync ownerPanel, IExtractDataStore.DatatStoreState state, bool wantStacked = true)
+            : base(ownerPanel, eEditType.Undo, wantStacked)
         {
             this.state = state;
         }
@@ -153,8 +150,8 @@ namespace DataExtract
         public IGroup.SortDirection sortDirection;
         public string name;
 
-        public MakeGroupParam(IPanelSync ownerPanel, int groupIndex, List<int> channelIndices, IGroup.SortDirection sortDirection, string name = "NewGroup")
-            : base(ownerPanel, eEditType.MakeGroup)
+        public MakeGroupParam(IPanelSync ownerPanel, int groupIndex, List<int> channelIndices, IGroup.SortDirection sortDirection, string name = "NewGroup", bool wantStacked = true)
+            : base(ownerPanel, eEditType.MakeGroup, wantStacked)
         {
             this.groupIndex = groupIndex;
             this.channelIndices = channelIndices;
@@ -166,8 +163,8 @@ namespace DataExtract
     public class SelectGroupParam : EditParam
     {
         public int groupIndex;
-        public SelectGroupParam(IPanelSync ownerPanel, int groupIndex)
-            : base(ownerPanel, eEditType.SelectGroup)
+        public SelectGroupParam(IPanelSync ownerPanel, int groupIndex, bool wantStacked = true)
+            : base(ownerPanel, eEditType.SelectGroup, wantStacked)
         {
             this.groupIndex = groupIndex;
         }
@@ -175,8 +172,8 @@ namespace DataExtract
 
     public class DeselectGroupParam : EditParam
     {
-        public DeselectGroupParam(IPanelSync ownerPanel)
-            : base(ownerPanel, eEditType.DeselectGroup)
+        public DeselectGroupParam(IPanelSync ownerPanel, bool wantStacked = true)
+            : base(ownerPanel, eEditType.DeselectGroup, wantStacked)
         {
         }
     }
@@ -185,8 +182,8 @@ namespace DataExtract
     {
         public int groupIndex;
         public IGroup.SortDirection sortDirection;
-        public ChangeGroupSortDirectionParam(IPanelSync ownerPanel, int groupIndex, IGroup.SortDirection sortDirection)
-            : base(ownerPanel, eEditType.ChangeGroupSortDirection)
+        public ChangeGroupSortDirectionParam(IPanelSync ownerPanel, int groupIndex, IGroup.SortDirection sortDirection, bool wantStacked = true)
+            : base(ownerPanel, eEditType.ChangeGroupSortDirection, wantStacked)
         {
             this.groupIndex = groupIndex;
             this.sortDirection = sortDirection;
@@ -195,8 +192,8 @@ namespace DataExtract
 
     public class DisableMenuPopupParam : EditParam
     {
-        public DisableMenuPopupParam(IPanelSync ownerPanel) :
-            base(ownerPanel, eEditType.DisableMenuPopup)
+        public DisableMenuPopupParam(IPanelSync ownerPanel, bool wantStacked = true) :
+            base(ownerPanel, eEditType.DisableMenuPopup, wantStacked)
         {
         }
     }
@@ -204,8 +201,8 @@ namespace DataExtract
     public class ReleaseGroupParam : EditParam
     {
         public int groupIndex;
-        public ReleaseGroupParam(IPanelSync ownerPanel, int groupIndex)
-            : base(ownerPanel, eEditType.ReleaseGroup)
+        public ReleaseGroupParam(IPanelSync ownerPanel, int groupIndex, bool wantStacked = true)
+            : base(ownerPanel, eEditType.ReleaseGroup, wantStacked)
         {
             this.groupIndex = groupIndex;
         }
@@ -214,10 +211,31 @@ namespace DataExtract
     public class UnGroupForFreeParam : EditParam
     {
         public List<int> channelIndices;
-        public UnGroupForFreeParam(IPanelSync ownerPanel, List<int> channelIndices)
-            : base(ownerPanel, eEditType.UnGroupForFree)
+        public UnGroupForFreeParam(IPanelSync ownerPanel, List<int> channelIndices, bool wantStacked = true)
+            : base(ownerPanel, eEditType.UnGroupForFree, wantStacked)
         {
             this.channelIndices = channelIndices;
+        }
+    }
+
+    public class RenameGroupParam : EditParam
+    {
+        public int groupIndex;
+        public string newName;
+
+        public RenameGroupParam(IPanelSync ownerPanel, int groupIndex, string newName, bool wantStacked = true)
+            : base(ownerPanel, eEditType.RenameGroup, wantStacked)
+        {
+            this.groupIndex = groupIndex;
+            this.newName = newName;
+        }
+    }
+
+    public class ResetAllParam : EditParam
+    {
+        public ResetAllParam(IPanelSync ownerPanel = null, bool wantStacked = true) 
+            : base(ownerPanel, eEditType.ResetAll, wantStacked)
+        {
         }
     }
 }

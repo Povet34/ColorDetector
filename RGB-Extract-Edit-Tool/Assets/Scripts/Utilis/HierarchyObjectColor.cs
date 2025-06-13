@@ -10,7 +10,7 @@ public class HierarchyObjectColor
 {
     private static Vector2 offset = new Vector2(20, 1);
 
-    private static List<string> childrenNames = new List<string>() { "HierarchyPanel", "VideoViewPanel" };
+    private static List<string> childrenNames = new List<string>() { "HierarchyPanel", "VideoViewPanel", "ColorFlowViewPanel" };
     private static List<string> rootNames = new List<string>();
 
     static HierarchyObjectColor()
