@@ -9,7 +9,7 @@ public class DataExporter
         this.toExport = toExport;
     }
 
-    public void Export(Dictionary<SavedChannelKey, SavedChannelValue> data, string filePath)
+    public void Export(SaveData data, string filePath)
     {
         toExport.Export(data, filePath);
     }

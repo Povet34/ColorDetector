@@ -6,12 +6,7 @@ using UnityEngine;
 
 public class ExportToExcel : IToExport
 {
-    const int GroupHeaderRow = 0;
-    const int FirstHeaderRow = 1;
-    const int SecondHeaderRow = 2;
-    const int LastHeader = 3;
-
-    public void Export(Dictionary<SavedChannelKey, SavedChannelValue> data, string filePath)
+    public void Export(SaveData data, string filePath)
     {
         string filePathWithXlsxExtension = Path.Combine(
             Path.GetDirectoryName(filePath),
@@ -21,13 +16,14 @@ public class ExportToExcel : IToExport
         IWorkbook workbook = new XSSFWorkbook();
 
         //CreatePositionSheet(workbook, data);
-        CreateOriginSheet(workbook, data);
-        CreateOnOutRed(workbook, data);
-        CreateOnOutGreen(workbook, data);
-        CreateOnOutBlue(workbook, data);
-        CreateInferedColor(workbook, data);
+        CreateOriginSheet(workbook, data.recordData);
+        CreateOnOutRed(workbook, data.recordData);
+        CreateOnOutGreen(workbook, data.recordData);
+        CreateOnOutBlue(workbook, data.recordData);
+        CreateInferedColor(workbook, data.recordData);
+        CreateColorIndexSheet(workbook, data.colorSheetData);
 
-        CreateRawDataSheet(workbook, data);
+        CreateRawDataSheet(workbook, data.recordData);
 
         using (FileStream fileStream = new FileStream(filePathWithXlsxExtension, FileMode.Create, FileAccess.Write))
         {
@@ -45,12 +41,12 @@ public class ExportToExcel : IToExport
     private void CreatePositionSheet(IWorkbook workbook, Dictionary<SavedChannelKey, SavedChannelValue> data)
     {
         ISheet sheet = workbook.CreateSheet("Position");
-        IRow headerRow = sheet.CreateRow(FirstHeaderRow);
+        IRow headerRow = sheet.CreateRow(Definitions.FirstHeaderRow);
         headerRow.CreateCell(0).SetCellValue("Channel Index");
         headerRow.CreateCell(1).SetCellValue("Position X");
         headerRow.CreateCell(2).SetCellValue("Position Y");
 
-        int rowIndex = LastHeader;
+        int rowIndex = Definitions.LastHeader;
         foreach (var rowEntry in data)
         {
             IRow row = sheet.CreateRow(rowIndex++);
@@ -74,14 +70,14 @@ public class ExportToExcel : IToExport
         {
             int columnIndex = rowEntry.Key.index;
 
-            IRow headerRow = sheet.GetRow(FirstHeaderRow) ?? sheet.CreateRow(FirstHeaderRow);
+            IRow headerRow = sheet.GetRow(Definitions.FirstHeaderRow) ?? sheet.CreateRow(Definitions.FirstHeaderRow);
             ICell headerCell = headerRow.CreateCell(columnIndex);
             headerCell.SetCellValue($"Ch{rowEntry.Key.index}");
 
             var colors = rowEntry.Value.colors;
             for (int rowIndex = 0; rowIndex < colors.Count; rowIndex++)
             {
-                IRow row = sheet.GetRow(rowIndex + LastHeader) ?? sheet.CreateRow(rowIndex + LastHeader);
+                IRow row = sheet.GetRow(rowIndex + Definitions.LastHeader) ?? sheet.CreateRow(rowIndex + Definitions.LastHeader);
                 ICell cell = row.CreateCell(columnIndex);
                 Color32 color = colors[rowIndex];
                 cell.SetCellValue($"{color.r}, {color.g}, {color.b}");
@@ -103,14 +99,14 @@ public class ExportToExcel : IToExport
         {
             int columnIndex = rowEntry.Key.index;
 
-            IRow headerRow = sheet.GetRow(FirstHeaderRow) ?? sheet.CreateRow(FirstHeaderRow);
+            IRow headerRow = sheet.GetRow(Definitions.FirstHeaderRow) ?? sheet.CreateRow(Definitions.FirstHeaderRow);
             ICell headerCell = headerRow.CreateCell(columnIndex);
             headerCell.SetCellValue($"Ch{rowEntry.Key.index}");
 
             var colors = rowEntry.Value.colors;
             for (int rowIndex = 0; rowIndex < colors.Count; rowIndex++)
             {
-                IRow row = sheet.GetRow(rowIndex + LastHeader) ?? sheet.CreateRow(rowIndex + LastHeader);
+                IRow row = sheet.GetRow(rowIndex + Definitions.LastHeader) ?? sheet.CreateRow(rowIndex + Definitions.LastHeader);
                 ICell cell = row.CreateCell(columnIndex);
                 Color32 color = colors[rowIndex];
                 cell.SetCellValue(color.r);
@@ -132,14 +128,14 @@ public class ExportToExcel : IToExport
         {
             int columnIndex = rowEntry.Key.index;
 
-            IRow headerRow = sheet.GetRow(FirstHeaderRow) ?? sheet.CreateRow(FirstHeaderRow);
+            IRow headerRow = sheet.GetRow(Definitions.FirstHeaderRow) ?? sheet.CreateRow(Definitions.FirstHeaderRow);
             ICell headerCell = headerRow.CreateCell(columnIndex);
             headerCell.SetCellValue($"Ch{rowEntry.Key.index}");
 
             var colors = rowEntry.Value.colors;
             for (int rowIndex = 0; rowIndex < colors.Count; rowIndex++)
             {
-                IRow row = sheet.GetRow(rowIndex + LastHeader) ?? sheet.CreateRow(rowIndex + LastHeader);
+                IRow row = sheet.GetRow(rowIndex + Definitions.LastHeader) ?? sheet.CreateRow(rowIndex + Definitions.LastHeader);
                 ICell cell = row.CreateCell(columnIndex);
                 Color32 color = colors[rowIndex];
                 cell.SetCellValue(color.g);
@@ -161,14 +157,14 @@ public class ExportToExcel : IToExport
         {
             int columnIndex = rowEntry.Key.index;
 
-            IRow headerRow = sheet.GetRow(FirstHeaderRow) ?? sheet.CreateRow(FirstHeaderRow);
+            IRow headerRow = sheet.GetRow(Definitions.FirstHeaderRow) ?? sheet.CreateRow(Definitions.FirstHeaderRow);
             ICell headerCell = headerRow.CreateCell(columnIndex);
             headerCell.SetCellValue($"Ch{rowEntry.Key.index}");
 
             var colors = rowEntry.Value.colors;
             for (int rowIndex = 0; rowIndex < colors.Count; rowIndex++)
             {
-                IRow row = sheet.GetRow(rowIndex + LastHeader) ?? sheet.CreateRow(rowIndex + LastHeader);
+                IRow row = sheet.GetRow(rowIndex + Definitions.LastHeader) ?? sheet.CreateRow(rowIndex + Definitions.LastHeader);
                 ICell cell = row.CreateCell(columnIndex);
                 Color32 color = colors[rowIndex];
                 cell.SetCellValue(color.b);
@@ -201,13 +197,13 @@ public class ExportToExcel : IToExport
         {
             int columnIndex = rowEntry.chIndex;
 
-            IRow headerRow = sheet.GetRow(FirstHeaderRow) ?? sheet.CreateRow(FirstHeaderRow);
+            IRow headerRow = sheet.GetRow(Definitions.FirstHeaderRow) ?? sheet.CreateRow(Definitions.FirstHeaderRow);
             ICell headerCell = headerRow.CreateCell(columnIndex);
             headerCell.SetCellValue($"Ch{rowEntry.chIndex}");
 
             for (int rowIndex = 0; rowIndex < rowEntry.steps.Count; rowIndex++)
             {
-                IRow row = sheet.GetRow(rowIndex + LastHeader) ?? sheet.CreateRow(rowIndex + LastHeader);
+                IRow row = sheet.GetRow(rowIndex + Definitions.LastHeader) ?? sheet.CreateRow(rowIndex + Definitions.LastHeader);
                 ICell cell = row.CreateCell(columnIndex);
 
                 int index = rowEntry.steps[rowIndex].colorindex;
@@ -253,13 +249,39 @@ public class ExportToExcel : IToExport
         }
     }
 
+
+    private void CreateColorIndexSheet(IWorkbook workbook, Dictionary<int, Color32> colorData)
+    {
+        ISheet sheet = workbook.CreateSheet("Color Data");
+
+        // 헤더 작성
+        IRow headerRow = sheet.CreateRow(0);
+        headerRow.CreateCell(0).SetCellValue("Index");
+        headerRow.CreateCell(1).SetCellValue("R");
+        headerRow.CreateCell(2).SetCellValue("G");
+        headerRow.CreateCell(3).SetCellValue("B");
+
+        int rowIndex = 1;
+        foreach (var kvp in colorData)
+        {
+            int index = kvp.Key;
+            Color32 color = kvp.Value;
+
+            IRow row = sheet.CreateRow(rowIndex++);
+            row.CreateCell(0).SetCellValue(index);
+            row.CreateCell(1).SetCellValue(color.r);
+            row.CreateCell(2).SetCellValue(color.g);
+            row.CreateCell(3).SetCellValue(color.b);
+        }
+    }
+
     /// <summary>
     /// 그룹 이름 헤더 생성
     /// </summary>
     private void SetGroupNameHeader(ISheet curSheet, Dictionary<SavedChannelKey, SavedChannelValue> data)
     {
-        // 그룹별로 첫 번째로 등장하는 채널 인덱스를 찾음
-        var groupFirstColumn = new Dictionary<string, int>();
+        // 0번째 행에 모든 그룹이 있는 채널의 컬럼에 그룹 이름을 표기
+        IRow groupHeaderRow = curSheet.GetRow(Definitions.GroupHeaderRow) ?? curSheet.CreateRow(Definitions.GroupHeaderRow);
 
         foreach (var rowEntry in data)
         {
@@ -268,21 +290,8 @@ public class ExportToExcel : IToExport
 
             if (!string.IsNullOrEmpty(groupName))
             {
-                if (!groupFirstColumn.ContainsKey(groupName) || columnIndex < groupFirstColumn[groupName])
-                {
-                    groupFirstColumn[groupName] = columnIndex;
-                }
+                groupHeaderRow.CreateCell(columnIndex).SetCellValue(groupName);
             }
-        }
-
-        // 0번째 행에 그룹 이름을 표기
-        IRow groupHeaderRow = curSheet.GetRow(GroupHeaderRow) ?? curSheet.CreateRow(GroupHeaderRow);
-
-        foreach (var kvp in groupFirstColumn)
-        {
-            string groupName = kvp.Key;
-            int columnIndex = kvp.Value;
-            groupHeaderRow.CreateCell(columnIndex).SetCellValue(groupName);
         }
     }
 }

@@ -3,5 +3,5 @@ using UnityEngine;
 
 public interface IToExport
 {
-    void Export(Dictionary<SavedChannelKey, SavedChannelValue> data, string filePath);
+    void Export(SaveData data, string filePath);
 }

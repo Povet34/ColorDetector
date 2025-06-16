@@ -11,9 +11,10 @@ public class DataExtractTool : MonoBehaviour
 
     VideoDataReceiver videoDataReceiver;
     VideoDataUpdater videoDataUpdater;
+
     ChannelUpdater channelUpdater;
     ChannelReceiver channelReceiver;
-    ChannelSyncer channelSyncer;
+    PanelSyncer panelSyncer;
 
     DataExporter dataExporter;
     DataImporter dataImporter;
@@ -27,13 +28,12 @@ public class DataExtractTool : MonoBehaviour
     [SerializeField] Button exportExcelButton;
     [SerializeField] Button loadChannelPositionButton;
 
-
     VideoPlayer videoPlayer;
     ExtractTextureChanger extractTextureChanger;
 
-    public void Init(DataExtractMain.PanelInjection panelInjection, DataExtractMain.LoadInjection injection, DataExtractMain.DataControllInjection exportInjection)
+    public void Init(DataExtractMain.PanelInjection panelInjection, DataExtractMain.LoadInjection injection, DataExtractMain.DataMigrationInjection exportInjection)
     {
-        channelSyncer = panelInjection.channelSyncer;
+        panelSyncer = panelInjection.panelSyncer;
 
         videoDataReceiver = injection.videoDataReceiver;
         videoDataUpdater = injection.videoDataUpdater;
@@ -138,7 +138,7 @@ public class DataExtractTool : MonoBehaviour
             }
 
             // Last. 패널 리프레시
-            channelSyncer.Refresh(new RefreshParam());
+            panelSyncer.Refresh(new RefreshParam());
         }
         else
         {
@@ -148,27 +148,26 @@ public class DataExtractTool : MonoBehaviour
 
     private void ExportExcelButtonClicked()
     {
-        var data = channelReceiver.GetExtractData();
-        if (data != null)
+        var extractedData = channelReceiver.GetExtractData();
+        if (extractedData != null)
         {
-            var exportDic = new Dictionary<SavedChannelKey, SavedChannelValue>();
-            foreach (var kvp in data)
+            var exportData = new SaveData();
+            var recordDic = new Dictionary<SavedChannelKey, SavedChannelValue>();
+
+            foreach (var kvp in extractedData)
             {
                 int channelIndex = kvp.Key;
 
-                // 채널 메타데이터를 가져오는 예시 (실제 구현에 맞게 수정 필요)
-                // 아래는 예시이며, 실제로는 ChannelReceiver 등에서 메타정보를 얻는 메서드가 필요합니다.
                 Vector2 position = Vector2.zero;
                 string groupName = string.Empty;
                 int groupInindex = -1;
                 int groupSortDir = -1;
 
-                // 예시: 채널 정보 객체가 있다면
                 var channelInfo = channelReceiver.GetChannel(channelIndex);
                 if (channelInfo != null)
                 {
                     position = channelInfo.position;
-                    if(null != channelInfo.individualInfo)
+                    if (null != channelInfo.individualInfo)
                     {
                         groupName = channelInfo.individualInfo.parentGroup.name;
                         groupInindex = channelInfo.individualInfo.inIndex;
@@ -188,10 +187,24 @@ public class DataExtractTool : MonoBehaviour
                 {
                     colors = kvp.Value
                 };
-                exportDic.Add(key, value);
+                recordDic.Add(key, value);
             }
 
-            dataExporter.Export(exportDic, videoDataReceiver.GetVideoUrl());
+            var colorList = TestColorSheet.Colors;
+            var colorSheetData = new Dictionary<int, Color32>();
+            if (colorList != null)
+            {
+                for (int i = 0; i < colorList.Length; i++)
+                {
+                    colorSheetData[i] = colorList[i];
+                }
+            }
+
+            exportData.orderType = OrderType.Channel_Index;
+            exportData.recordData = recordDic;
+            exportData.colorSheetData = colorSheetData;
+
+            dataExporter.Export(exportData, videoDataReceiver.GetVideoUrl());
         }
     }
 

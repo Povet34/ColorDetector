@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+Ôªøusing System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using NPOI.SS.UserModel;
@@ -6,98 +6,167 @@ using NPOI.XSSF.UserModel;
 
 public class ImportFromExcel : IImportFrom
 {
-
     bool IsFileExist(string path)
     {
         bool isExist = File.Exists(path);
         if (!isExist)
         {
-            DLogger.LogError($"Excel ∆ƒ¿œ¿Ã ¡∏¿Á«œ¡ˆ æ Ω¿¥œ¥Ÿ: {path}");
+            DLogger.LogError($"Excel ÌååÏùºÏù¥ Ï°¥Ïû¨ÌïòÏßÄ ÏïäÏäµÎãàÎã§: {path}");
         }
-
         return isExist;
     }
 
-    public Dictionary<SavedChannelKey, SavedChannelValue> Import(string path)
+    public SaveData Import(string path)
     {
-        if (!IsFileExist(path))
-            return null;
+        var saveData = new SaveData
+        {
+            orderType = OrderType.Channel_Index, // ÌïÑÏöîÏãú Raw DataÏóêÏÑú ÏùΩÏñ¥Ïò¨ Ïàò ÏûàÏùå  
+            recordData = new Dictionary<SavedChannelKey, SavedChannelValue>(),
+            colorSheetData = new Dictionary<int, Color32>()
+        };
 
-        var result = new Dictionary<SavedChannelKey, SavedChannelValue>();
+        if (!IsFileExist(path))
+            return saveData;
 
         using (FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read))
         {
             IWorkbook workbook = new XSSFWorkbook(stream);
-            ISheet sheet = workbook.GetSheet("Origin");
-            if (sheet == null)
+
+            // 1. Raw Data ÏãúÌä∏ÏóêÏÑú Ï±ÑÎÑê Î©îÌÉÄ Ï†ïÎ≥¥ ÏùΩÍ∏∞  
+            ISheet rawDataSheet = workbook.GetSheet("Raw Data");
+            var channelKeyMap = new Dictionary<int, SavedChannelKey>();
+            if (rawDataSheet != null)
             {
-                DLogger.LogError("Origin Ω√∆Æ∏¶ √£¿ª ºˆ æ¯Ω¿¥œ¥Ÿ.");
-                return result;
-            }
-
-            IRow headerRow = sheet.GetRow(0);
-            if (headerRow == null)
-            {
-                DLogger.LogError("«Ï¥ı «‡¿Ã æ¯Ω¿¥œ¥Ÿ.");
-                return result;
-            }
-
-            int lastCellNum = headerRow.LastCellNum;
-
-            for (int col = 0; col < lastCellNum; col++)
-            {
-                ICell headerCell = headerRow.GetCell(col);
-                if (headerCell == null) continue;
-
-                string header = headerCell.StringCellValue;
-                // «Ï¥ı∞° "Ch{index}" «¸Ωƒ¿Œ¡ˆ »Æ¿Œ
-                if (!header.StartsWith("Ch")) continue;
-
-                if (!int.TryParse(header.Substring(2), out int channelIndex))
-                    continue;
-
-                var colors = new List<Color32>();
-
-                // µ•¿Ã≈Õ «‡ ¿–±‚
-                for (int rowIdx = 1; ; rowIdx++)
+                int rowIndex = Definitions.LastHeader; // Îç∞Ïù¥ÌÑ∞Îäî LastHeader(3)Î∂ÄÌÑ∞ ÏãúÏûë  
+                while (true)
                 {
-                    IRow row = sheet.GetRow(rowIdx);
+                    IRow row = rawDataSheet.GetRow(rowIndex++);
                     if (row == null) break;
-                    ICell cell = row.GetCell(col);
-                    if (cell == null || cell.CellType == CellType.Blank) break;
 
-                    string rgbString = cell.ToString();
-                    var rgbParts = rgbString.Split(',');
-                    if (rgbParts.Length != 3) break;
+                    ICell indexCell = row.GetCell(0);
+                    ICell posXCell = row.GetCell(1);
+                    ICell posYCell = row.GetCell(2);
+                    ICell groupNameCell = row.GetCell(3);
+                    ICell groupInIndexCell = row.GetCell(4);
+                    ICell sortDirectionCell = row.GetCell(5);
 
-                    if (byte.TryParse(rgbParts[0].Trim(), out byte r) &&
-                        byte.TryParse(rgbParts[1].Trim(), out byte g) &&
-                        byte.TryParse(rgbParts[2].Trim(), out byte b))
-                    {
-                        colors.Add(new Color32(r, g, b, 255));
-                    }
-                    else
-                    {
+                    if (indexCell == null || posXCell == null || posYCell == null || groupInIndexCell == null || sortDirectionCell == null)
                         break;
+
+                    int index = (int)indexCell.NumericCellValue;
+                    float posX = (float)posXCell.NumericCellValue;
+                    float posY = (float)posYCell.NumericCellValue;
+                    string groupName = groupNameCell?.ToString() ?? string.Empty;
+                    int groupInIndex = (int)groupInIndexCell.NumericCellValue;
+                    int sortDirection = (int)sortDirectionCell.NumericCellValue;
+
+                    var key = new SavedChannelKey
+                    {
+                        index = index,
+                        position = new Vector2(posX, posY),
+                        groupName = groupName,
+                        groupInindex = groupInIndex,
+                        sortDirection = sortDirection,
+                    };
+                    channelKeyMap[index] = key;
+                }
+            }
+
+            // 2. Origin ÏãúÌä∏ÏóêÏÑú recordData Ï±ÑÏö∞Í∏∞  
+            ISheet originSheet = workbook.GetSheet("Origin");
+            if (originSheet != null)
+            {
+                IRow headerRow = originSheet.GetRow(Definitions.FirstHeaderRow);
+                if (headerRow != null)
+                {
+                    int lastCellNum = headerRow.LastCellNum;
+                    for (int col = 0; col < lastCellNum; col++)
+                    {
+                        ICell headerCell = headerRow.GetCell(col);
+                        if (headerCell == null) continue;
+
+                        string header = headerCell.StringCellValue;
+                        if (!header.StartsWith("Ch")) continue;
+
+                        if (!int.TryParse(header.Substring(2), out int channelIndex))
+                            continue;
+
+                        // Raw DataÏóêÏÑú ÏùΩÏùÄ keyÎ•º Ïö∞ÏÑ† ÏÇ¨Ïö©, ÏóÜÏúºÎ©¥ Í∏∞Î≥∏Í∞í  
+                        SavedChannelKey key = channelKeyMap.ContainsKey(channelIndex)
+                            ? channelKeyMap[channelIndex]
+                            : new SavedChannelKey
+                            {
+                                index = channelIndex,
+                                position = Vector2.zero,
+                                groupName = string.Empty,
+                                groupInindex = 0,
+                                sortDirection = 0
+                            };
+
+                        var colors = new List<Color32>();
+                        for (int rowIdx = Definitions.LastHeader; ; rowIdx++)
+                        {
+                            IRow row = originSheet.GetRow(rowIdx);
+                            if (row == null) break;
+                            ICell cell = row.GetCell(col);
+                            if (cell == null || cell.CellType == CellType.Blank) break;
+
+                            string rgbString = cell.ToString().Replace("\r", "").Replace("\n", "");
+                            var rgbParts = rgbString.Split(',');
+                            if (rgbParts.Length != 3) break;
+
+                            if (byte.TryParse(rgbParts[0].Trim(), out byte r) &&
+                                byte.TryParse(rgbParts[1].Trim(), out byte g) &&
+                                byte.TryParse(rgbParts[2].Trim(), out byte b))
+                            {
+                                colors.Add(new Color32(r, g, b, 255));
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+
+                        var value = new SavedChannelValue
+                        {
+                            colors = colors
+                        };
+                        saveData.recordData[key] = value;
                     }
                 }
+            }
 
-                var key = new SavedChannelKey
+            // 3. Color Data ÏãúÌä∏ÏóêÏÑú colorSheetData Ï±ÑÏö∞Í∏∞  
+            ISheet colorSheet = workbook.GetSheet("Color Data");
+            if (colorSheet != null)
+            {
+                for (int rowIdx = 1; ; rowIdx++)
                 {
-                    index = channelIndex,
-                    position = Vector2.zero,
-                    groupName = string.Empty,
-                    groupInindex = 0
-                };
-                var value = new SavedChannelValue
-                {
-                    colors = colors
-                };
-                result.Add(key, value);
+                    IRow row = colorSheet.GetRow(rowIdx);
+                    if (row == null) break;
+
+                    ICell indexCell = row.GetCell(0);
+                    ICell rCell = row.GetCell(1);
+                    ICell gCell = row.GetCell(2);
+                    ICell bCell = row.GetCell(3);
+
+                    if (indexCell == null || rCell == null || gCell == null || bCell == null)
+                        break;
+
+                    if (!int.TryParse(indexCell.ToString(), out int colorIndex))
+                        continue;
+
+                    if (byte.TryParse(rCell.ToString(), out byte r) &&
+                        byte.TryParse(gCell.ToString(), out byte g) &&
+                        byte.TryParse(bCell.ToString(), out byte b))
+                    {
+                        saveData.colorSheetData[colorIndex] = new Color32(r, g, b, 255);
+                    }
+                }
             }
         }
 
-        return result;
+        return saveData;
     }
 
     public List<SavedChannelKey> LoadChannelInfos(string path)
@@ -113,18 +182,18 @@ public class ImportFromExcel : IImportFrom
             ISheet sheet = workbook.GetSheet("Raw Data");
             if (sheet == null)
             {
-                DLogger.LogError("Raw Data Ω√∆Æ∏¶ √£¿ª ºˆ æ¯Ω¿¥œ¥Ÿ.");  
+                DLogger.LogError("Raw Data ÔøΩÔøΩ∆ÆÔøΩÔøΩ √£ÔøΩÔøΩ ÔøΩÔøΩ ÔøΩÔøΩÔøΩÔøΩÔøΩœ¥ÔøΩ.");
                 return result;
             }
 
-            // 0π¯ «‡¿∫ «Ï¥ı¿Ãπ«∑Œ 1π¯ «‡∫Œ≈Õ Ω√¿€
+            // 0ÔøΩÔøΩ ÔøΩÔøΩÔøΩÔøΩ ÔøΩÔøΩÔøΩÔøΩÃπ«∑ÔøΩ 1ÔøΩÔøΩ ÔøΩÔøΩÔøΩÔøΩÔøΩ ÔøΩÔøΩÔøΩÔøΩ
             int rowIndex = 1;
             while (true)
             {
                 IRow row = sheet.GetRow(rowIndex++);
                 if (row == null) break;
 
-                // « ºˆ∞™¿Ã æ¯¿∏∏È ¡æ∑·
+                // ÔøΩ ºÔøΩÔøΩÔøΩÔøΩÔøΩ ÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ ÔøΩÔøΩÔøΩÔøΩ
                 ICell indexCell = row.GetCell(0);
                 ICell posXCell = row.GetCell(1);
                 ICell posYCell = row.GetCell(2);

@@ -1,6 +1,19 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum OrderType
+{
+    Channel_Index,
+    Group_Index     
+}
+
+public struct SaveData
+{
+    public OrderType orderType;
+    public Dictionary<SavedChannelKey, SavedChannelValue> recordData;
+    public Dictionary<int, Color32> colorSheetData;
+}
+
 public struct SavedChannelKey
 {
     public int index;
@@ -14,6 +27,8 @@ public struct SavedChannelValue
 {
     public List<Color32> colors;
 }
+
+
 
 public struct SavedColorData
 {

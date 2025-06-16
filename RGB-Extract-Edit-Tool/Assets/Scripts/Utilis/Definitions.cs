@@ -18,4 +18,12 @@ public static class Definitions
 
     public static int GetPerceivedBrightness(Color32 color) => Mathf.RoundToInt(0.299f * color.r + 0.587f * color.g + 0.114f * color.b);
     public static float GetPerceivedBrightness(Color color) => (0.299f * color.r + 0.587f * color.g + 0.114f * color.b);
+
+
+    //Sheet
+
+    public const int GroupHeaderRow = 0;
+    public const int FirstHeaderRow = 1;
+    public const int SecondHeaderRow = 2;
+    public const int LastHeader = 3;
 }

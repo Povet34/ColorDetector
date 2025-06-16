@@ -3,6 +3,6 @@ using UnityEngine;
 
 public interface IImportFrom
 {
-    Dictionary<SavedChannelKey, SavedChannelValue> Import(string path);
+    SaveData Import(string path);
     List<SavedChannelKey> LoadChannelInfos(string path);
 }

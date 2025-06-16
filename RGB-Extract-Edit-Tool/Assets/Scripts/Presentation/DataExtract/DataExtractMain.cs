@@ -12,7 +12,7 @@ namespace DataExtract
         {
             public ChannelReceiver channelReceiver;
             public ChannelUpdater channelUpdater;
-            public ChannelSyncer channelSyncer;
+            public PanelSyncer panelSyncer;
             public VideoDataReceiver videoDataReceiver;
         }
 
@@ -25,7 +25,7 @@ namespace DataExtract
             public ChannelReceiver channelReceiver;
         }
 
-        public class DataControllInjection
+        public class DataMigrationInjection
         {
             public DataExporter dataExporter;
             public DataImporter dataImporter;
@@ -41,19 +41,19 @@ namespace DataExtract
             IExtractDataStore extractDataStore = new ExtractDataStoreImp();
             ILoadDataStore loadDataStore = new LoadDataStoreImpl();
 
-            LocalFileLoader_Excel localFileLoader_Excel = new LocalFileLoader_Excel();
-            LocalFileLoader_Video localFileLoader_Video = new LocalFileLoader_Video();
+            LocalFileLoader_Excel localFileLoader_Excel = new();
+            LocalFileLoader_Video localFileLoader_Video = new();
 
             ChannelReceiver channelReceiver = new(extractDataStore);
             ChannelUpdater channelUpdater = new(extractDataStore);
-            ChannelSyncer channelSyncer = new(new List<IPanelSync>() { videoViewPanel, hierarchyPanel });
+            PanelSyncer channelSyncer = new(new List<IPanelSync>() { videoViewPanel, hierarchyPanel });
             VideoDataUpdater videoDataUpdater = new(loadDataStore, localFileLoader_Video, localFileLoader_Excel);
             VideoDataReceiver videoDataReceiver = new(loadDataStore);
 
             PanelInjection panelInjection = new();
             panelInjection.channelReceiver = channelReceiver;
             panelInjection.channelUpdater = channelUpdater;
-            panelInjection.channelSyncer = channelSyncer;
+            panelInjection.panelSyncer = channelSyncer;
             panelInjection.videoDataReceiver = videoDataReceiver;
 
             LoadInjection loadInjection = new();
@@ -62,14 +62,14 @@ namespace DataExtract
             loadInjection.channelUpdater = channelUpdater;
             loadInjection.channelReceiver = channelReceiver;
 
-            DataControllInjection exportInjection = new();
-            exportInjection.dataExporter = new(new ExportToExcel());
-            exportInjection.dataImporter = new(new ImportFromExcel(), localFileLoader_Excel);
+            DataMigrationInjection migrationInjection = new();
+            migrationInjection.dataExporter = new(new ExportToExcel());
+            migrationInjection.dataImporter = new(new ImportFromExcel(), localFileLoader_Excel);
 
             videoViewPanel.Init(panelInjection);
             hierarchyPanel.Init(panelInjection);
 
-            dataExtractTool.Init(panelInjection, loadInjection, exportInjection);
+            dataExtractTool.Init(panelInjection, loadInjection, migrationInjection);
         }
     }
 }

@@ -18,7 +18,7 @@ namespace DataExtract
 
         ChannelUpdater channelUpdater;
         ChannelReceiver channelReceiver;
-        ChannelSyncer channelSyncer;
+        PanelSyncer panelSyncer;
 
         VideoDataReceiver videoDataReceiver;
 
@@ -74,7 +74,7 @@ namespace DataExtract
         {
             channelUpdater = injection.channelUpdater;
             channelReceiver = injection.channelReceiver;
-            channelSyncer = injection.channelSyncer;
+            panelSyncer = injection.panelSyncer;
             videoDataReceiver = injection.videoDataReceiver;
 
             videoDataReceiver.RegistUpdateVideoTexture(ChnageVideoViewImage);
@@ -487,7 +487,7 @@ namespace DataExtract
 
         public void Apply(EditParam param)
         {
-            channelSyncer.SyncAllPanel(this, param);
+            panelSyncer.SyncAllPanel(this, param);
         }
 
         public void Sync(EditParam param)

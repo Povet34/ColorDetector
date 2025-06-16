@@ -11,9 +11,10 @@ public class DataImporter
         this.importFrom = importFrom;
         this.localFileLoader_Excel = localFileLoader_Excel;
     }
-    public Dictionary<SavedChannelKey, SavedChannelValue> Import(string filePath)
+
+    public SaveData Import()
     {
-        return importFrom.Import(filePath);
+        return importFrom.Import(localFileLoader_Excel.OpenFilePath());
     }
 
     public List<SavedChannelKey> LoadChannelInfos()
