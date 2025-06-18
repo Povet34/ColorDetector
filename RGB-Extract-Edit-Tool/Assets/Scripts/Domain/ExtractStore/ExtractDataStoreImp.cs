@@ -102,7 +102,7 @@ namespace DataExtract
             IGroup group = _groups.Find(x => x.groupIndex == param.groupIndex);
             if (group == null)
             {
-                Debug.LogError($"Group with index {param.groupIndex} not found.");
+                DLogger.LogError($"Group with index {param.groupIndex} not found.");
                 return;
             }
 
@@ -185,7 +185,7 @@ namespace DataExtract
                 IChannel channel = _channels.Find(ch => ch.channelIndex == index);
                 if (channel == null)
                 {
-                    Debug.LogError($"Channel with index {index} not found.");
+                    DLogger.LogError($"Channel with index {index} not found.");
                     continue;
                 }
 
@@ -297,7 +297,7 @@ namespace DataExtract
                 IChannel channel = _channels.FirstOrDefault(ch => ch.channelIndex == channelIndex);
                 if (channel == null)
                 {
-                    Debug.LogError($"Channel with index {channelIndex} not found.");
+                    DLogger.LogError($"Channel with index {channelIndex} not found.");
                     continue;
                 }
 
@@ -325,7 +325,7 @@ namespace DataExtract
         {
             if (texture == null)
             {
-                Debug.LogError("Texture2D is null. Cannot extract.");
+                DLogger.LogError("Texture2D is null. Cannot extract.");
                 return;
             }
 
@@ -364,7 +364,7 @@ namespace DataExtract
             IGroup group = _groups.Find(x => x.groupIndex == param.groupIndex);
             if (group == null)
             {
-                Debug.LogError($"Group with index {param.groupIndex} not found.");
+                DLogger.LogError($"Group with index {param.groupIndex} not found.");
                 return;
             }
             group.Rename(param);

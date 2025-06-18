@@ -3,5 +3,6 @@ using UnityEngine;
 
 public interface IToExport
 {
-    void Export(SaveData data, string filePath);
+    void ExportNew(OriginData data, string filePath);
+    void ExportAdd(AdditionalData data, string filePath);
 }

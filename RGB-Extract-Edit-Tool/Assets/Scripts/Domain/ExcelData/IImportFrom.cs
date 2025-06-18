@@ -3,6 +3,6 @@ using UnityEngine;
 
 public interface IImportFrom
 {
-    SaveData Import(string path);
+    ImportResult Import(string path);
     List<SavedChannelKey> LoadChannelInfos(string path);
 }

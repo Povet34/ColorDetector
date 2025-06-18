@@ -9,8 +9,13 @@ public class DataExporter
         this.toExport = toExport;
     }
 
-    public void Export(SaveData data, string filePath)
+    public void ExportNew(OriginData data, string filePath)
     {
-        toExport.Export(data, filePath);
+        toExport.ExportNew(data, filePath);
+    }
+
+    public void ExportAdd(AdditionalData data, string filePath)
+    {
+        toExport.ExportAdd(data, filePath);
     }
 }

@@ -10,52 +10,33 @@ namespace DataEdit
             public EditDataReceiver editDataReceiver;
         }
 
-        [SerializeField] DataEditTool dataEditTool;
+        public class DataMigrationInjection
+        {
+            public DataExporter dataExporter;
+            public DataImporter dataImporter;
+        }
 
+        [SerializeField] DataEditTool dataEditTool;
         [SerializeField] HierarchyPanel hierarchyPanel;
         [SerializeField] ColorFlowViewPanel colorFlowViewPanel;
-
-        DataExporter dataExporter;
-        DataImporter dataImporter;
-
-        EditDataUpdater editDataUpdater;
-        EditDataReceiver editDataReceiver;
+        [SerializeField] ChannelEditPanel channelEditPanel;
 
         private void Start()
         {
             IEditDataStore editDataStore = new EditDataStoreImp();
 
-            LocalFileLoader_Excel localFileLoader_Excel = new();
-            dataExporter = new(new ExportToExcel());
-            dataImporter = new(new ImportFromExcel(), localFileLoader_Excel);
-            
-            editDataUpdater = new EditDataUpdater(editDataStore);
-            editDataReceiver = new EditDataReceiver(editDataStore);
-
             EditDataInjection editDataInjection = new();
-            editDataInjection.editDataReceiver = editDataReceiver;
-            editDataInjection.editDataUpdater = editDataUpdater;
+            editDataInjection.editDataReceiver = new EditDataReceiver(editDataStore);
+            editDataInjection.editDataUpdater = new EditDataUpdater(editDataStore);
 
-
-            dataEditTool.Init();
+            DataMigrationInjection dataMigrationInjection = new();
+            dataMigrationInjection.dataImporter = new(new ImportFromExcel(), new LocalFileLoader_Excel());
+            dataMigrationInjection.dataExporter = new(new ExportToExcel());
 
             hierarchyPanel.Init(editDataInjection);
             colorFlowViewPanel.Init(editDataInjection);
-        }
-
-        private void Awake()
-        {
-            Bus<LoadFromExcelEventArgs>.OnEvent += ImportSavedData;
-        }
-
-        private void OnDestroy()
-        {
-            Bus<LoadFromExcelEventArgs>.OnEvent -= ImportSavedData;
-        }
-
-        private void ImportSavedData(LoadFromExcelEventArgs args)
-        {
-            editDataUpdater.Import(dataImporter.Import());
+            channelEditPanel.Init(editDataInjection);
+            dataEditTool.Init(editDataInjection, dataMigrationInjection);
         }
     }
 }

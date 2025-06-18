@@ -2,10 +2,12 @@ using UnityEngine;
 
 public static class TestColorSheet
 {
-    public const int FIRST_COLOR_INDEX = 19;
+    //public const int FIRST_COLOR_INDEX = 19;
 
     public static Color[] Colors = new Color[]
     {
+        Color.black,
+        Color.white,
         new Color32(245, 11, 36, 255),
         new Color32(218, 22, 32, 255),
         new Color32(194, 32, 30, 255),

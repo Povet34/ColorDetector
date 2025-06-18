@@ -548,7 +548,7 @@ namespace DataExtract
                     {
                         if (ch == null)
                         {
-                            Debug.LogError($"Null channel found in group {updatedGroup.groupIndex} during RefreshPanel.");
+                            DLogger.LogError($"Null channel found in group {updatedGroup.groupIndex} during RefreshPanel.");
                             return null;
                         }
                         return channels.FirstOrDefault(c => c.channelIndex == ch.channelIndex);
@@ -615,7 +615,7 @@ namespace DataExtract
            var group = groups[param.groupIndex];
             if (group == null)
             {
-                Debug.LogError($"Group with index {param.groupIndex} not found.");
+                DLogger.LogError($"Group with index {param.groupIndex} not found.");
                 return;
             }
 
@@ -663,7 +663,7 @@ namespace DataExtract
             var group = groups.FirstOrDefault(gr => gr.groupIndex == param.groupIndex);
             if (group == null)
             {
-                Debug.LogError($"Group with index {param.groupIndex} not found.");
+                DLogger.LogError($"Group with index {param.groupIndex} not found.");
                 return;
             }
 

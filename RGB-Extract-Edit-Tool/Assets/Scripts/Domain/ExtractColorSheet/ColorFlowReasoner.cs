@@ -21,7 +21,7 @@ public class ColorFlowReasoner
     public List<Inference> Infer(Dictionary<int, List<Color32>> data)
     {
         List<Inference> inferences = new();
-        const int brightnessThreshold = 50;
+        const int brightnessThreshold = 120;
 
         foreach (var channel in data)
         {
@@ -146,7 +146,7 @@ public class ColorFlowReasoner
         return steps;
     }
 
-    public static int FindColorIndex(Color32 color)
+    private static int FindColorIndex(Color32 color)
     {
         int closestIndex = -1;
         int minDistance = int.MaxValue;
@@ -167,6 +167,6 @@ public class ColorFlowReasoner
             }
         }
 
-        return closestIndex + TestColorSheet.FIRST_COLOR_INDEX;
+        return closestIndex;
     }
 }

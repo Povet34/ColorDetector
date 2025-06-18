@@ -1,4 +1,5 @@
 using DataExtract;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -151,7 +152,7 @@ public class DataExtractTool : MonoBehaviour
         var extractedData = channelReceiver.GetExtractData();
         if (extractedData != null)
         {
-            var exportData = new SaveData();
+            var originData = new OriginData();
             var recordDic = new Dictionary<SavedChannelKey, SavedChannelValue>();
 
             foreach (var kvp in extractedData)
@@ -200,11 +201,11 @@ public class DataExtractTool : MonoBehaviour
                 }
             }
 
-            exportData.orderType = OrderType.Channel_Index;
-            exportData.recordData = recordDic;
-            exportData.colorSheetData = colorSheetData;
+            originData.orderType = OrderType.Channel_Index;
+            originData.recordData = recordDic;
+            originData.colorSheetData = colorSheetData;
 
-            dataExporter.Export(exportData, videoDataReceiver.GetVideoUrl());
+            dataExporter.ExportNew(originData, Definitions.SavePath(System.IO.Path.GetFileNameWithoutExtension(videoDataReceiver.GetVideoUrl())));
         }
     }
 
@@ -215,18 +216,18 @@ public class DataExtractTool : MonoBehaviour
 
     private IEnumerator ExtractBody()
     {
-        SetInteractable(false);
+        //SetInteractable(false);
 
         int totalFrames = videoDataReceiver.GetTotalFrame();
         RenderTexture videoTexture = videoDataReceiver.GetVideoTexture();
 
         if (totalFrames <= 0 || videoTexture == null)
         {
-            Debug.LogError("Invalid video data. Cannot extract frames.");
+            DLogger.LogError("Invalid video data. Cannot extract frames.");
             yield break;
         }
 
-        Debug.Log($"Starting extraction for {totalFrames} frames.");
+        DLogger.Log($"Starting extraction for {totalFrames} frames.");
 
         channelUpdater.StoreStart();
 
@@ -256,19 +257,19 @@ public class DataExtractTool : MonoBehaviour
 
             if (texture2D == null)
             {
-                Debug.LogError($"Failed to extract frame {currentFrame}.");
+                DLogger.LogError($"Failed to extract frame {currentFrame}.");
                 continue;
             }
 
             channelUpdater.StoreExtractData(texture2D);
 
-            Debug.Log($"Frame {currentFrame + 1}/{totalFrames} extracted.");
+            DLogger.Log($"Frame {currentFrame + 1}/{totalFrames} extracted.");
         }
 
         extractTextureChanger.ReleaseCache();
-        Debug.Log("Video extraction completed.");
+        DLogger.Log("Video extraction completed.");
 
-        SetInteractable(true);
+        //SetInteractable(true);
     }
 
     private void OnPlayVideoButtonClicked()
@@ -278,14 +279,14 @@ public class DataExtractTool : MonoBehaviour
 
     private void OnLoadExcelButtonClicked()
     {
-        SetInteractable(false);
+        //SetInteractable(false);
         videoDataUpdater.UpdateLoadedVideoData_ByExcel();
         PrepareAndViewVideo();
     }
 
     private void OnLoadVideoButtonClicked()
     {
-        SetInteractable(false);
+        //SetInteractable(false);
         videoDataUpdater.UpdateLoadedVideoData_ByVideo();
         PrepareAndViewVideo();
     }
@@ -307,7 +308,7 @@ public class DataExtractTool : MonoBehaviour
         videoPlayer.prepareCompleted += (source) =>
         {
             channelUpdater.SetCurrentVideoResoultion(videoDataReceiver.GetVideoResolution());
-            SetInteractable(true);
+            //SetInteractable(true);
             
             videoPlayer.frame = 1;
             videoPlayer.Pause();

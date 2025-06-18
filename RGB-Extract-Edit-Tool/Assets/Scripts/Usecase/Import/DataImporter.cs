@@ -12,7 +12,7 @@ public class DataImporter
         this.localFileLoader_Excel = localFileLoader_Excel;
     }
 
-    public SaveData Import()
+    public ImportResult Import()
     {
         return importFrom.Import(localFileLoader_Excel.OpenFilePath());
     }

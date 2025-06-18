@@ -38,7 +38,7 @@ namespace DataEdit
 
         private void OnShowToggleChanged(bool isOn)
         {
-            Bus<ChannelShowToggleEventArgs>.Raise(new ChannelShowToggleEventArgs(channelIndex, isOn));
+            Bus<ChannelShowToggleArgs>.Raise(new ChannelShowToggleArgs(channelIndex, isOn));
         }
     }
 }

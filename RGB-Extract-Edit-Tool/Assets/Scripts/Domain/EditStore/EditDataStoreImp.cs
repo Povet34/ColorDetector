@@ -1,27 +1,45 @@
-using DataEdit;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using UnityEngine;
 
 public class EditDataStoreImp : IEditDataStore
 {
+    public string path { get; set; }
+    public OrderType orderType { get; set; }
     public Dictionary<int, Color32> colorSheetData { get; set; }
     public Dictionary<SavedChannelKey, SavedChannelValue> channelData { get; set; }
-
-    public void Edit()
-    {
-    }
+    public Dictionary<int, List<ColorFlowReasoner.Step>> inferredColorData { get; set; }
 
     public List<SavedChannelKey> GetChannelData()
     {
         return channelData.Keys.ToList();
     }
 
-    public void Improt(SaveData data)
+    public void Improt(ImportResult importResult)
     {
-        channelData = new Dictionary<SavedChannelKey, SavedChannelValue>(data.recordData);
-        colorSheetData = new Dictionary<int, Color32>(data.colorSheetData);
+        path = importResult.path;
 
-        Bus<RefreshPanelArgs>.Raise(new RefreshPanelArgs());
+        if (importResult.additionalData.modifiedRecordData != null && importResult.additionalData.modifiedRecordData.Count > 0)
+            channelData = importResult.additionalData.modifiedRecordData;
+        else
+            channelData = importResult.originData.recordData;
+
+        colorSheetData = importResult.originData.colorSheetData;
+        inferredColorData = importResult.inferredColorFlowData.inferredColorFlow;
+    }
+
+    public void UpdateRawDataAll(Dictionary<SavedChannelKey, SavedChannelValue> channelData)
+    {
+        this.channelData = channelData;
+    }
+
+    public void UpdateRawData_OneChannel(int channelIndex, List<Color32> colors)
+    {
+        var key = channelData.Keys.FirstOrDefault(k => k.index == channelIndex);
+        if (!key.Equals(default(SavedChannelKey)))
+        {
+            channelData[key] = new SavedChannelValue { colors = colors };
+        }
     }
 }

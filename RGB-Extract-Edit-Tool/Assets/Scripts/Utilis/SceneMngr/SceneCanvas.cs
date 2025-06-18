@@ -6,19 +6,26 @@ public class SceneCanvas : MonoBehaviour
 {
     [SerializeField] Button goDataEditButton;
     [SerializeField] Button goExtractButton;
+    [SerializeField] Button goScenarioButton;
+    [SerializeField] Button exitButton;
 
     private void Awake()
     {
-        DontDestroyOnLoad(gameObject);
-
         goDataEditButton.onClick.AddListener(() =>
         {
-            SceneManager.LoadScene("DataEditScene");
+            SceneManager.LoadSceneAsync("DataEditScene");
         });
 
         goExtractButton.onClick.AddListener(() =>
         {
-            SceneManager.LoadScene("ExtractScene");
+            SceneManager.LoadSceneAsync("ExtractScene");
         });
+
+        goScenarioButton.onClick.AddListener(() =>
+        {
+            SceneManager.LoadSceneAsync("ScenarioVerificationScene");
+        });
+
+        exitButton.onClick.AddListener(() => { Application.Quit(); });
     }
 }

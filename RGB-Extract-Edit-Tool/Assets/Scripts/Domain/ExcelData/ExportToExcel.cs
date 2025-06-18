@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class ExportToExcel : IToExport
 {
-    public void Export(SaveData data, string filePath)
+    public void ExportNew(OriginData data, string filePath)
     {
         string filePathWithXlsxExtension = Path.Combine(
             Path.GetDirectoryName(filePath),
@@ -15,15 +15,16 @@ public class ExportToExcel : IToExport
 
         IWorkbook workbook = new XSSFWorkbook();
 
-        //CreatePositionSheet(workbook, data);
-        CreateOriginSheet(workbook, data.recordData);
-        CreateOnOutRed(workbook, data.recordData);
-        CreateOnOutGreen(workbook, data.recordData);
-        CreateOnOutBlue(workbook, data.recordData);
-        CreateInferedColor(workbook, data.recordData);
-        CreateColorIndexSheet(workbook, data.colorSheetData);
+        CreateRGBColor(workbook, data.recordData, Definitions.OriginColor);
 
-        CreateRawDataSheet(workbook, data.recordData);
+        CreateOnOutRed(workbook, data.recordData, Definitions.O_OnOutRed);
+        CreateOnOutGreen(workbook, data.recordData, Definitions.O_OnOutGreen);
+        CreateOnOutBlue(workbook, data.recordData, Definitions.O_OnOutBlue);
+
+        CreateInferredColor(workbook, data.recordData, Definitions.InferredColor);
+        CreateColorPalette(workbook, data.colorSheetData, Definitions.ColorPalette);
+
+        CreateChannelData(workbook, data.recordData, Definitions.Channel_Data);
 
         using (FileStream fileStream = new FileStream(filePathWithXlsxExtension, FileMode.Create, FileAccess.Write))
         {
@@ -33,37 +34,41 @@ public class ExportToExcel : IToExport
         DLogger.Log($"Excel 파일이 성공적으로 생성되었습니다: {filePathWithXlsxExtension}");
     }
 
-    /// <summary>
-    /// Position 시트 생성 (Raw Data 시트와 중복되는 정보이므로 필요하지 않을 수 있음)
-    /// </summary>
-    /// <param name="workbook"></param>
-    /// <param name="data"></param>
-    private void CreatePositionSheet(IWorkbook workbook, Dictionary<SavedChannelKey, SavedChannelValue> data)
+    public void ExportAdd(AdditionalData data, string filePath)
     {
-        ISheet sheet = workbook.CreateSheet("Position");
-        IRow headerRow = sheet.CreateRow(Definitions.FirstHeaderRow);
-        headerRow.CreateCell(0).SetCellValue("Channel Index");
-        headerRow.CreateCell(1).SetCellValue("Position X");
-        headerRow.CreateCell(2).SetCellValue("Position Y");
+        string filePathWithXlsxExtension = Path.Combine(
+            Path.GetDirectoryName(filePath),
+            Path.GetFileNameWithoutExtension(filePath) + ".xlsx"
+        );
 
-        int rowIndex = Definitions.LastHeader;
-        foreach (var rowEntry in data)
+        IWorkbook workbook;
+        using (FileStream read = new FileStream(filePathWithXlsxExtension, FileMode.Open, FileAccess.Read))
         {
-            IRow row = sheet.CreateRow(rowIndex++);
-            row.CreateCell(0).SetCellValue(rowEntry.Key.index);
-            row.CreateCell(1).SetCellValue(rowEntry.Key.position.x);
-            row.CreateCell(2).SetCellValue(rowEntry.Key.position.y);
+            workbook = new XSSFWorkbook(read);
+
+            CreateRGBColor(workbook, data.modifiedRecordData, Definitions.ModifiedColor);
+
+            CreateOnOutRed(workbook, data.modifiedRecordData, Definitions.M_OnOutRed);
+            CreateOnOutGreen(workbook, data.modifiedRecordData, Definitions.M_OnOutGreen);
+            CreateOnOutBlue(workbook, data.modifiedRecordData, Definitions.M_OnOutBlue);
+
+            using (FileStream write = new FileStream(filePathWithXlsxExtension, FileMode.Create, FileAccess.Write))
+            {
+                workbook.Write(write);
+            }
         }
     }
+
+    #region Create 
 
     /// <summary>
     /// Origin 시트 생성
     /// </summary>
     /// <param name="workbook"></param>
     /// <param name="data"></param>
-    private void CreateOriginSheet(IWorkbook workbook, Dictionary<SavedChannelKey, SavedChannelValue> data)
+    private void CreateRGBColor(IWorkbook workbook, Dictionary<SavedChannelKey, SavedChannelValue> data, string sheetName)
     {
-        ISheet sheet = workbook.CreateSheet("Origin");
+        ISheet sheet = workbook.GetSheet(sheetName) ?? workbook.CreateSheet(sheetName);
         SetGroupNameHeader(sheet, data);
 
         foreach (var rowEntry in data)
@@ -90,9 +95,9 @@ public class ExportToExcel : IToExport
     /// </summary>
     /// <param name="workbook"></param>
     /// <param name="data"></param>
-    private void CreateOnOutRed(IWorkbook workbook, Dictionary<SavedChannelKey, SavedChannelValue> data)
+    private void CreateOnOutRed(IWorkbook workbook, Dictionary<SavedChannelKey, SavedChannelValue> data, string sheetName)
     {
-        ISheet sheet = workbook.CreateSheet("OnOutRed");
+        ISheet sheet = workbook.GetSheet(sheetName) ?? workbook.CreateSheet(sheetName);
         SetGroupNameHeader(sheet, data);
 
         foreach (var rowEntry in data)
@@ -119,9 +124,9 @@ public class ExportToExcel : IToExport
     /// </summary>
     /// <param name="workbook"></param>
     /// <param name="data"></param>
-    private void CreateOnOutGreen(IWorkbook workbook, Dictionary<SavedChannelKey, SavedChannelValue> data)
+    private void CreateOnOutGreen(IWorkbook workbook, Dictionary<SavedChannelKey, SavedChannelValue> data, string sheetName)
     {
-        ISheet sheet = workbook.CreateSheet("OnOutGreen");
+        ISheet sheet = workbook.GetSheet(sheetName) ?? workbook.CreateSheet(sheetName);
         SetGroupNameHeader(sheet, data);
 
         foreach (var rowEntry in data)
@@ -148,9 +153,9 @@ public class ExportToExcel : IToExport
     /// </summary>
     /// <param name="workbook"></param>
     /// <param name="data"></param>
-    private void CreateOnOutBlue(IWorkbook workbook, Dictionary<SavedChannelKey, SavedChannelValue> data)
+    private void CreateOnOutBlue(IWorkbook workbook, Dictionary<SavedChannelKey, SavedChannelValue> data, string sheetName)
     {
-        ISheet sheet = workbook.CreateSheet("OnOutBlue");
+        ISheet sheet = workbook.GetSheet(sheetName) ?? workbook.CreateSheet(sheetName);
         SetGroupNameHeader(sheet, data);
 
         foreach (var rowEntry in data)
@@ -177,14 +182,13 @@ public class ExportToExcel : IToExport
     /// </summary>
     /// <param name="workbook"></param>
     /// <param name="data"></param>
-    private void CreateInferedColor(IWorkbook workbook, Dictionary<SavedChannelKey, SavedChannelValue> data)
+    private void CreateInferredColor(IWorkbook workbook, Dictionary<SavedChannelKey, SavedChannelValue> data, string sheetName)
     {
-        ISheet sheet = workbook.CreateSheet("Infered Color");
+        ISheet sheet = workbook.CreateSheet(sheetName);
         SetGroupNameHeader(sheet, data);
 
         ColorFlowReasoner colorFlowReasoner = new ColorFlowReasoner();
 
-        // Dictionary<SavedChannelKey, SavedChannelValue> -> Dictionary<int, List<Color32>> 변환
         var simpleData = new Dictionary<int, List<Color32>>();
         foreach (var rowEntry in data)
         {
@@ -222,9 +226,9 @@ public class ExportToExcel : IToExport
     /// </summary>
     /// <param name="curSheet"></param>
     /// <param name="data"></param>
-    private void CreateRawDataSheet(IWorkbook workbook, Dictionary<SavedChannelKey, SavedChannelValue> data)
+    private void CreateChannelData(IWorkbook workbook, Dictionary<SavedChannelKey, SavedChannelValue> data, string sheetName)
     {
-        ISheet sheet = workbook.CreateSheet("Raw Data");
+        ISheet sheet = workbook.CreateSheet(sheetName);
 
         // 헤더 작성
         IRow headerRow = sheet.CreateRow(0);
@@ -250,9 +254,9 @@ public class ExportToExcel : IToExport
     }
 
 
-    private void CreateColorIndexSheet(IWorkbook workbook, Dictionary<int, Color32> colorData)
+    private void CreateColorPalette(IWorkbook workbook, Dictionary<int, Color32> colorData, string sheetName)
     {
-        ISheet sheet = workbook.CreateSheet("Color Data");
+        ISheet sheet = workbook.CreateSheet(sheetName);
 
         // 헤더 작성
         IRow headerRow = sheet.CreateRow(0);
@@ -275,13 +279,48 @@ public class ExportToExcel : IToExport
         }
     }
 
+    #endregion
+
+    #region Additional
+
+    private void CreateModifiedColor(IWorkbook workbook, Dictionary<SavedChannelKey, SavedChannelValue> data)
+    {
+        const string sheetName = Definitions.ModifiedColor;
+        int existingSheetIdx = workbook.GetSheetIndex(sheetName);
+        if (existingSheetIdx >= 0)
+            workbook.RemoveSheetAt(existingSheetIdx);
+
+        ISheet sheet = workbook.CreateSheet(sheetName);
+        SetGroupNameHeader(sheet, data);
+
+        foreach (var rowEntry in data)
+        {
+            int columnIndex = rowEntry.Key.index;
+
+            IRow headerRow = sheet.GetRow(Definitions.FirstHeaderRow) ?? sheet.CreateRow(Definitions.FirstHeaderRow);
+            ICell headerCell = headerRow.CreateCell(columnIndex);
+            headerCell.SetCellValue($"Ch{rowEntry.Key.index}");
+
+            var colors = rowEntry.Value.colors;
+            for (int rowIndex = 0; rowIndex < colors.Count; rowIndex++)
+            {
+                IRow row = sheet.GetRow(rowIndex + Definitions.LastHeader) ?? sheet.CreateRow(rowIndex + Definitions.LastHeader);
+                ICell cell = row.CreateCell(columnIndex);
+                Color32 color = colors[rowIndex];
+                cell.SetCellValue($"{color.r}, {color.g}, {color.b}");
+            }
+        }
+    }
+
+    #endregion
+
     /// <summary>
     /// 그룹 이름 헤더 생성
     /// </summary>
     private void SetGroupNameHeader(ISheet curSheet, Dictionary<SavedChannelKey, SavedChannelValue> data)
     {
         // 0번째 행에 모든 그룹이 있는 채널의 컬럼에 그룹 이름을 표기
-        IRow groupHeaderRow = curSheet.GetRow(Definitions.GroupHeaderRow) ?? curSheet.CreateRow(Definitions.GroupHeaderRow);
+        IRow groupHeaderRow = curSheet.GetRow(Definitions.ZeroHeaderRow) ?? curSheet.CreateRow(Definitions.ZeroHeaderRow);
 
         foreach (var rowEntry in data)
         {

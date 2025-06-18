@@ -30,7 +30,7 @@ public class LoadDataStoreImpl : ILoadDataStore
             videoFrameRate = videoPlayer.frameRate;
             totalFrame = videoPlayer.frameCount;
 
-            Debug.Log($"Video Loaded: {videoName}, Length: {videoLength}s, Resolution: {videoResolution}, FrameRate: {videoFrameRate}fps");
+            DLogger.Log($"Video Loaded: {videoName}, Length: {videoLength}s, Resolution: {videoResolution}, FrameRate: {videoFrameRate}fps");
 
             GameObject.Destroy(videoPlayer.gameObject); // VideoPlayer 객체 제거
 
@@ -45,7 +45,7 @@ public class LoadDataStoreImpl : ILoadDataStore
         {
             videoTexture.Release();
             GameObject.Destroy(videoTexture);
-            Debug.Log("Existing videoTexture released.");
+            DLogger.Log("Existing videoTexture released.");
         }
 
         // videoResolution에 맞는 RenderTexture 생성
@@ -56,14 +56,14 @@ public class LoadDataStoreImpl : ILoadDataStore
 
         if (width <= 0 || height <= 0)
         {
-            Debug.LogError("Invalid video resolution. Cannot create RenderTexture.");
+            DLogger.LogError("Invalid video resolution. Cannot create RenderTexture.");
             return;
         }
 
         videoTexture = new RenderTexture(width, height, 0, RenderTextureFormat.Default);
         videoTexture.Create();
 
-        Debug.Log($"New videoTexture created with resolution: {videoTexture.width}x{videoTexture.height}");
+        DLogger.Log($"New videoTexture created with resolution: {videoTexture.width}x{videoTexture.height}");
 
         onUpdateVideoTexture?.Invoke();
     }

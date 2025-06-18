@@ -8,7 +8,8 @@ public class ExtractTextureChanger
     {
         if (renderTexture == null)
         {
-            Debug.LogError("RenderTexture is null. Cannot extract.");
+            
+            DLogger.LogError("RenderTexture is null. Cannot extract.");
             return null;
         }
 
@@ -21,7 +22,7 @@ public class ExtractTextureChanger
             }
 
             cachedTexture2D = new Texture2D(renderTexture.width, renderTexture.height, TextureFormat.RGBA32, false);
-            Debug.Log($"New Texture2D created with resolution: {renderTexture.width}x{renderTexture.height}");
+            DLogger.Log($"New Texture2D created with resolution: {renderTexture.width}x{renderTexture.height}");
         }
 
         // RenderTexture의 내용을 Texture2D로 복사

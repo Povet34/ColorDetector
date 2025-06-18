@@ -1,27 +1,69 @@
 using UnityEngine;
 using UnityEngine.UI;
+using static DataEdit.DataEditMain;
+using static UnityEngine.Rendering.GPUSort;
 
 namespace DataEdit
 {
     public class DataEditTool : MonoBehaviour
     {
-        [SerializeField] Button loadFromExcelButton;
+        #region Injection
 
-        public void Init()
+        DataExporter dataExporter;
+        DataImporter dataImporter;
+
+        EditDataUpdater editDataUpdater;
+        EditDataReceiver editDataReceiver;
+
+        #endregion
+
+        [SerializeField] Button loadFromExcelButton_Inferred;
+        [SerializeField] Button loadFromExcelButton_Raw;
+        [SerializeField] Button exportToExcelButton_Raw;
+
+        private void Awake()
         {
-            if (loadFromExcelButton != null)
-                loadFromExcelButton.onClick.AddListener(OnLoadFromExcelButtonClicked);
+            loadFromExcelButton_Raw.onClick.AddListener(OnLoadFromExcelButtonClicked_Raw);
+            loadFromExcelButton_Inferred.onClick.AddListener(OnLoadFromExcelButtonClicked_Inferred);
+            exportToExcelButton_Raw.onClick.AddListener(OnExportToExcelButtonClicked_Raw);
+        }
+
+        public void Init(EditDataInjection dataInjection, DataMigrationInjection dataMigrationInjection)
+        {
+            dataExporter = dataMigrationInjection.dataExporter;
+            dataImporter = dataMigrationInjection.dataImporter;
+
+            editDataReceiver = dataInjection.editDataReceiver;
+            editDataUpdater = dataInjection.editDataUpdater;
         }
 
         void OnDestroy()
         {
-            if (loadFromExcelButton != null)
-                loadFromExcelButton.onClick.RemoveListener(OnLoadFromExcelButtonClicked);
+            loadFromExcelButton_Raw.onClick.RemoveListener(OnLoadFromExcelButtonClicked_Raw);
+            loadFromExcelButton_Inferred.onClick.RemoveListener(OnLoadFromExcelButtonClicked_Inferred);
+            exportToExcelButton_Raw.onClick.RemoveListener(OnExportToExcelButtonClicked_Raw);
         }
 
-        private void OnLoadFromExcelButtonClicked()
+        private void OnLoadFromExcelButtonClicked_Inferred()
         {
-            Bus<LoadFromExcelEventArgs>.Raise(new LoadFromExcelEventArgs());
+            editDataUpdater.Import(dataImporter.Import());
+            Bus<RefreshPanelArgs>.Raise(new RefreshPanelArgs(0));
+        }
+
+        private void OnLoadFromExcelButtonClicked_Raw()
+        {
+            editDataUpdater.Import(dataImporter.Import());
+            Bus<RefreshPanelArgs>.Raise(new RefreshPanelArgs(1));
+        }
+        private void OnExportToExcelButtonClicked_Raw()
+        {
+            AdditionalData additionalData = new AdditionalData()
+            {
+                modifiedRecordData = editDataReceiver.GetRecordedData(),
+            };
+
+            var recordedData = editDataReceiver.GetRecordedData();
+            dataExporter.ExportAdd(additionalData, editDataReceiver.GetCurrentEditDataPath());
         }
     }
 }
